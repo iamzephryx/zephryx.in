@@ -1,0 +1,27 @@
+# dependencies
+/node_modules
+
+# next.js / build output
+/.next
+/out
+next-env.d.ts
+*.tsbuildinfo
+
+# cloudflare / wrangler
+.wrangler
+.dev.vars
+.dev.vars.*
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# local editor / claude settings
+.claude/settings.local.json
+
+# logs & os cruft
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
