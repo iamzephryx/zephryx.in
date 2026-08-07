@@ -166,6 +166,13 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'A valid email is required.' }, 422);
   if (message.length < 20) return json({ ok: false, error: 'Message is too short.' }, 422);
 
+  if (!(await domainAcceptsMail(email))) {
+    return json(
+      { ok: false, error: "That email domain doesn't appear to accept mail — check for a typo." },
+      422,
+    );
+  }
+
   // --- Turnstile (optional) ----------------------------------------------
   if (env.TURNSTILE_SECRET) {
     const token = str(body.turnstileToken, 2048);
@@ -243,6 +250,43 @@ async function verifyTurnstile(secret: string, token: string, ip: string | null)
     return data.success === true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Confirms the email's domain can plausibly receive mail at all, catching
+ * typos and made-up domains without claiming to verify the specific mailbox
+ * or that the visitor owns it. Checks MX first, then falls back to A/AAAA
+ * per RFC 5321 (a domain with no MX can still receive mail at its host
+ * record). Fails open on lookup errors/timeouts — a degraded DNS check
+ * should never block a genuine message.
+ */
+async function domainAcceptsMail(email: string): Promise<boolean> {
+  const domain = email.split('@')[1];
+  if (!domain) return false;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+
+  const hasRecords = async (type: 'MX' | 'A' | 'AAAA'): Promise<boolean> => {
+    const res = await fetch(
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`,
+      { headers: { accept: 'application/dns-json' }, signal: controller.signal },
+    );
+    if (!res.ok) return false;
+    const data = (await res.json()) as { Answer?: unknown[] };
+    return Array.isArray(data.Answer) && data.Answer.length > 0;
+  };
+
+  try {
+    if (await hasRecords('MX')) return true;
+    if (await hasRecords('A')) return true;
+    if (await hasRecords('AAAA')) return true;
+    return false;
+  } catch {
+    return true;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
