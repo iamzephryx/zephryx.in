@@ -1,10 +1,33 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import { SITE } from '@/lib/site';
+import { SITE, SOCIALS } from '@/lib/site';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import Backdrop from '@/components/Backdrop';
 import './globals.css';
+
+/**
+ * Person structured data — helps Google associate the domain with the person
+ * and surface the social profiles as sameAs. Built entirely from first-party
+ * constants (SITE / SOCIALS), so the inline script carries no injection risk.
+ */
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  url: SITE.url,
+  jobTitle: SITE.role,
+  description: SITE.description,
+  knowsAbout: [
+    'Red Teaming',
+    'Adversary Emulation',
+    'Threat Hunting',
+    'Active Directory Security',
+    'Detection Engineering',
+    'Penetration Testing',
+  ],
+  sameAs: SOCIALS.map((s) => s.href),
+};
 
 const inter = Inter({
   subsets: ['latin'],
@@ -74,6 +97,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <body className="min-h-screen antialiased">
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+        />
+
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-red-core focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:text-white"
