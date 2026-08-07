@@ -108,30 +108,46 @@ export default function WhoamiPage() {
 
           <Reveal delay={160}>
             <div className="mt-8 grid gap-6 sm:grid-cols-[auto_1fr] sm:items-start">
-              {/* id card */}
-              <div className="panel clip-corner w-full max-w-xs p-5 font-mono text-[12.5px] leading-relaxed sm:w-64">
-                <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
-                  <span className="text-ink-faint">// id_card</span>
-                  <span className="flex h-2 w-2">
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
-                  </span>
+              {/* portrait + id card */}
+              <div className="flex flex-col items-center gap-5 sm:items-start">
+                <div className="panel clip-corner scanlines relative w-56 overflow-hidden sm:w-64">
+                  <img
+                    src="/whoami/operator.png"
+                    alt={`Portrait of ${SITE.name}`}
+                    width={1000}
+                    height={1000}
+                    className="block h-auto w-full"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between border-t border-line bg-void/80 px-3 py-2 font-mono text-[10px] tracking-wider text-ink-faint backdrop-blur">
+                    <span>operator.png</span>
+                    <span className="text-signal">verified</span>
+                  </div>
                 </div>
-                <dl className="space-y-2">
-                  {[
-                    ['handle', SITE.name],
-                    ['role', 'Red Team Operator'],
-                    ['day_job', 'SOC / Threat Hunter'],
-                    ['age', '23'],
-                    ['since', '8th standard'],
-                    ['based', 'India · remote'],
-                    ['posture', 'assume breach'],
-                  ].map(([k, v]) => (
-                    <div key={k} className="flex justify-between gap-3">
-                      <dt className="text-ink-faint">{k}</dt>
-                      <dd className="text-right text-ink">{v}</dd>
-                    </div>
-                  ))}
-                </dl>
+
+                <div className="panel clip-corner w-full max-w-xs p-5 font-mono text-[12.5px] leading-relaxed sm:w-64">
+                  <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
+                    <span className="text-ink-faint">// id_card</span>
+                    <span className="flex h-2 w-2">
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
+                    </span>
+                  </div>
+                  <dl className="space-y-2">
+                    {[
+                      ['handle', SITE.name],
+                      ['role', 'Red Team Operator'],
+                      ['day_job', 'SOC / Threat Hunter'],
+                      ['age', '23'],
+                      ['since', '8th standard'],
+                      ['based', 'India · remote'],
+                      ['posture', 'assume breach'],
+                    ].map(([k, v]) => (
+                      <div key={k} className="flex justify-between gap-3">
+                        <dt className="text-ink-faint">{k}</dt>
+                        <dd className="text-right text-ink">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
               </div>
 
               {/* narrative */}
