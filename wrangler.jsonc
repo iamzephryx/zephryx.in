@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zephryx-in",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-06",
+  "assets": {
+    "directory": "out",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

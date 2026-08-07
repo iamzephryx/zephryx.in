@@ -9,7 +9,8 @@ Cloudflare Pages with a hardened interactive shell and a serverless contact form
 - **Next.js 15** (App Router) — `output: 'export'` → fully static `./out`
 - **Tailwind CSS v4** — design tokens in `src/app/globals.css` (`@theme`)
 - **TypeScript**, self-hosted fonts (JetBrains Mono + Inter via `next/font`)
-- **Cloudflare Pages Functions** — contact API (Resend) + optional maintenance mode
+- **Cloudflare Workers + Static Assets** (`wrangler.jsonc` + `worker/index.ts`) —
+  serves the static build and handles the contact API (Resend) + maintenance mode
 - Markdown writeups (`gray-matter` + `marked`, raw-HTML stripped)
 
 ## Pages
@@ -29,9 +30,9 @@ Cloudflare Pages with a hardened interactive shell and a serverless contact form
   reach), input sanitised (ANSI/control/bidi/zero-width stripped), length + token +
   rate caps, outbound links checked against an origin allowlist. All output renders as
   React text nodes — verified: `echo <img onerror=...>` is inert.
-- **Contact API**: same-origin check, body-size + field caps, honeypot + time-trap
-  (silent bot drop), optional Turnstile, optional KV rate-limit, HTML-escaped email,
-  no secret ever reflected to the client.
+- **Contact API** (`worker/index.ts`): same-origin check, body-size + field caps,
+  honeypot + time-trap (silent bot drop), optional Turnstile, optional KV rate-limit,
+  HTML-escaped email, no secret ever reflected to the client.
 - **Edge headers** (`public/_headers`): strict CSP, HSTS preload, `X-Frame-Options:
   DENY`, `nosniff`, locked-down `Permissions-Policy`, COOP/CORP. See notes in that
   file on the static-export `script-src 'unsafe-inline'` trade-off.
@@ -42,8 +43,8 @@ Cloudflare Pages with a hardened interactive shell and a serverless contact form
 ```bash
 npm run dev       # local dev  (http://localhost:3000)
 npm run build     # static export -> ./out
-npm run preview   # build + Wrangler serve (Functions + _headers, like prod)
-npm run deploy    # build + wrangler pages deploy out
+npm run preview   # build + wrangler dev (Worker + _headers, like prod)
+npm run deploy    # build + wrangler deploy
 ```
 
 ## Deploy & configure

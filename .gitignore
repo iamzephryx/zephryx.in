@@ -11,6 +11,7 @@ next-env.d.ts
 .wrangler
 .dev.vars
 .dev.vars.*
+worker-configuration.d.ts
 
 # env & secrets
 .env
@@ -18,7 +19,7 @@ next-env.d.ts
 !.env.example
 
 # local editor / claude settings
-.claude/settings.local.json
+.claude/
 
 # logs & os cruft
 *.log

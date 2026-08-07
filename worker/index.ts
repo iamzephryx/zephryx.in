@@ -1,7 +1,16 @@
 /**
- * POST /api/contact — Cloudflare Pages Function.
+ * zephryx.in — Cloudflare Worker entrypoint.
  *
- * Security posture:
+ * This project deploys as a static Next.js export (`next build` -> ./out) served
+ * by Workers Static Assets, with this single script handling the two things
+ * static assets can't: the /api/contact endpoint and (optional) maintenance mode.
+ *
+ * wrangler.jsonc sets run_worker_first: true, so every request reaches fetch()
+ * below. Anything that isn't /api/* or a maintenance response falls straight
+ * through to env.ASSETS.fetch(), which serves the static build (including the
+ * automatic out/404.html for unmatched routes, and applies out/_headers).
+ *
+ * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
  *  - strict body-size cap + per-field length caps + type checks
  *  - honeypot field + submission time-trap (bots fill hidden fields, submit fast)
@@ -10,22 +19,34 @@
  *  - all user content HTML-escaped before it ever reaches the email body
  *  - never reflects secrets; generic errors to the client, details to console
  *
- * Required environment (Pages → Settings → Environment variables):
+ * Required environment (Worker → Settings → Variables and Secrets):
  *  - RESEND_API_KEY   (secret)  Resend API key
  *  - CONTACT_TO       inbox that receives messages   e.g. contact@zephryx.in
  *  - CONTACT_FROM     verified Resend sender          e.g. "Zephryx <noreply@zephryx.in>"
  * Optional:
  *  - TURNSTILE_SECRET Cloudflare Turnstile secret key
  *  - CONTACT_RL       KV namespace binding for rate limiting
+ *  - MAINTENANCE      set to "on" to serve /503/ for every non-API request
  */
 
-type Env = {
+interface KVLike {
+  get: (key: string) => Promise<string | null>;
+  put: (key: string, value: string, opts?: { expirationTtl?: number }) => Promise<void>;
+}
+
+interface AssetsFetcher {
+  fetch: (input: Request | URL | string) => Promise<Response>;
+}
+
+interface Env {
+  ASSETS: AssetsFetcher;
   RESEND_API_KEY?: string;
   CONTACT_TO?: string;
   CONTACT_FROM?: string;
   TURNSTILE_SECRET?: string;
-  CONTACT_RL?: KVNamespace;
-};
+  CONTACT_RL?: KVLike;
+  MAINTENANCE?: string;
+}
 
 type Body = {
   name?: unknown;
@@ -68,17 +89,34 @@ const escapeHtml = (s: string): string =>
 const str = (v: unknown, max: number): string =>
   typeof v === 'string' ? v.trim().slice(0, max) : '';
 
-/** Reject anything that isn't a POST from our own origin. */
-export const onRequest: PagesFunction<Env> = async (ctx) => {
-  if (ctx.request.method !== 'POST') {
-    return json({ ok: false, error: 'Method not allowed.' }, 405);
-  }
-  return handle(ctx);
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname === '/api/contact' || url.pathname === '/api/contact/') {
+      if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
+      return handleContact(request, env);
+    }
+
+    if (url.pathname.startsWith('/api/')) {
+      return json({ ok: false, error: 'Not found.' }, 404);
+    }
+
+    if (env.MAINTENANCE === 'on') {
+      // Reuse the statically-built /503/ page — including whatever out/_headers
+      // applies to it — so the styling and headers stay in one place.
+      const page = await env.ASSETS.fetch(new URL('/503/', url.origin));
+      const headers = new Headers(page.headers);
+      headers.set('retry-after', '3600');
+      headers.set('cache-control', 'no-store');
+      return new Response(page.body, { status: 503, headers });
+    }
+
+    return env.ASSETS.fetch(request);
+  },
 };
 
-async function handle(ctx: Parameters<PagesFunction<Env>>[0]): Promise<Response> {
-  const { request, env } = ctx;
-
+async function handleContact(request: Request, env: Env): Promise<Response> {
   // --- origin check -------------------------------------------------------
   const host = request.headers.get('host') ?? '';
   const origin = request.headers.get('origin');
@@ -91,7 +129,6 @@ async function handle(ctx: Parameters<PagesFunction<Env>>[0]): Promise<Response>
       return false;
     }
   };
-  // Require at least one of Origin/Referer to match our host.
   if (!(sameSite(origin) || sameSite(referer))) {
     return json({ ok: false, error: 'Bad origin.' }, 403);
   }
@@ -120,7 +157,6 @@ async function handle(ctx: Parameters<PagesFunction<Env>>[0]): Promise<Response>
   const elapsedMs = typeof body.elapsedMs === 'number' ? body.elapsedMs : 0;
 
   // --- silent bot rejection ----------------------------------------------
-  // Do not tell a bot why it failed — return a clean 200 so it stops retrying.
   if (honeypot.length > 0 || (elapsedMs > 0 && elapsedMs < LIMITS.minElapsedMs)) {
     return json({ ok: true });
   }
@@ -145,11 +181,10 @@ async function handle(ctx: Parameters<PagesFunction<Env>>[0]): Promise<Response>
     if (count >= LIMITS.rlMax) {
       return json({ ok: false, error: 'Too many messages. Try again later.' }, 429);
     }
-    // Best-effort increment; TTL resets the window.
     await env.CONTACT_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
   }
 
-  // --- config guard -------------------------------------------------------
+  // --- config guard --------------------------------------------------------
   if (!env.RESEND_API_KEY || !env.CONTACT_TO || !env.CONTACT_FROM) {
     console.error('contact: missing RESEND_API_KEY / CONTACT_TO / CONTACT_FROM');
     return json(
@@ -158,7 +193,7 @@ async function handle(ctx: Parameters<PagesFunction<Env>>[0]): Promise<Response>
     );
   }
 
-  // --- deliver ------------------------------------------------------------
+  // --- deliver --------------------------------------------------------------
   const safeSubject = subject || `New message from ${name}`;
   const html = renderEmail({ name, email, subject: safeSubject, message, ip });
   const text = `From: ${name} <${email}>\nSubject: ${safeSubject}\nIP: ${ip}\n\n${message}`;
