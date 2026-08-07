@@ -3,6 +3,10 @@
   "name": "zephryx-in",
   "main": "worker/index.ts",
   "compatibility_date": "2026-08-06",
+  "vars": {
+    "CONTACT_TO": "contact@zephryx.in",
+    "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>"
+  },
   "assets": {
     "directory": "out",
     "binding": "ASSETS",
