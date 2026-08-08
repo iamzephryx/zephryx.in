@@ -102,6 +102,11 @@ export const TECHNIQUES: readonly Technique[] = [
   { id: 'T1649', name: 'Steal or Forge Authentication Certificates', tacticId: 'TA0006' },
   { id: 'T1187', name: 'Forced Authentication', tacticId: 'TA0006' },
   { id: 'T1110.003', name: 'Brute Force: Password Spraying', tacticId: 'TA0006' },
+  {
+    id: 'T1556.006',
+    name: 'Modify Authentication Process: Multi-Factor Authentication',
+    tacticId: 'TA0006',
+  },
 
   /* ---- Discovery ---- */
   { id: 'T1087.002', name: 'Account Discovery: Domain Account', tacticId: 'TA0007' },

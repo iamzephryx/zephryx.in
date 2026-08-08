@@ -32,10 +32,22 @@ export type WriteupMeta = Omit<Writeup, 'html'>;
  * markdown pipeline that cannot emit author-controlled HTML removes an entire
  * class of stored-XSS mistakes from the blog surface.
  */
+const escapeHtml = (s: string): string =>
+  s.replace(/[&<>"']/g, (c) =>
+    c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;',
+  );
+
 const marked = new Marked({ gfm: true, breaks: false });
 marked.use({
   renderer: {
     html: () => '',
+    // Wrap images in a figure + caption (alt text doubles as the caption) —
+    // evidence screenshots read better captioned than bare.
+    image({ href, text }) {
+      const safeText = escapeHtml(text ?? '');
+      const caption = safeText ? `<figcaption>${safeText}</figcaption>` : '';
+      return `<figure><img src="${escapeHtml(href)}" alt="${safeText}" loading="lazy" />${caption}</figure>`;
+    },
   },
 });
 
