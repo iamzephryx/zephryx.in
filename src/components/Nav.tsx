@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { NAV, SITE } from '@/lib/site';
+import ThemeToggle from './ThemeToggle';
 
 export default function Nav() {
   const pathname = usePathname();
@@ -80,22 +81,26 @@ export default function Nav() {
           </Link>
         </nav>
 
-        {/* mobile toggle */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 border border-line md:hidden"
-        >
-          <span
-            className={`h-px w-4 bg-ink transition-all duration-300 ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}
-          />
-          <span
-            className={`h-px w-4 bg-ink transition-all duration-300 ${open ? '-translate-y-[3.5px] -rotate-45' : ''}`}
-          />
-        </button>
+        <div className="flex items-center gap-2.5">
+          <ThemeToggle />
+
+          {/* mobile toggle */}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 border border-line md:hidden"
+          >
+            <span
+              className={`h-px w-4 bg-ink transition-all duration-300 ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}
+            />
+            <span
+              className={`h-px w-4 bg-ink transition-all duration-300 ${open ? '-translate-y-[3.5px] -rotate-45' : ''}`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* mobile drawer */}

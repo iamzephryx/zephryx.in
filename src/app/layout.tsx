@@ -87,16 +87,41 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#06070a',
-  colorScheme: 'dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#06070a' },
+    { media: '(prefers-color-scheme: light)', color: '#f5f6f8' },
+  ],
   width: 'device-width',
   initialScale: 1,
 };
+
+/**
+ * Sets data-theme on <html> before first paint, so there's no flash of the
+ * wrong theme. Runs as the first thing in <body> — synchronous scripts block
+ * rendering until they finish, so nothing has painted yet by the time this
+ * decides light vs dark. Reads a stored preference first, then falls back to
+ * the visitor's OS setting. Dark needs no attribute (it's the CSS default),
+ * so this only ever has to *add* data-theme="light", never remove anything.
+ */
+const THEME_INIT_SCRIPT = `
+(function () {
+  try {
+    var stored = localStorage.getItem('zephryx-theme');
+    var wantsLight = stored === 'light' || (stored !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches);
+    if (wantsLight) document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+})();
+`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <body className="min-h-screen antialiased">
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
+
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger

@@ -36,6 +36,67 @@
   --animate-drift: drift 24s ease-in-out infinite alternate;
 }
 
+/* ============================================================
+   Theming — dark is the default (no attribute needed). Setting
+   data-theme="light" on <html> (via ThemeToggle) swaps the page-level
+   chrome tokens only. Anything inside .panel (Terminal, cards, the
+   contact form, error-page log blocks) re-pins those same variables
+   back to their dark values immediately below, so panels always look
+   like a terminal window regardless of the surrounding page theme.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+  --backdrop-vignette-mid: rgba(6, 7, 10, 0.55);
+  --backdrop-vignette-edge: rgba(6, 7, 10, 0.94);
+  --backdrop-grid-opacity: 0.7;
+  --backdrop-bloom-opacity: 0.45;
+  --backdrop-bloom-2-opacity: 0.3;
+  --backdrop-grain-opacity: 0.16;
+  --backdrop-grain-blend: soft-light;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-void: #f5f6f8;
+  --color-abyss: #eef0f3;
+  --color-surface: #e6e9ed;
+  --color-elevated: #dde1e7;
+  --color-line: #d7dae1;
+  --color-line-hot: #f0d3d8;
+
+  --color-ink: #14161c;
+  --color-ink-dim: #4b5563;
+  /* Darker than the dark-theme equivalent so small muted labels still clear
+     WCAG AA (4.5:1) against the light page background. */
+  --color-ink-faint: #656d7a;
+
+  --backdrop-vignette-mid: rgba(120, 110, 108, 0.08);
+  --backdrop-vignette-edge: rgba(90, 82, 80, 0.18);
+
+  /* Blooms and grain are far more visible over light; dial them back so the
+     backdrop stays atmosphere rather than becoming pink smudges. */
+  --backdrop-grid-opacity: 0.5;
+  --backdrop-bloom-opacity: 0.16;
+  --backdrop-bloom-2-opacity: 0.1;
+  --backdrop-grain-opacity: 0.07;
+  --backdrop-grain-blend: multiply;
+}
+
+:root[data-theme='light'] .panel {
+  --color-void: #06070a;
+  --color-abyss: #0a0c11;
+  --color-surface: #0e1117;
+  --color-elevated: #131822;
+  --color-line: #1c2230;
+  --color-line-hot: #3a1520;
+  --color-ink: #e8ebef;
+  --color-ink-dim: #98a1af;
+  --color-ink-faint: #5c6675;
+  color-scheme: dark;
+}
+
 @keyframes scan {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100vh); }
@@ -241,6 +302,47 @@
   .anim-rise {
     animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+
+  /* ----------------------------------------------------------
+     Light-mode effect corrections.
+
+     The glow/scanline/glitch effects were tuned against a black
+     backdrop: a red halo and a cyan ghost read as depth on #06070a
+     but as muddy fringing on #f5f6f8. Below they're re-tuned for
+     light *page chrome* only — anything inside .panel keeps the
+     original dark-background treatment, since panels stay dark.
+     ---------------------------------------------------------- */
+
+  :root[data-theme='light'] .text-glow:not(.panel .text-glow) {
+    text-shadow: 0 0 22px rgba(230, 21, 58, 0.14);
+  }
+
+  :root[data-theme='light'] .glitch:not(.panel .glitch)::before {
+    opacity: 0.42;
+  }
+
+  :root[data-theme='light'] .glitch:not(.panel .glitch)::after {
+    color: #0b8ea3;
+    opacity: 0.16;
+  }
+
+  /* White scanline streaks are invisible on light; darken them instead. */
+  :root[data-theme='light'] .scanlines:not(.panel)::after {
+    background: repeating-linear-gradient(
+      180deg,
+      rgba(20, 22, 28, 0.03) 0px,
+      rgba(20, 22, 28, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  :root[data-theme='light'] .box-glow:not(.panel .box-glow) {
+    box-shadow:
+      0 0 0 1px rgba(230, 21, 58, 0.16),
+      0 10px 30px -12px rgba(20, 22, 28, 0.28);
+  }
 }
 
 /* ============================================================
@@ -348,3 +450,32 @@
   font-weight: 600;
 }
 .prose-terminal hr { border-color: var(--color-line); margin: 2.5rem 0; }
+
+/* Light-mode prose accents: the bright #ff2d4b reads at only ~3.4:1 on a light
+   background, so swap in a deeper red for the small text that uses it (inline
+   code, links, list markers) to clear WCAG AA. */
+:root[data-theme='light'] .prose-terminal code {
+  color: #c01030;
+  background: rgba(192, 16, 48, 0.06);
+  border-color: rgba(192, 16, 48, 0.18);
+}
+:root[data-theme='light'] .prose-terminal pre code {
+  color: var(--color-ink-dim);
+  background: none;
+  border: none;
+}
+:root[data-theme='light'] .prose-terminal a {
+  color: #c01030;
+  text-decoration-color: rgba(192, 16, 48, 0.45);
+}
+:root[data-theme='light'] .prose-terminal a:hover {
+  text-decoration-color: #c01030;
+}
+:root[data-theme='light'] .prose-terminal ul > li::before,
+:root[data-theme='light'] .prose-terminal ol > li::marker {
+  color: #c01030;
+}
+:root[data-theme='light'] .prose-terminal blockquote {
+  border-left-color: #c01030;
+  background: rgba(192, 16, 48, 0.045);
+}
