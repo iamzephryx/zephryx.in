@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getAllSlugs, getWriteup, formatDate } from '@/lib/writeups';
+import { getDetectionsForWriteup } from '@/lib/detections';
+import { attackUrl, techniqueName } from '@/lib/attack';
+import { SEVERITY_STYLE } from '@/lib/severity';
 import { SITE } from '@/lib/site';
 
 type Params = { slug: string };
@@ -37,6 +40,8 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
   const { slug } = await params;
   const w = getWriteup(slug);
   if (!w) notFound();
+
+  const detections = getDetectionsForWriteup(w.slug);
 
   return (
     <article className="relative px-5 pt-32 pb-16 sm:px-8">
@@ -81,6 +86,30 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
               ))}
             </div>
           ) : null}
+
+          {w.techniques.length ? (
+            <div className="mt-6">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
+                att&amp;ck techniques emulated
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {w.techniques.map((t) => (
+                  <a
+                    key={t}
+                    href={attackUrl(t)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group border border-line px-2.5 py-1.5 font-mono text-[11px] text-ink-dim transition-colors hover:border-red-deep/70 hover:text-red-blood"
+                  >
+                    <span className="text-red-blood/80">{t}</span>
+                    <span className="ml-2 text-ink-faint group-hover:text-ink-dim">
+                      {techniqueName(t)}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </header>
 
         {/*
@@ -93,6 +122,55 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
           className="prose-terminal mt-10"
           dangerouslySetInnerHTML={{ __html: w.html }}
         />
+
+        {/* the other half of the loop */}
+        {detections.length ? (
+          <section className="mt-16 border-t border-line pt-8">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="font-mono text-sm font-semibold tracking-[0.2em] text-red-blood/80">
+                // THE DETECTION THAT ANSWERS THIS
+              </h2>
+              <Link
+                href="/matrix/"
+                className="shrink-0 font-mono text-[11px] text-ink-faint transition-colors hover:text-red-blood"
+              >
+                coverage board →
+              </Link>
+            </div>
+
+            <p className="mt-3 text-sm leading-relaxed text-ink-dim">
+              Everything above is offence. Here is what I wrote afterwards so the same
+              path trips a sensor next time.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {detections.map((d) => (
+                <Link
+                  key={d.slug}
+                  href={`/detections/${d.slug}/`}
+                  className="panel clip-corner group flex flex-col gap-3 p-5 transition-all hover:border-red-deep/70 sm:flex-row sm:items-center"
+                >
+                  <span
+                    className={`shrink-0 self-start border px-2 py-0.5 font-mono text-[10px] uppercase ${SEVERITY_STYLE[d.severity]}`}
+                  >
+                    {d.severity}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-mono text-sm text-ink transition-colors group-hover:text-red-blood">
+                      {d.title}
+                    </span>
+                    <span className="mt-1 block font-mono text-[11px] text-ink-faint">
+                      {d.ruleId} · {d.logsource}
+                    </span>
+                  </span>
+                  <span className="shrink-0 font-mono text-red-blood transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {/* footer */}
         <footer className="mt-16 border-t border-line pt-8">

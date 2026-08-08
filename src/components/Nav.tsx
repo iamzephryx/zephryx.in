@@ -29,6 +29,10 @@ export default function Nav() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href.replace(/\/$/, ''));
 
+  // Handshake already has its own CTA button on desktop; showing it in the link
+  // row too would duplicate it and push the row past the viewport.
+  const desktopNav = NAV.filter((item) => item.href !== '/handshake/');
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
@@ -51,22 +55,22 @@ export default function Nav() {
         </Link>
 
         {/* desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-          {NAV.map((item) => {
+        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Primary">
+          {desktopNav.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`group relative px-3.5 py-2 font-mono text-[13px] transition-colors duration-300 ${
+                className={`group relative px-3 py-2 font-mono text-[13px] transition-colors duration-300 ${
                   active ? 'text-ink' : 'text-ink-faint hover:text-ink-dim'
                 }`}
               >
                 <span className="text-red-blood/70">/</span>
                 {item.label}
                 <span
-                  className={`absolute inset-x-3 bottom-1 h-px origin-left bg-red-blood transition-transform duration-300 ${
+                  className={`absolute inset-x-2.5 bottom-1 h-px origin-left bg-red-blood transition-transform duration-300 ${
                     active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                   }`}
                 />
@@ -75,7 +79,7 @@ export default function Nav() {
           })}
           <Link
             href="/handshake/"
-            className="clip-tab ml-3 border border-red-deep/70 bg-red-ash/25 px-4 py-2 font-mono text-[13px] text-red-blood transition-all duration-300 hover:bg-red-blood hover:text-void hover:shadow-[0_0_24px_-4px_rgba(255,45,75,0.7)]"
+            className="clip-tab ml-2.5 border border-red-deep/70 bg-red-ash/25 px-3.5 py-2 font-mono text-[13px] text-red-blood transition-all duration-300 hover:bg-red-blood hover:text-void hover:shadow-[0_0_24px_-4px_rgba(255,45,75,0.7)]"
           >
             init_contact()
           </Link>
@@ -91,7 +95,7 @@ export default function Nav() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 border border-line md:hidden"
+            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 border border-line lg:hidden"
           >
             <span
               className={`h-px w-4 bg-ink transition-all duration-300 ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}
@@ -106,8 +110,8 @@ export default function Nav() {
       {/* mobile drawer */}
       <div
         id="mobile-nav"
-        className={`overflow-hidden border-t border-line/60 bg-void/95 backdrop-blur-xl transition-[max-height,opacity] duration-400 md:hidden ${
-          open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        className={`overflow-hidden border-t border-line/60 bg-void/95 backdrop-blur-xl transition-[max-height,opacity] duration-400 lg:hidden ${
+          open ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <nav className="flex flex-col px-5 py-3" aria-label="Mobile">

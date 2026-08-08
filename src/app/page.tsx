@@ -4,6 +4,9 @@ import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { getFeaturedWriteups, formatDate } from '@/lib/writeups';
+import { getDetectionCount } from '@/lib/detections';
+import { getCoverage } from '@/lib/attack';
+import { creditedCount } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 const ROLES = [
@@ -14,10 +17,14 @@ const ROLES = [
   'detection_engineer',
 ] as const;
 
-const STATS = [
+/**
+ * The CVE figure is derived from the advisory list rather than typed here, so
+ * the front page can never claim a number the arsenal cannot show.
+ */
+const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '150+', label: 'boxes rooted' },
   { value: '40+', label: 'engagements' },
-  { value: '9', label: 'CVEs credited' },
+  { value: String(creditedCount()), label: 'CVEs credited', href: '/arsenal/' },
   { value: '∞', label: 'assume breach' },
 ];
 
@@ -44,6 +51,8 @@ const CAPABILITIES = [
 
 export default function HomePage() {
   const featured = getFeaturedWriteups(3);
+  const coverage = getCoverage();
+  const ruleCount = getDetectionCount();
 
   return (
     <>
@@ -106,16 +115,31 @@ export default function HomePage() {
 
             {/* stats */}
             <dl className="mt-12 grid max-w-lg grid-cols-4 gap-px border border-line bg-line">
-              {STATS.map((s) => (
-                <div key={s.label} className="bg-abyss/80 px-3 py-4 text-center">
-                  <dt className="font-mono text-2xl font-bold text-red-blood text-glow">
-                    {s.value}
-                  </dt>
-                  <dd className="mt-1 font-mono text-[10px] uppercase tracking-wider text-ink-faint">
-                    {s.label}
-                  </dd>
-                </div>
-              ))}
+              {STATS.map((s) => {
+                const body = (
+                  <>
+                    <dt className="font-mono text-2xl font-bold text-red-blood text-glow">
+                      {s.value}
+                    </dt>
+                    <dd className="mt-1 font-mono text-[10px] uppercase tracking-wider text-ink-faint">
+                      {s.label}
+                    </dd>
+                  </>
+                );
+                return s.href ? (
+                  <Link
+                    key={s.label}
+                    href={s.href}
+                    className="bg-abyss/80 px-3 py-4 text-center transition-colors hover:bg-red-ash/20"
+                  >
+                    {body}
+                  </Link>
+                ) : (
+                  <div key={s.label} className="bg-abyss/80 px-3 py-4 text-center">
+                    {body}
+                  </div>
+                );
+              })}
             </dl>
           </div>
 
@@ -231,6 +255,117 @@ export default function HomePage() {
           </Reveal>
         </section>
       ) : null}
+
+      {/* ========================= PURPLE LOOP ========================= */}
+      <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
+        <Reveal>
+          <SectionHeading
+            index="03 / COVERAGE"
+            title="the loop, on a board"
+            sub="Anyone can claim they close the loop. This is the artefact: every technique I have published an attack for, next to the rule that answers it — and the gaps where no rule exists yet."
+          />
+        </Reveal>
+
+        <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+          <Reveal>
+            <Link
+              href="/matrix/"
+              className="panel clip-corner group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] tracking-[0.2em] text-red-blood/80">
+                    ATT&amp;CK COVERAGE BOARD
+                  </span>
+                  <span className="font-mono text-[11px] text-ink-faint">/matrix</span>
+                </div>
+
+                <p className="mt-6 font-mono text-5xl font-bold text-ink text-glow">
+                  {coverage.both}
+                  <span className="text-ink-faint">/{coverage.emulated}</span>
+                </p>
+                <p className="mt-2 font-mono text-[12px] uppercase tracking-wider text-ink-faint">
+                  emulated techniques with a published detection
+                </p>
+
+                {/* coverage bar */}
+                <div className="mt-6 flex h-2 w-full overflow-hidden bg-line">
+                  <div
+                    className="h-full bg-signal"
+                    style={{ width: `${(coverage.both / coverage.total) * 100}%` }}
+                  />
+                  <div
+                    className="h-full bg-red-blood"
+                    style={{
+                      width: `${((coverage.emulated - coverage.both) / coverage.total) * 100}%`,
+                    }}
+                  />
+                  <div
+                    className="h-full bg-warn"
+                    style={{
+                      width: `${((coverage.detected - coverage.both) / coverage.total) * 100}%`,
+                    }}
+                  />
+                </div>
+
+                <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+                  {[
+                    ['bg-signal', 'closed loop'],
+                    ['bg-red-blood', 'open gap'],
+                    ['bg-warn', 'rule only'],
+                    ['bg-line', 'untracked'],
+                  ].map(([dot, label]) => (
+                    <li
+                      key={label}
+                      className="flex items-center gap-2 font-mono text-[11px] text-ink-faint"
+                    >
+                      <span className={`h-2 w-2 ${dot}`} />
+                      {label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <span className="mt-8 inline-flex items-center gap-2 font-mono text-sm text-red-blood">
+                open the board
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </span>
+            </Link>
+          </Reveal>
+
+          <Reveal delay={90}>
+            <Link
+              href="/detections/"
+              className="panel clip-corner group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] tracking-[0.2em] text-red-blood/80">
+                    DETECTION LIBRARY
+                  </span>
+                  <span className="font-mono text-[11px] text-ink-faint">/detections</span>
+                </div>
+
+                <p className="mt-6 font-mono text-5xl font-bold text-ink text-glow">{ruleCount}</p>
+                <p className="mt-2 font-mono text-[12px] uppercase tracking-wider text-ink-faint">
+                  published rules
+                </p>
+
+                <p className="mt-6 text-sm leading-relaxed text-ink-dim">
+                  Sigma sources with KQL translations, real tuning notes, and an honest
+                  paragraph on where each rule breaks. Most of them link straight back to
+                  the writeup that made them necessary.
+                </p>
+              </div>
+
+              <span className="mt-8 inline-flex items-center gap-2 font-mono text-sm text-red-blood">
+                read the rules
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </span>
+            </Link>
+          </Reveal>
+        </div>
+      </section>
 
       {/* ============================= CTA ============================= */}
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">

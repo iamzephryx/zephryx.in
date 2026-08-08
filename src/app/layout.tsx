@@ -82,7 +82,10 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
-  alternates: { canonical: SITE.url },
+  alternates: {
+    canonical: SITE.url,
+    types: { 'application/rss+xml': `${SITE.url}/feed.xml` },
+  },
   formatDetection: { email: false, telephone: false, address: false },
 };
 

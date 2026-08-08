@@ -289,8 +289,46 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
         blank(),
         ...TTPS.map(([id, label]) => out(`  ${pad(id, 12)} ${label}`)),
         blank(),
+        dim('  Full coverage board — emulation vs. published detections:'),
+        link('/matrix', '/matrix/'),
         link('attack.mitre.org', 'https://attack.mitre.org'),
       ],
+    },
+  ],
+  [
+    'detections',
+    {
+      name: 'detections',
+      summary: 'Published Sigma rules and hunts',
+      usage: 'detections',
+      run: (_args, ctx) => {
+        ctx.navigate('/detections/');
+        return [ok('Opening /detections …')];
+      },
+    },
+  ],
+  [
+    'matrix',
+    {
+      name: 'matrix',
+      summary: 'ATT&CK coverage board',
+      usage: 'matrix',
+      run: (_args, ctx) => {
+        ctx.navigate('/matrix/');
+        return [ok('Opening /matrix …')];
+      },
+    },
+  ],
+  [
+    'arsenal',
+    {
+      name: 'arsenal',
+      summary: 'Released tooling and advisories',
+      usage: 'arsenal',
+      run: (_args, ctx) => {
+        ctx.navigate('/arsenal/');
+        return [ok('Opening /arsenal …')];
+      },
     },
   ],
   [
@@ -433,6 +471,41 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
     },
   ],
   /* ---------------- undocumented ---------------- */
+  [
+    'sigma',
+    {
+      name: 'sigma',
+      summary: 'Detection rule library',
+      usage: 'sigma',
+      secret: true,
+      run: () => [
+        accent('Detection rule library'),
+        out('  Sigma sources, KQL translations, tuning notes and the blind spots'),
+        out('  each rule still has. Every rule names the attack it answers.'),
+        blank(),
+        link('/detections', '/detections/'),
+      ],
+    },
+  ],
+  [
+    'cve',
+    {
+      name: 'cve',
+      summary: 'Advisories and released tooling',
+      usage: 'cve',
+      secret: true,
+      run: () => [
+        accent('Coordinated disclosure'),
+        out('  Advisories filed, current disclosure stage, and the tooling that'),
+        out('  found most of them. Embargoed entries stay vague on purpose.'),
+        blank(),
+        link('/arsenal', '/arsenal/'),
+        blank(),
+        dim('  Reporting something in my own estate? Policy and safe harbour:'),
+        link('/security', '/security/'),
+      ],
+    },
+  ],
   [
     'sudo',
     {

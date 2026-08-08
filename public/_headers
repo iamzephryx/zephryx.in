@@ -21,6 +21,16 @@
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Feed readers and RFC 9116 consumers are strict about content types, and a
+# static export has no server to negotiate one. Pin them explicitly.
+/feed.xml
+  Content-Type: application/rss+xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/.well-known/security.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=86400
+
 # NOTE on 'unsafe-inline' in script-src:
 #   A static Next.js App Router export ships small inline bootstrap/RSC scripts
 #   with no per-request nonce, so they require 'unsafe-inline' to execute. The

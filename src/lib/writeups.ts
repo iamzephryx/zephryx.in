@@ -15,6 +15,8 @@ export type Writeup = {
   date: string;
   category: 'CTF' | 'Research' | 'Detection' | 'Tradecraft';
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Insane';
+  /** ATT&CK technique IDs emulated in this writeup — drives the coverage matrix. */
+  techniques: string[];
   tags: string[];
   excerpt: string;
   readingMinutes: number;
@@ -38,6 +40,8 @@ marked.use({
 });
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+/** ATT&CK technique or sub-technique, e.g. T1558 or T1558.003. */
+const techniquePattern = /^T\d{4}(?:\.\d{3})?$/;
 
 function readAll(): Writeup[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
@@ -54,6 +58,14 @@ function readAll(): Writeup[] {
       const raw = fs.readFileSync(path.join(CONTENT_DIR, file), 'utf8');
       const { data, content } = matter(raw);
 
+      const techniques = (Array.isArray(data.techniques) ? data.techniques.map(String) : []).filter(
+        (t) => {
+          if (techniquePattern.test(t)) return true;
+          // Fail the build rather than silently dropping coverage from the matrix.
+          throw new Error(`Writeup "${slug}" declares malformed technique id "${t}".`);
+        },
+      );
+
       const words = content.trim().split(/\s+/).length;
 
       return {
@@ -62,6 +74,7 @@ function readAll(): Writeup[] {
         date: String(data.date ?? '1970-01-01'),
         category: (data.category ?? 'Research') as Writeup['category'],
         difficulty: (data.difficulty ?? 'Medium') as Writeup['difficulty'],
+        techniques,
         tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
         excerpt: String(data.excerpt ?? ''),
         featured: Boolean(data.featured),

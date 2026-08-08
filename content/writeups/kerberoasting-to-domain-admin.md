@@ -4,6 +4,7 @@ date: '2026-06-18'
 category: 'Tradecraft'
 difficulty: 'Medium'
 featured: true
+techniques: ['T1558.003', 'T1069.002', 'T1003.006', 'T1078.002']
 tags: ['active-directory', 'kerberos', 'bloodhound', 'privesc']
 excerpt: 'A single unprivileged domain account, one service ticket with a weak password behind it, and an ACL nobody had audited since 2019. The path is boring — which is exactly why it keeps working.'
 ---

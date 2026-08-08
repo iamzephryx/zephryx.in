@@ -4,6 +4,7 @@ date: '2026-03-09'
 category: 'Tradecraft'
 difficulty: 'Medium'
 featured: false
+techniques: ['T1583.001', 'T1566.001', 'T1566.002', 'T1204.002', 'T1059.001']
 tags: ['social-engineering', 'phishing', 'initial-access', 'opsec']
 excerpt: 'The best initial-access campaigns I have run barely touched malware. Here is how pretext, timing and infrastructure hygiene beat clever payloads.'
 ---

@@ -107,6 +107,23 @@ export const NAV = [
   { href: '/', label: 'home', cmd: '~' },
   { href: '/whoami/', label: 'whoami', cmd: 'id' },
   { href: '/writeups/', label: 'writeups', cmd: 'cat' },
+  { href: '/detections/', label: 'detections', cmd: 'sigma' },
+  { href: '/matrix/', label: 'matrix', cmd: 'att&ck' },
+  { href: '/arsenal/', label: 'arsenal', cmd: 'ls' },
   { href: '/connect/', label: 'connect', cmd: 'net' },
   { href: '/handshake/', label: 'handshake', cmd: 'syn' },
+] as const;
+
+/**
+ * Secondary destinations: reachable from the footer and the terminal,
+ * deliberately kept out of the primary nav so it stays legible.
+ *
+ * `asset: true` marks a static file that lives outside the router — those must
+ * be rendered as a plain anchor, because client-side navigation cannot serve
+ * them and would 404 into the app shell.
+ */
+export const FOOTER_LINKS = [
+  { href: '/security/', label: 'disclosure policy', asset: false },
+  { href: '/.well-known/security.txt', label: 'security.txt', asset: true },
+  { href: '/feed.xml', label: 'rss feed', asset: true },
 ] as const;

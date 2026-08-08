@@ -1,0 +1,26 @@
+# zephryx.in — vulnerability disclosure contact (RFC 9116)
+#
+# If you have found a security issue in this site, in published tooling, or in
+# anything else carrying my name: report it here. Every report gets a human
+# reply, including the ones that turn out to be nothing.
+#
+# Full policy, scope and safe-harbour terms: https://zephryx.in/security/
+
+Contact: mailto:security@zephryx.in
+Contact: https://zephryx.in/handshake/
+Expires: 2027-08-09T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://zephryx.in/.well-known/security.txt
+Policy: https://zephryx.in/security/
+
+# Encryption: publish an ASCII-armoured public key at
+#   https://zephryx.in/.well-known/pgp-key.txt
+# and uncomment the line below. Do not advertise a key that does not resolve —
+# a broken Encryption field is worse than no Encryption field.
+#
+# Encryption: https://zephryx.in/.well-known/pgp-key.txt
+
+# ---------------------------------------------------------------------------
+# MAINTENANCE: Expires is a hard requirement of RFC 9116 and consuming tools
+# treat an elapsed date as an invalid file. Roll it forward at least annually.
+# ---------------------------------------------------------------------------

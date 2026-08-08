@@ -121,7 +121,17 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 /** Internal routes the terminal is permitted to navigate to. */
-export const ALLOWED_ROUTES = new Set(['/', '/whoami/', '/writeups/', '/connect/', '/handshake/']);
+export const ALLOWED_ROUTES = new Set([
+  '/',
+  '/whoami/',
+  '/writeups/',
+  '/detections/',
+  '/matrix/',
+  '/arsenal/',
+  '/security/',
+  '/connect/',
+  '/handshake/',
+]);
 
 /**
  * Returns a safe href, or null. Rejects anything that is not https on an

@@ -4,6 +4,7 @@ date: '2026-06-14'
 category: 'Detection'
 difficulty: 'Medium'
 featured: true
+techniques: ['T1071.001', 'T1573.001', 'T1090', 'T1055']
 tags: ['threat-hunting', 'cobalt-strike', 'c2', 'sigma', 'edr']
 excerpt: 'Wearing the defender hat: three independent, high-signal ways to surface Cobalt Strike beacons that survive malleable C2 profiles and sleep-mask evasion.'
 ---
