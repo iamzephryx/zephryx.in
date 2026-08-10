@@ -1,83 +1,101 @@
 # zephryx.in
 
-Offensive-security portfolio for **Zephryx** — Red Team operator, SOC analyst &
-threat hunter. Dark, oxidised-red, terminal-grade. Static-exported Next.js on
-Cloudflare Pages with a hardened interactive shell and a serverless contact form.
+This is my personal site — portfolio, research log, and a bit of a playground. I'm
+Zephryx: red team operator by day, SOC analyst and threat hunter the rest of the time,
+and this is where I write up the offensive research, CTF boxes, and detection rules
+I've built along the way.
 
-## Stack
+I wanted it to actually feel like it belongs to someone who breaks into things for a
+living, so it's dark, terminal-flavored, and the homepage has a real (sandboxed)
+shell you can type into instead of a hero banner nobody reads. Try `help` when you
+land on it.
 
-- **Next.js 15** (App Router) — `output: 'export'` → fully static `./out`
-- **Tailwind CSS v4** — design tokens in `src/app/globals.css` (`@theme`)
-- **TypeScript**, self-hosted fonts (JetBrains Mono + Inter via `next/font`)
-- **Cloudflare Workers + Static Assets** (`wrangler.jsonc` + `worker/index.ts`) —
-  serves the static build and handles the contact API (Resend) + maintenance mode
-- Markdown writeups (`gray-matter` + `marked`, raw-HTML stripped)
+## Why it's built the way it is
 
-## Pages
+I didn't want a CMS or a hosted blog platform — I wanted to write Markdown, commit it,
+and have the site rebuild itself. So it's a static-exported Next.js app that lives on
+Cloudflare Workers. No server to babysit, no database, and the only "backend" is a
+single Worker script that handles the contact form and can flip the whole site into
+maintenance mode if I need it to.
 
-| Route          | What it is                                             |
-|----------------|--------------------------------------------------------|
-| `/`            | Hero + **interactive, sandboxed terminal** (try `help`)|
-| `/whoami`      | About — origin story, focus, skill matrix, ethics      |
-| `/writeups`    | Filterable research & CTF writeups (+ `/writeups/[slug]`)|
-| `/detections`  | Sigma/KQL detection library (+ `/detections/[slug]`)   |
-| `/matrix`      | ATT&CK coverage board — emulation vs. published rules   |
-| `/arsenal`     | Released tooling + coordinated disclosures             |
-| `/security`    | Vulnerability disclosure policy (RFC 9116 `Policy:` target) |
-| `/connect`     | Social hub + direct mail channels                      |
-| `/handshake`   | Validated, rate-limited contact form                   |
-| `/feed.xml`    | RSS 2.0 — writeups and detections in one feed          |
-| `/.well-known/security.txt` | RFC 9116 disclosure contact                |
-| `404 / 403 / 503` | Themed error pages (Endpoint Missing / Access Denied / Server Offline) |
+- **Next.js 15**, App Router, `output: 'export'` — everything compiles down to plain
+  HTML in `./out`
+- **Tailwind v4** for styling, tokens defined in `src/app/globals.css`
+- **TypeScript** throughout, fonts self-hosted via `next/font` (JetBrains Mono + Inter)
+- **Cloudflare Workers + Static Assets** for hosting — `wrangler.jsonc` +
+  `worker/index.ts` serve the build and handle `/api/contact` (via Resend)
+- Writeups and detections are just Markdown (`gray-matter` for frontmatter, `marked`
+  to render), with raw HTML stripped on the way out so nothing I paste in by accident
+  becomes a stored XSS bug
 
-## Content model
+## What's actually on it
 
-Two markdown collections, both loaded at build time with raw HTML stripped:
+- **`/`** — the homepage terminal. Type commands, get real output.
+- **`/whoami`** — the origin story / skills page.
+- **`/writeups`** — CTF and research writeups, filterable, each with its own page.
+- **`/detections`** — Sigma/KQL rules I've written, same deal.
+- **`/matrix`** — an ATT&CK coverage board that cross-references writeups (what I
+  emulated) against detections (what I wrote to catch it).
+- **`/arsenal`** — tools I've released and disclosures I've been credited for.
+- **`/security`** — my vulnerability disclosure policy, with a proper RFC 9116
+  `security.txt`.
+- **`/connect`** and **`/handshake`** — social links and a working contact form.
+- **`/feed.xml`** — RSS for writeups + detections combined.
+- Themed 404 / 403 / 503 pages, because generic error pages are a wasted opportunity.
 
-- `content/writeups/*.md` — offensive research. Frontmatter `techniques: ['T1558.003']`
-  declares what the writeup **emulates**.
-- `content/detections/*.md` — detection rules. Frontmatter `techniques:` declares what
-  the rule **covers**, and `writeup:` links it back to the attack it answers.
+## How the content model works
 
-`src/lib/attack.ts` joins the two into the coverage board. A technique referenced in
-frontmatter that is missing from the catalogue in that file **fails the build** — the
-matrix can never silently under-report. Add new techniques there first.
+Two Markdown folders: `content/writeups/` and `content/detections/`. Every writeup
+declares which ATT&CK techniques it emulates in frontmatter (`techniques:
+['T1558.003']`), and every detection declares which techniques it covers and which
+writeup it answers back to. `src/lib/attack.ts` stitches the two together into the
+matrix page.
 
-> **Before deploy:** `src/lib/arsenal.ts` ships placeholder advisories
-> (`CVE-20XX-NNNNN`, `Vendor name`). Replace them with real entries or delete them.
-> The homepage "CVEs credited" stat is derived from that list, so it follows whatever
-> you leave there.
+The one rule I enforce on myself: if I reference a technique ID in frontmatter that
+isn't in the catalogue inside `attack.ts`, **the build fails**. I'd rather find out at
+build time than have the matrix quietly under-report coverage.
 
-## Security highlights
+One thing to remember before pushing this live for real: `src/lib/arsenal.ts` still
+has a couple of placeholder entries (`CVE-20XX-NNNNN` style) in it from when I was
+laying out the page. Swap those for real disclosures or pull them — the "CVEs
+credited" stat on the homepage just counts whatever's in that file.
 
-- **Terminal**: no `eval`/`new Function`, command registry is a `Map` (no prototype
-  reach), input sanitised (ANSI/control/bidi/zero-width stripped), length + token +
-  rate caps, outbound links checked against an origin allowlist. All output renders as
-  React text nodes — verified: `echo <img onerror=...>` is inert.
-- **Contact API** (`worker/index.ts`): same-origin check, body-size + field caps,
-  honeypot + time-trap (silent bot drop), optional Turnstile, optional KV rate-limit,
-  HTML-escaped email, no secret ever reflected to the client.
-- **Edge headers** (`public/_headers`): strict CSP, HSTS preload, `X-Frame-Options:
-  DENY`, `nosniff`, locked-down `Permissions-Policy`, COOP/CORP. See notes in that
-  file on the static-export `script-src 'unsafe-inline'` trade-off.
-- **Writeups**: markdown pipeline cannot emit author HTML → no stored-XSS surface.
+## Things I was deliberate about, security-wise
 
-## Commands
+Since the whole point of the site is "I do this professionally," it felt wrong to ship
+it sloppy:
+
+- The terminal never touches `eval` or `new Function`. Commands live in a `Map`
+  registry, input gets stripped of ANSI/control/bidi/zero-width characters, there are
+  length and rate caps, and outbound links are checked against an allowlist before
+  they're followed. Output only ever renders as plain React text nodes — I tested
+  `echo <img onerror=...>` and it just prints, inert.
+- `worker/index.ts` (the contact API) checks same-origin, caps body size and field
+  lengths, has a honeypot field plus a time-trap for bots, supports optional
+  Turnstile, supports an optional KV-backed rate limit, and HTML-escapes anything
+  before it touches an email. No secret ever gets echoed back to the client.
+- `public/_headers` sets a real CSP, HSTS preload, `X-Frame-Options: DENY`, `nosniff`,
+  a locked-down `Permissions-Policy`, and COOP/CORP. There's a note in that file about
+  the one `unsafe-inline` trade-off the static export forces on me.
+- Markdown writeups can't emit raw HTML, so there's no stored-XSS path through
+  content I write.
+
+## Running it locally
 
 ```bash
-npm run dev       # local dev  (http://localhost:3000)
+npm run dev       # local dev, http://localhost:3000
 npm run build     # static export -> ./out
-npm run preview   # build + wrangler dev (Worker + _headers, like prod)
+npm run preview   # build + wrangler dev, closest thing to prod locally
 npm run deploy    # build + wrangler deploy
 ```
 
-## Deploy & configure
+## Adding content
 
-See **[DEPLOY.md](DEPLOY.md)** — Cloudflare Pages setup, Resend + DNS, the
-`zephryx.in` custom domain, wiring the 403/503 pages, and optional Turnstile / KV
-hardening. Add content by dropping Markdown into `content/writeups/` or
-`content/detections/`.
+New writeup or detection = new Markdown file in `content/writeups/` or
+`content/detections/`, commit, push. Cloudflare rebuilds it automatically. Full deploy
+steps, DNS, Resend setup, and the Turnstile/KV hardening options are all in
+**[DEPLOY.md](DEPLOY.md)**.
 
-**Annual maintenance:** `public/.well-known/security.txt` carries a mandatory
-`Expires:` field (currently 2027-08-09). Consumers treat an elapsed date as an invalid
-file, so roll it forward at least once a year.
+One maintenance chore worth remembering: `public/.well-known/security.txt` has an
+`Expires:` field (currently 2027-08-09) that consumers treat as invalid once it's
+passed, so I need to roll that forward at least once a year.
