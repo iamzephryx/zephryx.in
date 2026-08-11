@@ -10,7 +10,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'arsenal',
   description:
-    'Released offensive and detection tooling, plus coordinated vulnerability disclosures — the artefacts behind the claims.',
+    "Tools I've actually released, plus vulnerabilities I've reported through proper coordinated disclosure. The stuff you can go check for yourself.",
   alternates: { canonical: `${SITE.url}/arsenal/` },
 };
 
@@ -65,11 +65,10 @@ export default function ArsenalPage() {
 
           <Reveal delay={140}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
-              Claims are cheap. This page is the part of the portfolio you can clone,
-              read and disagree with: tooling I have released, and the vulnerabilities I
-              have reported through coordinated disclosure. Where something is still
-              embargoed or stays in-house, it says so rather than quietly padding a
-              number.
+              Anyone can write "expert" on a portfolio page. This is the part you don't
+              have to take my word for — tools I've actually shipped, and disclosures you
+              can go look up. If something's still under embargo, I say so instead of
+              just listing it like it's already public.
             </p>
           </Reveal>
 
@@ -93,8 +92,8 @@ export default function ArsenalPage() {
         <Reveal>
           <SectionHeading
             index="01 / TOOLING"
-            title="what I have shipped"
-            sub="Written during engagements, cleaned up afterwards. Each one exists because the alternative was doing the same thing by hand for the third time."
+            title="stuff I've shipped"
+            sub="Most of these started as a script I hacked together mid-engagement and cleaned up later, once doing the same thing by hand a third time got old."
           />
         </Reveal>
 
@@ -169,7 +168,7 @@ export default function ArsenalPage() {
           <SectionHeading
             index="02 / DISCLOSURE"
             title="advisories"
-            sub="Reported through coordinated disclosure, fixed before publication. Embargoed entries stay deliberately vague until the vendor ships."
+            sub="Reported quietly, fixed, then written up. Anything still under embargo stays vague on purpose until the vendor actually ships a patch."
           />
         </Reveal>
 

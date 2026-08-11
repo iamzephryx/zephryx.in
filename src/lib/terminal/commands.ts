@@ -72,13 +72,12 @@ const FILES: ReadonlyMap<string, Line[]> = new Map([
   [
     'about.txt',
     [
-      out('23. Started breaking things in 8th standard — a school lab machine,'),
-      out('a lucky guess at a shared password, and a very long night reading'),
-      out('about what I had just done.'),
+      out("23 years old. Got into all this in 8th standard because of a shared"),
+      out("login on a school lab machine and way too much curiosity for my own"),
+      out("good. Never really grew out of it, just got paid for it eventually."),
       blank(),
-      out('That curiosity turned into a discipline. Today I defend by day as a'),
-      out('SOC analyst and threat hunter, and think like the adversary the rest'),
-      out('of the time. Red team is not the hobby — it is the lens.'),
+      out("SOC analyst and threat hunter by day. Red teamer the rest of the"),
+      out("time, and honestly the part I'd probably still do for free."),
     ],
   ],
   [

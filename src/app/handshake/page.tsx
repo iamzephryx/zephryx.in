@@ -6,7 +6,7 @@ import { MAILBOXES, SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'handshake',
   description:
-    'Open a channel with Zephryx — red team engagements, adversary emulation, detection reviews or a talk. Validated, rate-limited contact form.',
+    "The actual contact form. For engagements, detection reviews, a talk, or a disclosure — write a bit about what you need and I'll get back to you.",
   alternates: { canonical: `${SITE.url}/handshake/` },
 };
 
@@ -27,9 +27,9 @@ export default function HandshakePage() {
         </Reveal>
         <Reveal delay={160}>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
-            Red team assessment, adversary emulation, detection review, disclosure or a talk for your
-            team — send the packet and I&apos;ll ACK. Everything here is validated on the client,
-            hardened on the edge, and delivered straight to my inbox.
+            Assessment, a full emulation, a second pair of eyes on your detection coverage, a talk,
+            or you found something in my own stuff — whatever it is, this goes straight to my
+            actual inbox, not a shared team queue somewhere.
           </p>
         </Reveal>
 
@@ -93,9 +93,10 @@ export default function HandshakePage() {
                   DISCLOSURE
                 </h2>
                 <p className="mt-3 text-[13px] leading-relaxed text-ink-dim">
-                  Found a flaw in my infrastructure? Report it to{' '}
-                  <span className="font-mono text-red-blood/80">security@{SITE.domain}</span>. Good
-                  faith research is always welcome — no legal surprises.
+                  If you found something wrong with my actual site or infra, I'd genuinely rather
+                  know — email{' '}
+                  <span className="font-mono text-red-blood/80">security@{SITE.domain}</span> and
+                  I'll deal with it, no legal threats, I promise.
                 </p>
               </div>
             </aside>

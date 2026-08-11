@@ -7,7 +7,7 @@ import { MAILBOXES, SITE, SOCIALS } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'connect',
   description:
-    'Find Zephryx across the network — GitHub, X, LinkedIn, YouTube, Instagram — plus direct and disclosure email channels.',
+    "Where else to find me — GitHub, X, LinkedIn, YouTube, Instagram — and the actual email addresses if you'd rather just write to me.",
   alternates: { canonical: `${SITE.url}/connect/` },
 };
 
@@ -30,8 +30,9 @@ export default function ConnectPage() {
           </Reveal>
           <Reveal delay={160}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
-              Live threat intel, box takedowns, tooling and the occasional human moment. Every
-              channel is a different frequency — pick the one that fits.
+              I use these for pretty different things, so pick whichever actually matches what
+              you're after — code on GitHub, quick thoughts on X, the professional stuff on
+              LinkedIn, and my actual inbox down below if none of that fits.
             </p>
           </Reveal>
         </div>
@@ -85,8 +86,8 @@ export default function ConnectPage() {
         <Reveal>
           <SectionHeading
             index="02 / MAIL"
-            title="direct channels"
-            sub="Prefer email? Pick the mailbox that matches the intent. Sensitive findings should be encrypted."
+            title="or just email me"
+            sub="Three inboxes, sorted by what you're actually writing about. If it's a real finding, please encrypt it first."
           />
         </Reveal>
 
@@ -116,9 +117,9 @@ export default function ConnectPage() {
 
         <Reveal>
           <p className="mt-6 font-mono text-[12px] text-ink-faint">
-            <span className="text-red-blood/70">#</span> PGP fingerprint for{' '}
-            <span className="text-red-blood/80">security@{SITE.domain}</span> available on request.
-            Encrypt anything that would matter in the wrong inbox.
+            <span className="text-red-blood/70">#</span> ask and I'll send my PGP fingerprint for{' '}
+            <span className="text-red-blood/80">security@{SITE.domain}</span>. If it's something
+            that'd actually matter landing in the wrong inbox, encrypt it.
           </p>
         </Reveal>
       </section>
@@ -134,13 +135,14 @@ export default function ConnectPage() {
               }}
             />
             <p className="relative font-mono text-sm text-red-blood/80">
-              <span className="animate-blink">▌</span> prefer a vetted channel?
+              <span className="animate-blink">▌</span> or, if you'd rather use a form
             </p>
             <h2 className="relative mt-3 font-mono text-2xl font-bold text-ink sm:text-4xl">
-              Run the <span className="text-red-blood text-glow">handshake</span>.
+              There's the <span className="text-red-blood text-glow">handshake</span> page too.
             </h2>
             <p className="relative mx-auto mt-4 max-w-md text-sm text-ink-dim">
-              Structured, rate-limited and straight to my inbox — no third-party form middleman.
+              I built it myself, so it goes straight to my inbox — no third-party service
+              sitting in between reading what you send.
             </p>
             <div className="relative mt-7">
               <Link

@@ -7,7 +7,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'writeups',
   description:
-    'Security research, CTF writeups and detection engineering notes from Zephryx — offensive tradecraft and the detections that answer it.',
+    "CTF boxes, real engagements written up with the boring parts still in, and whatever detection work came out of them afterward.",
   alternates: { canonical: `${SITE.url}/writeups/` },
 };
 
@@ -31,9 +31,9 @@ export default function WriteupsPage() {
           </Reveal>
           <Reveal delay={160}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
-              Notes from both sides of the wire. Attack chains, CTF takedowns and the detection
-              engineering that turns each finding into coverage. No filler, no fluff — just the path
-              and the proof.
+              These are the writeups I actually bothered to finish — attack chains, CTF boxes,
+              the odd bug bounty. I try to include the dead ends too, not just the clean version
+              that makes it look like I knew where I was going the whole time.
             </p>
           </Reveal>
         </div>

@@ -7,7 +7,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'whoami',
   description:
-    'Zephryx — 23-year-old offensive security specialist. SOC analyst and threat hunter by day, red team operator the rest of the time. Origin story, focus areas, capability matrix and rules of engagement.',
+    "A bit about me — how I got into this, what I actually work on day to day, the tools I reach for, and the rules I don't break even when a client would let me.",
   alternates: { canonical: `${SITE.url}/whoami/` },
 };
 
@@ -17,22 +17,22 @@ const TIMELINE = [
   {
     year: '8th std',
     title: 'The first foothold',
-    body: 'A school lab machine, a guessed shared password, and a long night reading about what I had just done. Curiosity became the first exploit.',
+    body: "One of the lab computers at school had a shared login everyone knew, and I got curious about what else I could get into with it. Nothing clever — I just kept poking around and staying up too late reading about what I'd stumbled into.",
   },
   {
     year: 'Teens',
-    title: 'CTFs & home lab',
-    body: 'Wargames, boot2root VMs and a rack of second-hand hardware. Learned to enumerate before I learned to sleep. Rooted my way through hundreds of boxes.',
+    title: 'CTFs & a home lab',
+    body: "Spent most of my free time after that on wargames and boot2root VMs, running a small pile of second-hand hardware I'd cobbled together. Lost count of how many boxes I rooted somewhere in the low hundreds.",
   },
   {
     year: 'Now',
     title: 'SOC by day',
-    body: 'Threat hunting and detection engineering inside a live SOC. Watching real adversaries taught me what actually trips a sensor — and what quietly does not.',
+    body: "I do threat hunting and detection work on a live SOC. Watching what real intrusions actually look like — as opposed to what I assumed they'd look like — changed a lot about how I think.",
   },
   {
     year: 'Always',
-    title: 'Red team the rest',
-    body: 'Adversary emulation, initial access development and Active Directory attack paths. Every finding becomes a detection. The loop never closes for long.',
+    title: 'Red team the rest of the time',
+    body: "Adversary emulation, initial access, AD attack paths — this is the part I'd probably do for free if I didn't need the day job. I try to turn most of it into something I can also detect.",
   },
 ];
 
@@ -40,22 +40,22 @@ const FOCUS = [
   {
     tag: 'ATK',
     title: 'Adversary Emulation',
-    body: 'Replaying real threat-actor TTPs end to end — initial access to objective, mapped to MITRE ATT&CK. C2 infrastructure, OPSEC and payload development.',
+    body: "Running a real engagement start to finish — initial access through to whatever the objective was — and mapping it to ATT&CK afterward so it's usable, not just a war story.",
   },
   {
     tag: 'AD',
     title: 'Active Directory',
-    body: 'Kerberos abuse, ACL attack paths, delegation flaws and certificate services (ESC1–8). Identity is the perimeter; I live in the graph.',
+    body: "Kerberos abuse, ACLs nobody's looked at in years, delegation someone set up for a project that ended in 2021, ADCS templates with ESC1 through ESC8 sitting wide open. I spend a lot of time here.",
   },
   {
     tag: 'ACC',
     title: 'Initial Access',
-    body: 'Phishing pretext design, payload development and AV/EDR evasion. The quietest way in is rarely the loudest exploit.',
+    body: "Pretext design for phishing, payload dev, getting past AV/EDR. Honestly the quiet, boring path in usually beats whatever clever exploit I had planned.",
   },
   {
     tag: 'DEF',
     title: 'Detection Engineering',
-    body: 'Sigma rules, KQL hunts and ATT&CK-mapped coverage. Offence that never becomes a detection is just a party trick.',
+    body: "Sigma, KQL hunts, mapping coverage back to ATT&CK. I got tired of handing over red team findings that nobody ever built a detection for, so now I try to write the rule myself.",
   },
 ];
 
@@ -80,11 +80,11 @@ const STACK: ReadonlyArray<[string, string]> = [
 ];
 
 const ROE = [
-  'Scope is sacred. Out of scope is out of bounds.',
-  'Authorisation in writing, or it does not happen.',
-  'Prove impact, never cause it.',
-  'Data touched is data reported, minimised and destroyed.',
-  'The report is the deliverable. The shell is just evidence.',
+  "I stay inside scope, full stop. If something interesting turns up outside it, it goes in the report as a recommendation, not something I actually touch.",
+  "No written authorisation, no engagement. I don't care how much of a hurry anyone's in.",
+  "I'll prove a finding is real, but I stop short of actually causing the damage it's capable of. Screenshots and a clear explanation do the job.",
+  "Anything I access during an engagement gets reported, kept to the minimum I actually needed, and deleted afterward.",
+  "The report is what the client's paying for. Getting a shell is just how I back up what I'm telling them.",
 ];
 
 export default function WhoamiPage() {
@@ -153,21 +153,22 @@ export default function WhoamiPage() {
               {/* narrative */}
               <div className="space-y-5 text-lg leading-relaxed text-ink-dim">
                 <p>
-                  I&apos;m {SITE.name} — a 23-year-old offensive security specialist. I started
-                  breaking things in 8th standard, and I never really stopped. What began as
-                  curiosity turned into a discipline: understand a system deeply enough, and its
-                  weaknesses stop being secrets.
+                  I&apos;m {SITE.name}, 23, and I do offensive security for a living. It started
+                  in 8th standard with a shared school-lab login and a lot of free time, and
+                  somewhere along the way it turned from a thing I did after homework into
+                  an actual career, which still feels a little unreal to say out loud.
                 </p>
                 <p>
-                  By day I work the <span className="text-ink">SOC as a threat hunter</span> —
-                  hypothesis-driven hunts, detection engineering and chasing the faint signal of an
-                  adversary already inside. The rest of the time I think like that adversary:{' '}
-                  <span className="text-red-blood">red team is not the hobby, it&apos;s the lens</span>.
+                  My actual paycheck comes from{' '}
+                  <span className="text-ink">threat hunting on a SOC</span> — chasing down
+                  whatever faint signal suggests someone's already inside that shouldn't be. Red
+                  teaming is the part I do the rest of the time, and honestly the part I'd
+                  probably keep doing even if it stopped paying.
                 </p>
                 <p>
-                  I emulate the attacks that matter, prove the impact without causing it, and hand
-                  back the detection that would have caught me. Offence and defence aren&apos;t two
-                  jobs — they&apos;re one loop.
+                  I try not to just hand a client a PDF and disappear. If I find a way in, I want
+                  to also leave behind something that catches the next person who tries it —
+                  that's really the whole idea behind this site.
                 </p>
               </div>
             </div>
@@ -181,7 +182,7 @@ export default function WhoamiPage() {
           <SectionHeading
             index="01 / ORIGIN"
             title="how it happened"
-            sub="No shortcut, no bootcamp. Just years of enumeration, failure and the occasional root shell at 4am."
+            sub="Nothing dramatic — no bootcamp, no single big break. Just a lot of years of failing at things until they worked."
           />
         </Reveal>
 
@@ -209,8 +210,8 @@ export default function WhoamiPage() {
         <Reveal>
           <SectionHeading
             index="02 / FOCUS"
-            title="where I operate"
-            sub="Four surfaces I keep sharp. Everything else bends toward them."
+            title="where I actually spend my time"
+            sub="If you gave me a completely free week, this is probably still what I'd be doing."
           />
         </Reveal>
 
@@ -279,8 +280,8 @@ export default function WhoamiPage() {
         <Reveal>
           <SectionHeading
             index="05 / ETHICS"
-            title="rules of engagement"
-            sub="Offensive work without discipline is just crime with extra steps. These are non-negotiable."
+            title="rules I actually stick to"
+            sub="Without these, what I do for a living is just a different word for the same crime. I don't bend on any of them."
           />
         </Reveal>
 
@@ -303,9 +304,10 @@ export default function WhoamiPage() {
         <Reveal>
           <div className="panel clip-corner flex flex-col items-start justify-between gap-6 p-8 sm:flex-row sm:items-center">
             <div>
-              <h2 className="font-mono text-xl font-semibold text-ink">Read the research →</h2>
+              <h2 className="font-mono text-xl font-semibold text-ink">There's more if you want it →</h2>
               <p className="mt-2 text-sm text-ink-dim">
-                Field notes from both sides of the wire, or open a channel to scope an engagement.
+                The writeups go into a lot more detail than this page does, or just reach out if
+                you want to talk about actually working together.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

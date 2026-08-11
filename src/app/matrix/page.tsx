@@ -9,7 +9,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'matrix',
   description:
-    'MITRE ATT&CK coverage board — which techniques I have emulated, which ones have a published detection rule behind them, and where the gaps still are.',
+    "A board of which ATT&CK techniques I've actually written an attack for, which of those I've also written a detection for, and where I still owe myself work.",
   alternates: { canonical: `${SITE.url}/matrix/` },
 };
 
@@ -44,10 +44,10 @@ export default function MatrixPage() {
 
           <Reveal delay={140}>
             <p className="mt-6 max-w-3xl text-lg leading-relaxed text-ink-dim">
-              One board, two claims. Red cells are techniques I have emulated and
-              published on. Green cells are the ones where a detection rule now answers
-              that emulation. Amber is a rule with no writeup behind it, and grey is
-              honest — I track the technique, I have not published either half yet.
+              This is basically my own scorecard, made public. Red is a technique I've
+              published an attack for. Green means I went back and wrote the detection too.
+              Amber is a rule that exists without a writeup behind it, and grey just means
+              I'm tracking the technique and haven't gotten around to either one yet.
             </p>
           </Reveal>
 
@@ -78,8 +78,8 @@ export default function MatrixPage() {
         <Reveal>
           <SectionHeading
             index="01 / METHOD"
-            title="how to read this honestly"
-            sub="Coverage boards are the easiest artefact in security to lie with. Here is exactly what this one does and does not claim."
+            title="what this board isn't claiming"
+            sub="I've seen enough coverage boards used to oversell a program that I want to be clear about what this one actually is."
           />
         </Reveal>
 
@@ -87,13 +87,13 @@ export default function MatrixPage() {
           <Reveal>
             <article className="panel clip-corner h-full p-6">
               <h3 className="font-mono text-base font-semibold text-ink">
-                It is a slice, not the matrix
+                This is a slice, not the whole matrix
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-ink-dim">
-                ATT&amp;CK Enterprise carries hundreds of techniques. This board tracks{' '}
-                {coverage.total} — the ones in my regular rotation, plus neighbours kept
-                visible so the gaps around them are legible. A full green matrix would
-                mean the board was curated to look good.
+                ATT&amp;CK Enterprise has hundreds of techniques in it. I'm tracking{' '}
+                {coverage.total} here — basically what I actually run into, plus a few
+                neighbours I left visible on purpose so the gaps mean something. If this
+                board were all green, that'd be a sign I curated it, not that I'm done.
               </p>
             </article>
           </Reveal>
@@ -101,13 +101,13 @@ export default function MatrixPage() {
           <Reveal delay={90}>
             <article className="panel clip-corner h-full p-6">
               <h3 className="font-mono text-base font-semibold text-ink">
-                Coverage is derived, not asserted
+                I can't just hand-color a cell green
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-ink-dim">
-                Every cell state is computed at build time from the technique IDs
-                declared on published writeups and detection rules. Nothing here is
-                hand-coloured, and a technique referenced by content that is missing from
-                the catalogue fails the build rather than silently vanishing.
+                Every cell on this board gets computed from the technique IDs I actually
+                declared on a writeup or a detection rule when I published it — I built
+                it that way on purpose, so I can't just fudge one green out of laziness.
+                If I reference a technique I forgot to register, the site fails to build.
               </p>
             </article>
           </Reveal>
@@ -115,13 +115,13 @@ export default function MatrixPage() {
           <Reveal delay={180}>
             <article className="panel clip-corner h-full p-6">
               <h3 className="font-mono text-base font-semibold text-ink">
-                A rule is not a guarantee
+                A green cell isn't a promise
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-ink-dim">
-                Green means a rule exists and I have tested it against my own emulation.
-                It does not mean the technique is stopped — every rule on this site
-                documents its own blind spots, and a determined operator gets past most
-                of them. Detection is friction, not a wall.
+                Green just means I wrote a rule and actually tested it against my own
+                attack. It doesn't mean nobody's getting past it — every rule here says
+                where it's weak, and a patient attacker will find that spot. I think of
+                detection as slowing someone down, not stopping them outright.
               </p>
             </article>
           </Reveal>
@@ -135,13 +135,13 @@ export default function MatrixPage() {
             <div>
               <h2 className="font-mono text-xl font-semibold text-ink">
                 {openGaps > 0
-                  ? `${openGaps} open ${openGaps === 1 ? 'loop' : 'loops'} left on this board`
-                  : 'Every emulated technique has a rule behind it'}
+                  ? `${openGaps} thing${openGaps === 1 ? '' : 's'} I still owe this board a rule for`
+                  : "Everything I've emulated has a rule behind it right now"}
               </h2>
               <p className="mt-2 max-w-xl text-sm text-ink-dim">
                 {openGaps > 0
-                  ? 'Techniques I have published attacks for and not yet published detections for. They are next in the queue — and they are the honest measure of this site.'
-                  : 'Which means the board needs new attacks on it, not new rules. Send me a technique worth breaking.'}
+                  ? "These are attacks I've already published without going back to write the detection. They're on the list — this number is basically my to-do pile, publicly."
+                  : "Which just means I need to go find something new to break, not new rules to write. Tell me if you've got a technique worth trying."}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

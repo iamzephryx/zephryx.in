@@ -7,7 +7,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'security',
   description:
-    'Vulnerability disclosure policy for zephryx.in and published tooling — scope, safe harbour, response times and how to reach the security contact.',
+    "If you found a bug in my site or my tools, here's exactly how to tell me, what I'll do about it, and why you won't get a legal letter for trying to help.",
   alternates: { canonical: `${SITE.url}/security/` },
 };
 
@@ -79,9 +79,9 @@ export default function SecurityPage() {
 
           <Reveal delay={140}>
             <p className="mt-6 text-lg leading-relaxed text-ink-dim">
-              I spend my working life finding other people&apos;s bugs, so the least I can
-              do is make it painless to report mine. This page is the policy referenced
-              by{' '}
+              I spend most of my working hours finding other people's bugs, so it'd be
+              pretty rich of me to make it hard for someone to report mine. This page is
+              the policy referenced by{' '}
               <a
                 href="/.well-known/security.txt"
                 className="text-red-blood underline decoration-red-blood/40 underline-offset-4 transition-colors hover:decoration-red-blood"

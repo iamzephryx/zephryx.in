@@ -9,7 +9,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'detections',
   description:
-    'Sigma rules, KQL hunts and tuning notes written in response to offensive work — the detection half of the purple loop, mapped to MITRE ATT&CK.',
+    "Detection rules I wrote after finding my own way past something. Sigma and KQL, with the tuning notes and known blind spots left in, not polished out.",
   alternates: { canonical: `${SITE.url}/detections/` },
 };
 
@@ -46,11 +46,10 @@ export default function DetectionsPage() {
 
           <Reveal delay={140}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
-              Offence that never becomes a detection is a party trick. Every rule below
-              exists because something got through first — most of them link straight
-              back to the writeup that motivated them. Sigma for portability, KQL for the
-              estates I actually work in, and honest tuning notes for the parts that
-              generate noise.
+              I got tired of finding a way past something on an engagement and then never
+              going back to write the rule that would've caught it. So now I try to. Sigma
+              because it travels between tools, KQL because that's what I actually run day
+              to day, and I try to be upfront in the notes about where each rule still misses.
             </p>
           </Reveal>
 
@@ -79,7 +78,7 @@ export default function DetectionsPage() {
                 href="/writeups/"
                 className="group flex items-center gap-2 px-2 py-3 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
               >
-                the offensive half
+                see the attacks these answer
                 <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </Link>
             </div>
@@ -97,15 +96,15 @@ export default function DetectionsPage() {
         <Reveal>
           <div className="panel clip-corner p-8">
             <h2 className="font-mono text-sm font-semibold tracking-[0.2em] text-red-blood/80">
-              // BEFORE YOU DEPLOY ANY OF THESE
+              // BEFORE YOU ACTUALLY DEPLOY THESE
             </h2>
             <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-ink-dim">
-              These rules are written against the telemetry I have, in the estates I
-              work in. Field names differ between Sysmon schemas, EDR vendors and SIEM
-              normalisations, and every threshold here assumes a baseline I built from
-              someone else&apos;s logs. Run them in audit first, tune against your own
-              noise floor, and treat the exclusions as an attack surface — an allowlist
-              is where a competent operator will go and hide.
+              Quick honesty check: I wrote these against the telemetry I happen to have
+              access to. Your Sysmon schema, EDR vendor, or SIEM's field names probably
+              don't match mine exactly, and every threshold in here is tuned to a noise
+              floor from logs that aren't yours. Run them in audit mode first. And
+              seriously look hard at the exclusion lists before you trust them — that's
+              usually the first place someone who knows what they're doing will hide.
             </p>
           </div>
         </Reveal>

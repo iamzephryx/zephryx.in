@@ -32,19 +32,19 @@ const CAPABILITIES = [
   {
     tag: 'ATK',
     title: 'Adversary Emulation',
-    body: 'Full-scope red team operations that replay real threat-actor TTPs end to end — from initial access through to objective, mapped to MITRE ATT&CK.',
+    body: "This is the actual job most of the time: get hired to act like a real threat actor against a client's environment, start to finish, and map whatever I do back to ATT&CK so the report means something.",
     items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
   },
   {
     tag: 'AD',
     title: 'Active Directory',
-    body: 'Identity is the modern perimeter. Kerberos abuse, ACL attack paths, delegation flaws and certificate services — I live in the graph.',
+    body: "Most environments I land in are Windows shops, so most of my time goes here. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, ADCS templates that were never locked down.",
     items: ['Kerberoasting & delegation', 'ADCS escalation (ESC1-8)', 'BloodHound path analysis'],
   },
   {
     tag: 'DEF',
     title: 'Purple Loop',
-    body: 'Every offensive finding becomes a detection. SOC by day means I close the loop — Sigma rules, KQL hunts and ATT&CK-mapped coverage.',
+    body: "Having a foot in the SOC changes how I attack — I know what actually gets noticed. So I try to leave every engagement with a rule attached, not just a report nobody reads twice.",
     items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
   },
 ];
@@ -90,11 +90,12 @@ export default function HomePage() {
             </div>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-dim">
-              I break things before they do. A 23-year-old offensive security
-              specialist working the SOC as a{' '}
-              <span className="text-ink">threat hunter</span> — and thinking like the
-              adversary the rest of the time. I emulate the attacks that matter, then
-              build the detections that catch them.
+              I'm 23, and I've been doing this long enough now that people ask what I
+              actually do all day. Short version: I get paid to break into companies
+              on purpose, and when I'm not doing that I'm on the SOC side as a{' '}
+              <span className="text-ink">threat hunter</span>, looking for the people
+              who broke in without permission. Everything on this site comes out of
+              one of those two jobs.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -169,7 +170,7 @@ export default function HomePage() {
           <SectionHeading
             index="01 / CAPABILITIES"
             title="what I do"
-            sub="Offensive operations that close the loop. I don't just find the way in — I document the path, prove the impact, and hand you the detection that would have caught me."
+            sub="Three things I actually get hired for, roughly in order of how much of my week they eat."
           />
         </Reveal>
 
@@ -207,7 +208,7 @@ export default function HomePage() {
               <SectionHeading
                 index="02 / RESEARCH"
                 title="latest writeups"
-                sub="Field notes from both sides of the wire — offensive tradecraft and the detections that answer it."
+                sub="Whatever I've most recently found interesting enough to sit down and actually write about."
               />
             </div>
           </Reveal>
@@ -262,7 +263,7 @@ export default function HomePage() {
           <SectionHeading
             index="03 / COVERAGE"
             title="the loop, on a board"
-            sub="Anyone can claim they close the loop. This is the artefact: every technique I have published an attack for, next to the rule that answers it — and the gaps where no rule exists yet."
+            sub="I said 'purple loop' up there, so here's proof rather than a buzzword — every technique I've published an attack for, matched against whether I actually wrote the rule for it yet. Some of the gaps are just me not getting around to it."
           />
         </Reveal>
 
@@ -352,9 +353,9 @@ export default function HomePage() {
                 </p>
 
                 <p className="mt-6 text-sm leading-relaxed text-ink-dim">
-                  Sigma sources with KQL translations, real tuning notes, and an honest
-                  paragraph on where each rule breaks. Most of them link straight back to
-                  the writeup that made them necessary.
+                  Sigma, with KQL alongside it, plus notes on how I actually tuned each
+                  one and where I know it'll still miss something. Most of these exist
+                  because a specific writeup made me go write them.
                 </p>
               </div>
 
@@ -382,11 +383,12 @@ export default function HomePage() {
               <span className="animate-blink">▌</span> connection_request --from you
             </p>
             <h2 className="relative mt-4 font-mono text-3xl font-bold tracking-tight text-ink sm:text-5xl">
-              Let&apos;s run the <span className="text-red-blood text-glow">engagement</span>.
+              Got something for me to <span className="text-red-blood text-glow">break</span>?
             </h2>
             <p className="relative mx-auto mt-5 max-w-xl text-ink-dim">
-              Red team assessment, adversary emulation, detection review, or a talk for
-              your team — open a channel and let&apos;s scope it.
+              Assessment, a full emulation, someone to sanity-check your detection
+              coverage, or just a talk for your team — tell me what you're actually
+              trying to solve and we'll figure out if I'm the right fit.
             </p>
             <div className="relative mt-9 flex flex-wrap items-center justify-center gap-4">
               <Link
