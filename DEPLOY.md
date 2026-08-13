@@ -175,3 +175,32 @@ excerpt: 'One or two sentences shown on cards and used as the meta description.'
 
 Raw HTML inside Markdown is intentionally stripped at render time (XSS-safe). Commit,
 push, and Cloudflare rebuilds automatically.
+
+---
+
+## 9. Adding a cheatsheet
+
+Cheatsheets are static PDFs plus a metadata file — no database, same "commit and push"
+model as everything else on the site.
+
+1. Drop the PDF in `public/cheatsheets/<lowercase-kebab-name>.pdf`.
+2. Add a matching Markdown file in `content/cheatsheets/<lowercase-kebab-slug>.md`:
+
+```markdown
+---
+title: 'Active Directory Attack Quick Reference'
+date: '2026-08-13'
+category: 'Active Directory'   # Active Directory | Cloud | Web | Network | Forensics | Malware | Tools | General
+featured: true                 # surfaces on the home page, if it ever gets a slot
+tags: ['active-directory', 'kerberos', 'enumeration']
+excerpt: 'One-page reference for common AD enumeration and abuse commands.'
+file: 'active-directory-attack-quick-reference.pdf'   # filename only, must exist under public/cheatsheets/
+---
+```
+
+No body content is needed — the file's `file:` field is what gets linked, and the
+excerpt is what shows on the card. The build fails if `file:` doesn't point at a real
+PDF in `public/cheatsheets/`, so a broken link can't ship. File size shown on the card
+is read from the PDF on disk at build time, not from frontmatter.
+
+Commit, push, and Cloudflare rebuilds automatically.
