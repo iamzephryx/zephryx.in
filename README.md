@@ -33,6 +33,7 @@ maintenance mode if I need it to.
 - **`/`** — the homepage terminal. Type commands, get real output.
 - **`/whoami`** — the origin story / skills page.
 - **`/writeups`** — CTF and research writeups, filterable, each with its own page.
+- **`/cheatsheets`** — quick-reference notes and PDF cheatsheets, filterable by category/tag.
 - **`/detections`** — Sigma/KQL rules I've written, same deal.
 - **`/matrix`** — an ATT&CK coverage board that cross-references writeups (what I
   emulated) against detections (what I wrote to catch it).
@@ -45,15 +46,21 @@ maintenance mode if I need it to.
 
 ## How the content model works
 
-Two Markdown folders: `content/writeups/` and `content/detections/`. Every writeup
-declares which ATT&CK techniques it emulates in frontmatter (`techniques:
-['T1558.003']`), and every detection declares which techniques it covers and which
-writeup it answers back to. `src/lib/attack.ts` stitches the two together into the
-matrix page.
+Three Markdown folders: `content/writeups/`, `content/detections/` and
+`content/cheatsheets/`. Every writeup declares which ATT&CK techniques it emulates in
+frontmatter (`techniques: ['T1558.003']`), and every detection declares which
+techniques it covers and which writeup it answers back to. `src/lib/attack.ts`
+stitches the two together into the matrix page.
 
-The one rule I enforce on myself: if I reference a technique ID in frontmatter that
-isn't in the catalogue inside `attack.ts`, **the build fails**. I'd rather find out at
-build time than have the matrix quietly under-report coverage.
+Cheatsheets are simpler and deliberately not a database: a cheatsheet entry is
+frontmatter only (no body copy needed) that points at a PDF sitting in
+`public/cheatsheets/`. `src/lib/cheatsheets.ts` checks that PDF exists on disk and
+reads its size directly at build time rather than trusting a number in frontmatter.
+
+The rules I enforce on myself: if I reference a technique ID in frontmatter that
+isn't in the catalogue inside `attack.ts`, or a cheatsheet's `file:` doesn't point at
+a real PDF in `public/cheatsheets/`, **the build fails**. I'd rather find out at
+build time than ship a broken link or have the matrix quietly under-report coverage.
 
 One thing to remember before pushing this live for real: `src/lib/arsenal.ts` still
 has a couple of placeholder entries (`CVE-20XX-NNNNN` style) in it from when I was
@@ -92,8 +99,10 @@ npm run deploy    # build + wrangler deploy
 ## Adding content
 
 New writeup or detection = new Markdown file in `content/writeups/` or
-`content/detections/`, commit, push. Cloudflare rebuilds it automatically. Full deploy
-steps, DNS, Resend setup, and the Turnstile/KV hardening options are all in
+`content/detections/`, commit, push. New cheatsheet = drop the PDF in
+`public/cheatsheets/` plus a matching frontmatter-only Markdown file in
+`content/cheatsheets/`. Cloudflare rebuilds it automatically. Full deploy steps, DNS,
+Resend setup, and the Turnstile/KV hardening options are all in
 **[DEPLOY.md](DEPLOY.md)**.
 
 One maintenance chore worth remembering: `public/.well-known/security.txt` has an

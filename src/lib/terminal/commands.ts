@@ -368,6 +368,18 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
     },
   ],
   [
+    'cheatsheets',
+    {
+      name: 'cheatsheets',
+      summary: 'Quick-reference notes and PDF cheatsheets',
+      usage: 'cheatsheets',
+      run: (_args, ctx) => {
+        ctx.navigate('/cheatsheets/');
+        return [ok('Opening /cheatsheets …')];
+      },
+    },
+  ],
+  [
     'cd',
     {
       name: 'cd',

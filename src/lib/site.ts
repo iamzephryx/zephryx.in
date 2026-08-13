@@ -107,6 +107,7 @@ export const NAV = [
   { href: '/', label: 'home', cmd: '~' },
   { href: '/whoami/', label: 'whoami', cmd: 'id' },
   { href: '/writeups/', label: 'writeups', cmd: 'cat' },
+  { href: '/cheatsheets/', label: 'cheatsheets', cmd: 'find' },
   { href: '/detections/', label: 'detections', cmd: 'sigma' },
   { href: '/matrix/', label: 'matrix', cmd: 'att&ck' },
   { href: '/arsenal/', label: 'arsenal', cmd: 'ls' },

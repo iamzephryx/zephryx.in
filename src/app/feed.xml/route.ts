@@ -1,11 +1,12 @@
 import { getAllWriteups } from '@/lib/writeups';
 import { getAllDetections } from '@/lib/detections';
+import { getAllCheatsheets } from '@/lib/cheatsheets';
 import { SITE } from '@/lib/site';
 
 /**
- * RSS 2.0 feed covering both content collections — writeups and detection
- * rules are two halves of the same research output, so they share one feed and
- * are distinguished by <category>.
+ * RSS 2.0 feed covering all content collections — writeups, detection rules
+ * and cheatsheets are published from the same research pipeline, so they
+ * share one feed and are distinguished by <category>.
  *
  * Statically rendered at build time; `output: 'export'` writes the result to
  * out/feed.xml and it is served as an immutable asset thereafter.
@@ -49,7 +50,17 @@ export async function GET(): Promise<Response> {
     categories: ['Detection', ...d.techniques, ...d.tags],
   }));
 
-  const items = [...writeups, ...detections].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const cheatsheets: FeedItem[] = getAllCheatsheets().map((c) => ({
+    title: c.title,
+    link: `${SITE.url}/cheatsheets/${c.file}`,
+    description: c.excerpt,
+    date: c.date,
+    categories: ['Cheatsheet', c.category, ...c.tags],
+  }));
+
+  const items = [...writeups, ...detections, ...cheatsheets].sort((a, b) =>
+    a.date < b.date ? 1 : -1,
+  );
 
   const lastBuild = items[0] ? rfc822(items[0].date) : new Date().toUTCString();
 
