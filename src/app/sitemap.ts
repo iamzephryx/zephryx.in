@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllWriteups } from '@/lib/writeups';
 import { getAllDetections } from '@/lib/detections';
+import { getAllCheatsheets } from '@/lib/cheatsheets';
 import { SITE } from '@/lib/site';
 
 export const dynamic = 'force-static';
@@ -35,5 +36,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...routes, ...posts, ...rules];
+  const sheets: MetadataRoute.Sitemap = getAllCheatsheets().map((c) => ({
+    url: `${SITE.url}/cheatsheets/${c.slug}/`,
+    lastModified: new Date(c.date),
+    changeFrequency: 'yearly',
+    priority: 0.6,
+  }));
+
+  return [...routes, ...posts, ...rules, ...sheets];
 }

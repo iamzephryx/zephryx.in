@@ -75,6 +75,22 @@ export function getAllCheatsheets(): Cheatsheet[] {
   return readAll();
 }
 
+export function getCheatsheet(slug: string): Cheatsheet | null {
+  return readAll().find((c) => c.slug === slug) ?? null;
+}
+
+export function getAllCheatsheetSlugs(): string[] {
+  return readAll().map((c) => c.slug);
+}
+
+/** Other sheets in the same category, for the "related" rail on the detail page. */
+export function getRelatedCheatsheets(slug: string, limit = 3): Cheatsheet[] {
+  const all = readAll();
+  const current = all.find((c) => c.slug === slug);
+  if (!current) return [];
+  return all.filter((c) => c.slug !== slug && c.category === current.category).slice(0, limit);
+}
+
 export function getFeaturedCheatsheets(limit = 3): Cheatsheet[] {
   const all = readAll();
   const featured = all.filter((c) => c.featured);
