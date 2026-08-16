@@ -112,15 +112,18 @@ export const MAILBOXES: MailBox[] = [
  * the voice stays and the meaning arrives first.
  *
  * `primary` marks the destinations that earn a slot in the desktop top bar.
- * Everything else is one tap away in the mobile drawer and the footer, which
- * keeps the bar to five things a visitor can scan at a glance.
+ * Everything else is one tap away in the mobile drawer and the footer — but
+ * the drawer is mobile-only, so a page demoted here needs a cross-link from
+ * the content that relates to it or the footer becomes its only way in on
+ * desktop. Coverage has those (home, the Detections index, every detection);
+ * Cheatsheets has none, which is why it holds a slot in the bar.
  */
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false },
   { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
   { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
-  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: false },
+  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
   { href: '/matrix/', label: 'Coverage', cmd: 'att&ck', primary: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
