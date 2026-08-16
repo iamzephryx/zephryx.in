@@ -7,6 +7,7 @@ import { getWriteup } from '@/lib/writeups';
 import { attackUrl, techniqueName } from '@/lib/attack';
 import { SEVERITY_STYLE, STATUS_STYLE } from '@/lib/severity';
 import { SITE } from '@/lib/site';
+import ContentToc from '@/components/ContentToc';
 
 type Params = { slug: string };
 
@@ -53,7 +54,7 @@ export default async function DetectionPage({ params }: { params: Promise<Params
 
   return (
     <article className="relative px-5 pt-32 pb-16 sm:px-8">
-      <div className="mx-auto max-w-3xl">
+      <div className="relative mx-auto max-w-3xl">
         <Link
           href="/detections/"
           className="group inline-flex items-center gap-2 font-mono text-[13px] text-ink-faint transition-colors hover:text-red-blood"
@@ -140,6 +141,9 @@ export default async function DetectionPage({ params }: { params: Promise<Params
             </span>
           </Link>
         ) : null}
+
+        {/* in-page nav — sticky rail on wide screens, collapsible panel below xl */}
+        <ContentToc toc={d.toc} />
 
         {/*
           Body HTML is produced by the markdown pipeline in lib/detections.ts,

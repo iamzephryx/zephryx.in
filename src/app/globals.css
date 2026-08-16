@@ -380,6 +380,24 @@
   content: '### ';
   color: var(--color-red-deep);
 }
+/* Clear the fixed nav when a heading is jumped to from the in-page nav or a
+   shared #hash, otherwise the header lands underneath it. */
+.prose-terminal :is(h2, h3)[id] {
+  scroll-margin-top: 6.5rem;
+}
+/* Permalink affordance appended to every anchored heading. */
+.prose-terminal .heading-anchor {
+  margin-left: 0.5rem;
+  color: var(--color-ink-faint);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.prose-terminal :is(h2, h3):hover .heading-anchor,
+.prose-terminal .heading-anchor:focus-visible {
+  opacity: 1;
+}
+.prose-terminal .heading-anchor:hover { color: var(--color-red-blood); }
 .prose-terminal a {
   color: var(--color-red-blood);
   text-decoration: underline;
@@ -456,7 +474,8 @@
 .prose-terminal figure img {
   display: block;
   max-width: 100%;
-  width: auto;
+  /* No `width: auto` — the width/height attributes set by the renderer give the
+     browser an aspect ratio to reserve space with while the image is loading. */
   height: auto;
   margin: 0 auto;
   border: 1px solid var(--color-line);
