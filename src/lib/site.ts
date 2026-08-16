@@ -111,6 +111,13 @@ export const MAILBOXES: MailBox[] = [
  * same destination, rendered in the dim slot beside it on every surface, so
  * the voice stays and the meaning arrives first.
  *
+ * Where a label was renamed away from its route, `cmd` must be the route's own
+ * name — About/whoami, Coverage/matrix, Tools & CVEs/arsenal, Contact/handshake.
+ * Enough of these match their URL that the dim slot reads as the destination,
+ * so a value that names anything else (Coverage once carried `att&ck`) looks
+ * like the link is going somewhere it isn't. Everywhere the label already
+ * agrees with the route, `cmd` is free to be the shell verb for the section.
+ *
  * `primary` marks the destinations that earn a slot in the desktop top bar.
  * Everything else is one tap away in the mobile drawer and the footer — but
  * the drawer is mobile-only, so a page demoted here needs a cross-link from
@@ -124,7 +131,7 @@ export const NAV = [
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
   { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
   { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
-  { href: '/matrix/', label: 'Coverage', cmd: 'att&ck', primary: false },
+  { href: '/matrix/', label: 'Coverage', cmd: 'matrix', primary: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
 ] as const;
