@@ -114,7 +114,7 @@ person to audit the alert will land exactly where I landed.
 For SIEMs without Sigma correlation support, the same logic as a scheduled
 query:
 
-```sql
+```kql fortigate-spray-threshold.kql
 FortiGateEvent
 | where logid == "0100032002" and action == "login" and status == "failed"
 | summarize
@@ -146,7 +146,7 @@ close to worthless: an attacker who guesses the password mid-spray has no
 reason to reuse a burned address. Drop the source constraint entirely and widen
 the window well past the alert.
 
-```sql
+```kql fortigate-spray-success-unfiltered.kql
 FortiGateEvent
 | where logid == "0100032001" and action == "login" and status == "success"
 | where user == "<sprayed_account>" and dstip == "<sprayed_interface>"
@@ -160,7 +160,7 @@ cannot log success is not evidence, it is a blind spot wearing evidence's
 clothes. Before trusting an empty table, confirm the pipeline can produce a
 positive at all — same event, every filter removed:
 
-```sql
+```kql fortigate-admin-login-baseline.kql
 FortiGateEvent
 | where logid == "0100032001" and action == "login" and status == "success"
 | where TimeGenerated > ago(7d)
@@ -185,7 +185,7 @@ management interface exposed to the internet and used by nobody legitimate
 was. It is worth standing that up as a low-noise rule of its own, because it
 fires on the exposure rather than on somebody attacking it:
 
-```sql
+```kql fortigate-external-admin-login.kql
 FortiGateEvent
 | where logid == "0100032001" and action == "login" and status == "success"
 | where not(ipv4_is_private(srcip))

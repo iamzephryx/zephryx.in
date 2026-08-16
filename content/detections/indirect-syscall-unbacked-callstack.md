@@ -91,7 +91,7 @@ Stack heuristics degrade. A more durable check compares the address of the
 `syscall` instruction against the loaded `ntdll` module range, and flags the case
 where a thread's start address is unbacked entirely:
 
-```sql
+```kql
 DeviceEvents
 | where ActionType in ("ProcessAccess", "CreateRemoteThread")
 | extend stack = parse_json(AdditionalFields).CallTrace

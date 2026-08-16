@@ -83,7 +83,7 @@ falsepositives:
 The strongest discriminator is entropy. Administrators name services after
 products; tooling names them after `random.choice`:
 
-```sql
+```kql
 SecurityEvent
 | where EventID == 7045
 | extend name = tostring(ServiceName)

@@ -86,7 +86,7 @@ named selection so a downstream enrichment can promote those events.
 The access mask tells you someone read LSASS. The call trace tells you whether
 they did it from a legitimate module:
 
-```sql
+```kql
 Event
 | where Source == "Microsoft-Windows-Sysmon" and EventID == 10
 | extend TargetImage = tostring(EventData.TargetImage),

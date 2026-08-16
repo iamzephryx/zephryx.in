@@ -91,7 +91,7 @@ level: high
 The parent-child pair is the trigger. Three enrichments turn it into a verdict
 worth waking someone for:
 
-```sql
+```kql
 DeviceProcessEvents
 | where InitiatingProcessFileName in~ ("winword.exe","excel.exe","powerpnt.exe","outlook.exe")
 | where FileName in~ ("powershell.exe","cmd.exe","wscript.exe","mshta.exe","rundll32.exe")

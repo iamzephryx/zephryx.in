@@ -3,8 +3,10 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { Marked } from 'marked';
 import { anchoredHeadings, type TocEntry } from './toc';
+import { codeBlockActions, primaryBlock, type CodeBlock } from './codeblock';
 
 export type { TocEntry } from './toc';
+export { primaryBlock, type CodeBlock } from './codeblock';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'detections');
 
@@ -35,28 +37,36 @@ export type Detection = {
   html: string;
   /** Section headings of the rendered body, in document order. */
   toc: TocEntry[];
+  /** Every fenced block in the body, in document order, ready to hand off. */
+  codeBlocks: CodeBlock[];
 };
 
-export type DetectionMeta = Omit<Detection, 'html' | 'toc'>;
+export type DetectionMeta = Omit<Detection, 'html' | 'toc' | 'codeBlocks'>;
 
 /**
  * Same hardened pipeline as the writeups renderer — raw HTML passthrough is
  * disabled so a markdown authoring mistake can never emit live markup, and
- * sections are anchored for the in-page nav. Built per document because the
- * heading renderer carries document-scoped state.
+ * sections are anchored for the in-page nav. Fenced blocks additionally get a
+ * copy/download bar, since the rules are meant to be taken and run. Built per
+ * document because the heading and code renderers carry document-scoped state.
  */
-function render(content: string): { html: string; toc: TocEntry[] } {
+function render(
+  content: string,
+  slug: string,
+): { html: string; toc: TocEntry[]; codeBlocks: CodeBlock[] } {
   const toc: TocEntry[] = [];
+  const codeBlocks: CodeBlock[] = [];
 
   const marked = new Marked({ gfm: true, breaks: false });
   marked.use({
     renderer: {
       html: () => '',
       heading: anchoredHeadings(toc),
+      code: codeBlockActions(codeBlocks, slug),
     },
   });
 
-  return { html: marked.parse(content) as string, toc };
+  return { html: marked.parse(content) as string, toc, codeBlocks };
 }
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -96,7 +106,7 @@ function readAll(): Detection[] {
       );
 
       const words = content.trim().split(/\s+/).length;
-      const { html, toc } = render(content);
+      const { html, toc, codeBlocks } = render(content, slug);
 
       return {
         slug,
@@ -114,12 +124,18 @@ function readAll(): Detection[] {
         readingMinutes: Math.max(1, Math.round(words / 220)),
         html,
         toc,
+        codeBlocks,
       };
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-const strip = ({ html: _html, toc: _toc, ...meta }: Detection): DetectionMeta => meta;
+const strip = ({
+  html: _html,
+  toc: _toc,
+  codeBlocks: _codeBlocks,
+  ...meta
+}: Detection): DetectionMeta => meta;
 
 export function getAllDetections(): DetectionMeta[] {
   return readAll().map(strip);

@@ -444,6 +444,103 @@
   padding: 0;
   font-size: inherit;
 }
+
+/* ------------------------------------------------------------
+   Fenced blocks with a copy/download bar (detection rules).
+
+   The bar takes over the block's frame so the <pre> underneath keeps only its
+   scrolling. Actions render server-side but stay hidden until the client
+   component adds --interactive, so a reader without JS never meets a dead
+   button.
+   ------------------------------------------------------------ */
+.prose-terminal .code-block {
+  margin: 1.75rem 0;
+  border: 1px solid var(--color-line);
+  border-left: 2px solid var(--color-red-deep);
+  background: var(--color-abyss);
+}
+.prose-terminal .code-block > pre {
+  margin: 0;
+  border: 0;
+  background: none;
+}
+.prose-terminal .code-block__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin: 0;
+  padding: 0.45rem 0.7rem 0.45rem 1.25rem;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-elevated);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+/* Not a photo caption — drop the '// ' prefix the prose figcaption adds. */
+.prose-terminal .code-block__bar::before { content: none; }
+.prose-terminal .code-block__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  overflow: hidden;
+}
+.prose-terminal .code-block__lang { color: var(--color-red-blood); }
+.prose-terminal .code-block__file {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prose-terminal .code-block__actions {
+  display: none;
+  margin-left: auto;
+  gap: 0.4rem;
+}
+.prose-terminal--interactive .code-block__actions { display: flex; }
+.prose-terminal .code-block__action {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--color-ink-dim);
+  background: none;
+  border: 1px solid var(--color-line);
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.prose-terminal .code-block__action:hover {
+  color: var(--color-red-blood);
+  border-color: var(--color-red-deep);
+  background: rgba(255, 45, 75, 0.07);
+}
+.prose-terminal .code-block__action[data-state='done'] {
+  color: var(--color-signal);
+  border-color: rgba(41, 211, 145, 0.5);
+  background: rgba(41, 211, 145, 0.07);
+}
+.prose-terminal .code-block__action[data-state='error'] {
+  color: var(--color-warn);
+  border-color: rgba(255, 176, 32, 0.5);
+  background: rgba(255, 176, 32, 0.07);
+}
+/* Result announcements for screen readers only. */
+.prose-terminal .code-block__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .prose-terminal blockquote {
   border-left: 2px solid var(--color-red-blood);
   background: rgba(255, 45, 75, 0.045);
@@ -505,6 +602,25 @@
   color: var(--color-ink-dim);
   background: none;
   border: none;
+}
+:root[data-theme='light'] .prose-terminal .code-block__lang {
+  color: #c01030;
+}
+:root[data-theme='light'] .prose-terminal .code-block__action:hover {
+  color: #c01030;
+  border-color: rgba(192, 16, 48, 0.5);
+  background: rgba(192, 16, 48, 0.06);
+}
+/* The dark-theme signal green sits at ~2:1 on a light background. */
+:root[data-theme='light'] .prose-terminal .code-block__action[data-state='done'] {
+  color: #0b7048;
+  border-color: rgba(11, 112, 72, 0.5);
+  background: rgba(11, 112, 72, 0.07);
+}
+:root[data-theme='light'] .prose-terminal .code-block__action[data-state='error'] {
+  color: #8a5300;
+  border-color: rgba(138, 83, 0, 0.5);
+  background: rgba(138, 83, 0, 0.07);
 }
 :root[data-theme='light'] .prose-terminal a {
   color: #c01030;

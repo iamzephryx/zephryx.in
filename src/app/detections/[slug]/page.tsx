@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getAllDetectionSlugs, getDetection } from '@/lib/detections';
+import { getAllDetectionSlugs, getDetection, primaryBlock } from '@/lib/detections';
 import { formatDate } from '@/lib/format';
 import { getWriteup } from '@/lib/writeups';
 import { attackUrl, techniqueName } from '@/lib/attack';
 import { SEVERITY_STYLE, STATUS_STYLE } from '@/lib/severity';
 import { SITE } from '@/lib/site';
 import ContentToc from '@/components/ContentToc';
+import DetectionBody from '@/components/DetectionBody';
+import RuleActions from '@/components/RuleActions';
 
 type Params = { slug: string };
 
@@ -44,6 +46,7 @@ export default async function DetectionPage({ params }: { params: Promise<Params
   if (!d) notFound();
 
   const source = d.writeup ? getWriteup(d.writeup) : null;
+  const rule = primaryBlock(d.codeBlocks);
 
   const META: ReadonlyArray<[string, string]> = [
     ['rule_id', d.ruleId],
@@ -92,6 +95,9 @@ export default async function DetectionPage({ params }: { params: Promise<Params
               </div>
             ))}
           </dl>
+
+          {/* take the rule with you — the point of publishing it */}
+          {rule ? <RuleActions block={rule} blockCount={d.codeBlocks.length} /> : null}
 
           {/* ATT&CK mapping */}
           {d.techniques.length ? (
@@ -145,13 +151,7 @@ export default async function DetectionPage({ params }: { params: Promise<Params
         {/* in-page nav — sticky rail on wide screens, collapsible panel below xl */}
         <ContentToc toc={d.toc} />
 
-        {/*
-          Body HTML is produced by the markdown pipeline in lib/detections.ts,
-          which disables raw-HTML passthrough (html: () => ''). The content is
-          first-party and cannot emit author-controlled markup, so injecting it
-          here carries no stored-XSS surface.
-        */}
-        <div className="prose-terminal mt-10" dangerouslySetInnerHTML={{ __html: d.html }} />
+        <DetectionBody html={d.html} />
 
         {/* footer */}
         <footer className="mt-16 border-t border-line pt-8">
