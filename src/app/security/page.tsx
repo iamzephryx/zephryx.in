@@ -36,7 +36,7 @@ const PROCESS: ReadonlyArray<[string, string, string]> = [
   [
     '02',
     'Acknowledgement',
-    'I reply within 72 hours, usually sooner. If you do not hear back, assume the mail was lost and use the handshake form rather than assuming you were ignored.',
+    'I reply within 72 hours, usually sooner. If you do not hear back, assume the mail was lost and use the contact form rather than assuming you were ignored.',
   ],
   [
     '03',
@@ -242,7 +242,7 @@ export default function SecurityPage() {
                 href="/handshake/"
                 className="border border-line px-6 py-3 font-mono text-sm text-ink-dim transition-all hover:border-red-deep/70 hover:text-red-blood"
               >
-                ./handshake
+                Contact
               </Link>
             </div>
           </div>

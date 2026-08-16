@@ -130,7 +130,6 @@ export const ALLOWED_ROUTES = new Set([
   '/matrix/',
   '/arsenal/',
   '/security/',
-  '/connect/',
   '/handshake/',
 ]);
 

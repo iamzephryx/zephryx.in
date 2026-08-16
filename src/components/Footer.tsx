@@ -53,10 +53,15 @@ export default function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
+                    className="group flex items-baseline gap-1.5 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
                   >
-                    <span className="text-red-blood/50">/</span>
                     {item.label}
+                    <span
+                      className="text-[10px] text-ink-faint transition-colors group-hover:text-red-blood/60"
+                      aria-hidden
+                    >
+                      {item.cmd}
+                    </span>
                   </Link>
                 </li>
               ))}

@@ -165,7 +165,7 @@ export default async function DetectionPage({ params }: { params: Promise<Params
                 href="/handshake/"
                 className="clip-tab border border-red-deep bg-red-core px-5 py-2.5 font-mono text-[13px] text-void transition-all hover:shadow-[0_0_28px_-4px_rgba(255,45,75,0.8)]"
               >
-                ./handshake
+                Contact
               </Link>
               <Link
                 href="/matrix/"

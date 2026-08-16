@@ -22,7 +22,7 @@ export default function ServiceUnavailable() {
       ]}
       actions={[
         { href: '/', label: 'retry', primary: true },
-        { href: '/connect/', label: 'status channels' },
+        { href: '/handshake/', label: 'contact' },
       ]}
     />
   );

@@ -395,13 +395,16 @@ export default function HomePage() {
                 href="/handshake/"
                 className="clip-tab border border-red-deep bg-red-core px-7 py-3.5 font-mono text-sm font-medium text-void transition-all hover:shadow-[0_0_30px_-4px_rgba(255,45,75,0.8)]"
               >
-                ./handshake --init
+                Contact me
+                <span className="ml-2 text-[11px] text-void/70" aria-hidden>
+                  ./handshake --init
+                </span>
               </Link>
               <Link
-                href="/connect/"
+                href="/handshake/#channels"
                 className="border border-line px-7 py-3.5 font-mono text-sm text-ink-dim transition-all hover:border-red-deep/70 hover:text-red-blood"
               >
-                find me elsewhere
+                Find me elsewhere
               </Link>
             </div>
           </div>
