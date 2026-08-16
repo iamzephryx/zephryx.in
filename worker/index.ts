@@ -2,13 +2,15 @@
  * zephryx.in — Cloudflare Worker entrypoint.
  *
  * This project deploys as a static Next.js export (`next build` -> ./out) served
- * by Workers Static Assets, with this single script handling the two things
- * static assets can't: the /api/contact endpoint and (optional) maintenance mode.
+ * by Workers Static Assets, with this single script handling the things static
+ * assets can't: the /api/contact endpoint, redirects for retired routes, and
+ * (optional) maintenance mode.
  *
  * wrangler.jsonc sets run_worker_first: true, so every request reaches fetch()
- * below. Anything that isn't /api/* or a maintenance response falls straight
- * through to env.ASSETS.fetch(), which serves the static build (including the
- * automatic out/404.html for unmatched routes, and applies out/_headers).
+ * below. Anything that isn't /api/*, a redirect or a maintenance response falls
+ * straight through to env.ASSETS.fetch(), which serves the static build
+ * (including the automatic out/404.html for unmatched routes, and applies
+ * out/_headers).
  *
  * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
@@ -71,6 +73,19 @@ const LIMITS = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/**
+ * Retired routes, mapped to whatever replaced them. A static export has no
+ * server to answer for a path that no longer builds, so old links would hit
+ * the 404 page instead; the Worker runs first, which makes this the only
+ * place a permanent redirect can live.
+ *
+ * /connect merged into /handshake — one contact page, not two.
+ */
+const REDIRECTS: ReadonlyMap<string, string> = new Map([
+  ['/connect', '/handshake/'],
+  ['/connect/', '/handshake/'],
+]);
+
 const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
     status,
@@ -100,6 +115,17 @@ export default {
 
     if (url.pathname.startsWith('/api/')) {
       return json({ ok: false, error: 'Not found.' }, 404);
+    }
+
+    const moved = REDIRECTS.get(url.pathname);
+    if (moved) {
+      // Keep the query string: campaign tags and the like should survive the move.
+      const target = new URL(moved, url.origin);
+      target.search = url.search;
+      return new Response(null, {
+        status: 301,
+        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
+      });
     }
 
     if (env.MAINTENANCE === 'on') {

@@ -29,9 +29,11 @@ export default function Nav() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href.replace(/\/$/, ''));
 
-  // Handshake already has its own CTA button on desktop; showing it in the link
-  // row too would duplicate it and push the row past the viewport.
-  const desktopNav = NAV.filter((item) => item.href !== '/handshake/');
+  // The top bar carries the primary destinations only, minus Contact — that one
+  // is the CTA button at the end of the row, so listing it twice would be noise.
+  // Home is the wordmark on desktop. Everything else lives in the drawer/footer.
+  const desktopNav = NAV.filter((item) => item.primary && item.href !== '/handshake/');
+  const contact = NAV.find((item) => item.href === '/handshake/');
 
   return (
     <header
@@ -63,12 +65,19 @@ export default function Nav() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`group relative px-3 py-2 font-mono text-[13px] transition-colors duration-300 ${
+                className={`group relative flex items-baseline gap-1.5 px-3 py-2 font-mono text-[13px] transition-colors duration-300 ${
                   active ? 'text-ink' : 'text-ink-faint hover:text-ink-dim'
                 }`}
               >
-                <span className="text-red-blood/70">/</span>
                 {item.label}
+                <span
+                  className={`text-[10px] transition-colors duration-300 ${
+                    active ? 'text-red-blood/70' : 'text-ink-faint/60 group-hover:text-red-blood/60'
+                  }`}
+                  aria-hidden
+                >
+                  {item.cmd}
+                </span>
                 <span
                   className={`absolute inset-x-2.5 bottom-1 h-px origin-left bg-red-blood transition-transform duration-300 ${
                     active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
@@ -77,12 +86,18 @@ export default function Nav() {
               </Link>
             );
           })}
-          <Link
-            href="/handshake/"
-            className="clip-tab ml-2.5 border border-red-deep/70 bg-red-ash/25 px-3.5 py-2 font-mono text-[13px] text-red-blood transition-all duration-300 hover:bg-red-blood hover:text-void hover:shadow-[0_0_24px_-4px_rgba(255,45,75,0.7)]"
-          >
-            init_contact()
-          </Link>
+          {contact ? (
+            <Link
+              href={contact.href}
+              aria-current={isActive(contact.href) ? 'page' : undefined}
+              className="clip-tab group ml-2.5 flex items-baseline gap-1.5 border border-red-deep/70 bg-red-ash/25 px-3.5 py-2 font-mono text-[13px] text-red-blood transition-all duration-300 hover:bg-red-blood hover:text-void hover:shadow-[0_0_24px_-4px_rgba(255,45,75,0.7)]"
+            >
+              {contact.label}
+              <span className="text-[10px] text-red-blood/60 transition-colors duration-300 group-hover:text-void/70" aria-hidden>
+                {contact.cmd}
+              </span>
+            </Link>
+          ) : null}
         </nav>
 
         <div className="flex items-center gap-2.5">
@@ -123,11 +138,10 @@ export default function Nav() {
                 isActive(item.href) ? 'text-red-blood' : 'text-ink-dim'
               }`}
             >
-              <span>
-                <span className="text-red-blood/60">/</span>
-                {item.label}
+              <span>{item.label}</span>
+              <span className="text-[11px] text-ink-faint" aria-hidden>
+                {item.cmd}
               </span>
-              <span className="text-[11px] text-ink-faint">{item.cmd}</span>
             </Link>
           ))}
         </nav>

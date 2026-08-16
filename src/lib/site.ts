@@ -103,16 +103,27 @@ export const MAILBOXES: MailBox[] = [
   },
 ];
 
+/**
+ * Primary navigation.
+ *
+ * `label` is the plain word — it has to tell a first-time visitor where the
+ * link goes without them having to guess. `cmd` is the terminal name for the
+ * same destination, rendered in the dim slot beside it on every surface, so
+ * the voice stays and the meaning arrives first.
+ *
+ * `primary` marks the destinations that earn a slot in the desktop top bar.
+ * Everything else is one tap away in the mobile drawer and the footer, which
+ * keeps the bar to five things a visitor can scan at a glance.
+ */
 export const NAV = [
-  { href: '/', label: 'home', cmd: '~' },
-  { href: '/whoami/', label: 'whoami', cmd: 'id' },
-  { href: '/writeups/', label: 'writeups', cmd: 'cat' },
-  { href: '/cheatsheets/', label: 'cheatsheets', cmd: 'find' },
-  { href: '/detections/', label: 'detections', cmd: 'sigma' },
-  { href: '/matrix/', label: 'matrix', cmd: 'att&ck' },
-  { href: '/arsenal/', label: 'arsenal', cmd: 'ls' },
-  { href: '/connect/', label: 'connect', cmd: 'net' },
-  { href: '/handshake/', label: 'handshake', cmd: 'syn' },
+  { href: '/', label: 'Home', cmd: '~', primary: false },
+  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
+  { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
+  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
+  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: false },
+  { href: '/matrix/', label: 'Coverage', cmd: 'att&ck', primary: false },
+  { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
+  { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
 ] as const;
 
 /**

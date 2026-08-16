@@ -40,7 +40,8 @@ maintenance mode if I need it to.
 - **`/arsenal`** — tools I've released and disclosures I've been credited for.
 - **`/security`** — my vulnerability disclosure policy, with a proper RFC 9116
   `security.txt`.
-- **`/connect`** and **`/handshake`** — social links and a working contact form.
+- **`/handshake`** — the contact page: a working contact form, the mailboxes, and
+  the social links. (`/connect` merged into it and 301s there from the Worker.)
 - **`/feed.xml`** — RSS for writeups + detections combined.
 - Themed 404 / 403 / 503 pages, because generic error pages are a wasted opportunity.
 

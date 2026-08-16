@@ -341,8 +341,8 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
         blank(),
         ...SOCIALS.map((s) => link(`  ${pad(s.label, 14)} ${s.handle}`, s.href)),
         blank(),
-        dim('  Hub:'),
-        link('/connect', '/connect/'),
+        dim('  All of it, plus the form and the mailboxes:'),
+        link('/handshake', '/handshake/'),
       ],
     },
   ],
@@ -353,6 +353,21 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       summary: 'How to reach me',
       usage: 'contact',
       run: () => [...(FILES.get('contact.txt') ?? [])],
+    },
+  ],
+  [
+    // /connect folded into /handshake; the old name still works so muscle
+    // memory from the previous nav does not dead-end.
+    'connect',
+    {
+      name: 'connect',
+      summary: 'Open the contact page',
+      usage: 'connect',
+      secret: true,
+      run: (_args, ctx) => {
+        ctx.navigate('/handshake/');
+        return [ok('Opening /handshake …')];
+      },
     },
   ],
   [
