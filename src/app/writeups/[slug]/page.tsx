@@ -6,7 +6,7 @@ import { getDetectionsForWriteup } from '@/lib/detections';
 import { attackUrl, techniqueName } from '@/lib/attack';
 import { SEVERITY_STYLE } from '@/lib/severity';
 import { SITE } from '@/lib/site';
-import WriteupToc from '@/components/WriteupToc';
+import ContentToc from '@/components/ContentToc';
 
 type Params = { slug: string };
 
@@ -114,7 +114,7 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
         </header>
 
         {/* in-page nav — sticky rail on wide screens, collapsible panel below xl */}
-        <WriteupToc toc={w.toc} />
+        <ContentToc toc={w.toc} />
 
         {/*
           Body HTML is produced by the markdown pipeline in lib/writeups.ts,

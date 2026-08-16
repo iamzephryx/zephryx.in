@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { Marked } from 'marked';
-import { createSlugger, plainText, type TocEntry } from './toc';
+import { anchoredHeadings, type TocEntry } from './toc';
 import { localImageSize } from './imageSize';
 
 // Re-exported so server components can keep importing it from here, while client
@@ -49,7 +49,6 @@ const escapeHtml = (s: string): string =>
  */
 function render(content: string): { html: string; toc: TocEntry[] } {
   const toc: TocEntry[] = [];
-  const slugify = createSlugger();
 
   const marked = new Marked({ gfm: true, breaks: false });
   marked.use({
@@ -66,21 +65,7 @@ function render(content: string): { html: string; toc: TocEntry[] } {
         const dims = size ? ` width="${size.width}" height="${size.height}"` : '';
         return `<figure><img src="${escapeHtml(href)}" alt="${safeText}"${dims} loading="lazy" />${caption}</figure>`;
       },
-      // Anchor every section so the in-page nav (and shared links) can target it.
-      heading({ tokens, depth }) {
-        const inner = this.parser.parseInline(tokens);
-        if (depth !== 2 && depth !== 3) return `<h${depth}>${inner}</h${depth}>`;
-
-        const text = plainText(inner);
-        const id = slugify(text);
-        toc.push({ id, text, depth });
-
-        return (
-          `<h${depth} id="${id}">${inner}` +
-          `<a class="heading-anchor" href="#${id}" aria-label="Link to this section">#</a>` +
-          `</h${depth}>`
-        );
-      },
+      heading: anchoredHeadings(toc),
     },
   });
 

@@ -87,12 +87,13 @@ function TocLink({
 }
 
 /**
- * In-page navigation for a writeup. Renders two views from one scroll listener:
- * a sticky rail in the right margin on wide screens, and a collapsible panel in
- * the flow everywhere else. Returns a fragment so the rail lands as a direct
- * child of the article's positioned container and can stick for its full height.
+ * In-page navigation for a long-form article — writeups and detection rules
+ * alike. Renders two views from one scroll listener: a sticky rail in the right
+ * margin on wide screens, and a collapsible panel in the flow everywhere else.
+ * Returns a fragment so the rail lands as a direct child of the article's
+ * positioned container and can stick for its full height.
  */
-export default function WriteupToc({ toc }: { toc: TocEntry[] }) {
+export default function ContentToc({ toc }: { toc: TocEntry[] }) {
   const active = useActiveHeading(toc);
   const [open, setOpen] = useState(false);
 

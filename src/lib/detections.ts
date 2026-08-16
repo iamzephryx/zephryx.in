@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { Marked } from 'marked';
+import { anchoredHeadings, type TocEntry } from './toc';
+
+export type { TocEntry } from './toc';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'detections');
 
@@ -30,20 +33,31 @@ export type Detection = {
   readingMinutes: number;
   /** Rendered HTML. Authored locally; raw HTML in source is discarded. */
   html: string;
+  /** Section headings of the rendered body, in document order. */
+  toc: TocEntry[];
 };
 
-export type DetectionMeta = Omit<Detection, 'html'>;
+export type DetectionMeta = Omit<Detection, 'html' | 'toc'>;
 
 /**
  * Same hardened pipeline as the writeups renderer — raw HTML passthrough is
- * disabled so a markdown authoring mistake can never emit live markup.
+ * disabled so a markdown authoring mistake can never emit live markup, and
+ * sections are anchored for the in-page nav. Built per document because the
+ * heading renderer carries document-scoped state.
  */
-const marked = new Marked({ gfm: true, breaks: false });
-marked.use({
-  renderer: {
-    html: () => '',
-  },
-});
+function render(content: string): { html: string; toc: TocEntry[] } {
+  const toc: TocEntry[] = [];
+
+  const marked = new Marked({ gfm: true, breaks: false });
+  marked.use({
+    renderer: {
+      html: () => '',
+      heading: anchoredHeadings(toc),
+    },
+  });
+
+  return { html: marked.parse(content) as string, toc };
+}
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 /** ATT&CK technique or sub-technique, e.g. T1558 or T1558.003. */
@@ -82,6 +96,7 @@ function readAll(): Detection[] {
       );
 
       const words = content.trim().split(/\s+/).length;
+      const { html, toc } = render(content);
 
       return {
         slug,
@@ -97,13 +112,14 @@ function readAll(): Detection[] {
         excerpt: String(data.excerpt ?? ''),
         writeup: data.writeup ? String(data.writeup) : null,
         readingMinutes: Math.max(1, Math.round(words / 220)),
-        html: marked.parse(content) as string,
+        html,
+        toc,
       };
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-const strip = ({ html: _html, ...meta }: Detection): DetectionMeta => meta;
+const strip = ({ html: _html, toc: _toc, ...meta }: Detection): DetectionMeta => meta;
 
 export function getAllDetections(): DetectionMeta[] {
   return readAll().map(strip);

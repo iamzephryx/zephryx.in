@@ -1,3 +1,5 @@
+import type { RendererObject } from 'marked';
+
 /** One entry in a document's in-page navigation. */
 export type TocEntry = {
   /** Anchor id, matching the `id` attribute on the rendered heading. */
@@ -12,7 +14,7 @@ export type TocEntry = {
  * stay stable (and shareable) across rebuilds; repeats get a numeric suffix so
  * two headings with the same wording never collide.
  */
-export function createSlugger(): (text: string) => string {
+function createSlugger(): (text: string) => string {
   const seen = new Map<string, number>();
 
   return (text) => {
@@ -29,11 +31,39 @@ export function createSlugger(): (text: string) => string {
 }
 
 /** Reduce rendered inline HTML (code spans, emphasis, links) back to plain text. */
-export function plainText(html: string): string {
+function plainText(html: string): string {
   return html
     .replace(/<[^>]*>/g, '')
     .replace(/&(amp|lt|gt|quot|#39);/g, (_, e: string) =>
       e === 'amp' ? '&' : e === 'lt' ? '<' : e === 'gt' ? '>' : e === 'quot' ? '"' : "'",
     )
     .trim();
+}
+
+/**
+ * Heading renderer that anchors every h2/h3 and appends each one to `toc` in
+ * document order, so the in-page nav and shared #links have something to aim
+ * at. Deeper and shallower levels render untouched — h1 belongs to the page
+ * header, and h4+ is too fine-grained to navigate by.
+ *
+ * The returned function is document-scoped (it closes over a fresh slugger and
+ * the given `toc`), so build one per rendered document.
+ */
+export function anchoredHeadings(toc: TocEntry[]): NonNullable<RendererObject['heading']> {
+  const slugify = createSlugger();
+
+  return function heading({ tokens, depth }) {
+    const inner = this.parser.parseInline(tokens);
+    if (depth !== 2 && depth !== 3) return `<h${depth}>${inner}</h${depth}>`;
+
+    const text = plainText(inner);
+    const id = slugify(text);
+    toc.push({ id, text, depth });
+
+    return (
+      `<h${depth} id="${id}">${inner}` +
+      `<a class="heading-anchor" href="#${id}" aria-label="Link to this section">#</a>` +
+      `</h${depth}>`
+    );
+  };
 }
