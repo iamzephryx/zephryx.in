@@ -10,7 +10,7 @@ import {
   type CommandContext,
   type Line,
 } from '@/lib/terminal/commands';
-import { ALLOWED_ROUTES, LIMITS, parse, RateLimiter, sanitize } from '@/lib/terminal/safety';
+import { LIMITS, parse, RateLimiter, safeRoute, sanitize } from '@/lib/terminal/safety';
 
 type Row = Line & { id: number };
 
@@ -106,9 +106,11 @@ export default function Terminal() {
   const ctx: CommandContext = useMemo(
     () => ({
       navigate: (route: string) => {
-        // Second gate: the registry validates, and so does the caller.
-        if (ALLOWED_ROUTES.has(route)) {
-          setTimeout(() => router.push(route), 380);
+        // Second gate: the registry validates, and so does the caller. Routes
+        // may carry a bounded ?q= for the search page; safeRoute re-encodes it.
+        const target = safeRoute(route);
+        if (target) {
+          setTimeout(() => router.push(target), 380);
         }
       },
       clear: () => setRows([]),

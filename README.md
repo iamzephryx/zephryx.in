@@ -35,6 +35,11 @@ maintenance mode if I need it to.
 - **`/writeups`** — CTF and research writeups, filterable, each with its own page.
 - **`/cheatsheets`** — quick-reference notes and PDF cheatsheets, filterable by category/tag.
 - **`/detections`** — Sigma/KQL rules I've written, same deal.
+- **`/search`** — one box across writeups, detections and cheatsheets at once, so
+  searching "kerberos" surfaces the attack *and* the rule that catches it instead of
+  making you run the same query on three pages. Press `/` (or ⌘/Ctrl+K) anywhere, or
+  run `search <terms>` in the homepage terminal. Each section's own filter box is a
+  scoped view of the same matcher and tells you what the query hits elsewhere.
 - **`/matrix`** — an ATT&CK coverage board that cross-references writeups (what I
   emulated) against detections (what I wrote to catch it).
 - **`/arsenal`** — tools I've released and disclosures I've been credited for.
@@ -87,6 +92,12 @@ it sloppy:
   the one `unsafe-inline` trade-off the static export forces on me.
 - Markdown writeups can't emit raw HTML, so there's no stored-XSS path through
   content I write.
+- Search runs entirely client-side against a build-time index of first-party
+  metadata — no query ever leaves the browser and there's no search backend to
+  inject into. The `?q=` value is length-capped and only ever rendered as text
+  nodes (including the `<mark>` highlighting, which is built from string offsets,
+  not markup), and the terminal's `search` command re-encodes the query through
+  the same route allowlist the rest of its navigation goes through.
 
 ## Running it locally
 

@@ -4,6 +4,7 @@ import Reveal from '@/components/Reveal';
 import DetectionsIndex from '@/components/DetectionsIndex';
 import { getAllDetections } from '@/lib/detections';
 import { getCoverage } from '@/lib/attack';
+import { getSearchIndex } from '@/lib/search';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function DetectionsPage() {
   const detections = getAllDetections();
   const coverage = getCoverage();
+  const index = getSearchIndex();
 
   const linked = detections.filter((d) => d.writeup).length;
 
@@ -88,7 +90,7 @@ export default function DetectionsPage() {
 
       {/* ============================ LIST ============================ */}
       <section className="relative mx-auto max-w-6xl px-5 pb-24 sm:px-8">
-        <DetectionsIndex detections={detections} />
+        <DetectionsIndex detections={detections} index={index} />
       </section>
 
       {/* =========================== CAVEAT =========================== */}

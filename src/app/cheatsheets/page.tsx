@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Reveal from '@/components/Reveal';
 import CheatsheetsIndex from '@/components/CheatsheetsIndex';
 import { getAllCheatsheets } from '@/lib/cheatsheets';
+import { getSearchIndex } from '@/lib/search';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 
 export default function CheatsheetsPage() {
   const cheatsheets = getAllCheatsheets();
+  const index = getSearchIndex();
 
   return (
     <>
@@ -40,7 +42,7 @@ export default function CheatsheetsPage() {
 
       <section className="relative mx-auto max-w-6xl px-5 py-10 sm:px-8">
         <Reveal>
-          <CheatsheetsIndex cheatsheets={cheatsheets} />
+          <CheatsheetsIndex cheatsheets={cheatsheets} index={index} />
         </Reveal>
       </section>
     </>

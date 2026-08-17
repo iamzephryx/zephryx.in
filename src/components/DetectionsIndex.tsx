@@ -2,31 +2,43 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import CrossContentHint from './CrossContentHint';
 import { formatDate } from '@/lib/format';
 import type { DetectionMeta } from '@/lib/detections';
+import { partitionByKind, search, type SearchDoc } from '@/lib/searchTypes';
 import { SEVERITY_STYLE } from '@/lib/severity';
 
 const FILTERS = ['All', 'critical', 'high', 'medium'] as const;
 
 /**
  * Client-side filtering only. The list is a compile-time array of first-party
- * metadata; the search box compares against it in memory and renders plain text
- * nodes, so there is no injection surface here.
+ * metadata; matching happens in memory and every match renders as a plain text
+ * node, so there is no injection surface here.
+ *
+ * Scoped view of the site-wide search rather than a private substring filter:
+ * this box ranks rules with the shared matcher, and `index` also carries the
+ * other shelves so the hint below can name the attacks the same query hits —
+ * the half of the loop a rules-only filter can never show.
  */
-export default function DetectionsIndex({ detections }: { detections: DetectionMeta[] }) {
+export default function DetectionsIndex({
+  detections,
+  index,
+}: {
+  detections: DetectionMeta[];
+  index: SearchDoc[];
+}) {
   const [severity, setSeverity] = useState<(typeof FILTERS)[number]>('All');
   const [query, setQuery] = useState('');
 
+  const { own, elsewhere } = useMemo(() => partitionByKind(index, 'detection'), [index]);
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase().slice(0, 64);
-    return detections.filter((d) => {
-      if (severity !== 'All' && d.severity !== severity) return false;
-      if (!q) return true;
-      const haystack =
-        `${d.title} ${d.excerpt} ${d.ruleId} ${d.logsource} ${d.techniques.join(' ')} ${d.tags.join(' ')}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [detections, severity, query]);
+    const bySlug = new Map(detections.map((d) => [d.slug, d]));
+    return search(own, query)
+      .map((hit) => bySlug.get(hit.doc.slug))
+      .filter((d): d is DetectionMeta => d !== undefined)
+      .filter((d) => severity === 'All' || d.severity === severity);
+  }, [detections, own, severity, query]);
 
   return (
     <div>
@@ -71,6 +83,8 @@ export default function DetectionsIndex({ detections }: { detections: DetectionM
           />
         </label>
       </div>
+
+      <CrossContentHint query={query} docs={elsewhere} kind="detection" />
 
       <p className="mb-6 font-mono text-[11px] text-ink-faint">
         <span className="text-red-blood/70"># </span>
