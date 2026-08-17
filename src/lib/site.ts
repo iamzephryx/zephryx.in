@@ -116,7 +116,10 @@ export const MAILBOXES: MailBox[] = [
  * the drawer is mobile-only, so a page demoted here needs a cross-link from
  * the content that relates to it or the footer becomes its only way in on
  * desktop. Coverage has those (home, the Detections index, every detection);
- * Cheatsheets has none, which is why it holds a slot in the bar.
+ * Cheatsheets has none, which is why it holds a slot in the bar. Search is
+ * demoted for the same reason it is always reachable: the nav renders it as a
+ * dedicated icon button beside the theme toggle, and every content index links
+ * into it, so a seventh word in the bar would be redundant.
  */
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false },
@@ -124,6 +127,7 @@ export const NAV = [
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
   { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
   { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
+  { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
   { href: '/matrix/', label: 'Coverage', cmd: 'att&ck', primary: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },

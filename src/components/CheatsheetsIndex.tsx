@@ -1,30 +1,43 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import CrossContentHint from './CrossContentHint';
 import { formatDate, formatBytes } from '@/lib/format';
 import { CHEATSHEET_CATEGORIES, type Cheatsheet } from '@/lib/cheatsheetTypes';
+import { partitionByKind, search, type SearchDoc } from '@/lib/searchTypes';
 
 const CATEGORIES = ['All', ...CHEATSHEET_CATEGORIES] as const;
 
 /**
  * Client-side filtering only. The list is a compile-time array of first-party
- * metadata; the search box compares against it in memory and renders plain text
- * nodes, so there is no injection surface here. Each card links straight to the
+ * metadata; matching happens in memory and every match renders as a plain text
+ * node, so there is no injection surface here. Each card links straight to the
  * static PDF in /cheatsheets/ — there is no per-item route to keep in sync.
+ *
+ * Scoped view of the site-wide search rather than a private substring filter:
+ * this box ranks sheets with the shared matcher, and `index` also carries the
+ * other shelves so a query that matches a writeup or a rule says so instead of
+ * coming back empty.
  */
-export default function CheatsheetsIndex({ cheatsheets }: { cheatsheets: Cheatsheet[] }) {
+export default function CheatsheetsIndex({
+  cheatsheets,
+  index,
+}: {
+  cheatsheets: Cheatsheet[];
+  index: SearchDoc[];
+}) {
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('All');
   const [query, setQuery] = useState('');
 
+  const { own, elsewhere } = useMemo(() => partitionByKind(index, 'cheatsheet'), [index]);
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase().slice(0, 64);
-    return cheatsheets.filter((c) => {
-      if (category !== 'All' && c.category !== category) return false;
-      if (!q) return true;
-      const haystack = `${c.title} ${c.excerpt} ${c.tags.join(' ')}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [cheatsheets, category, query]);
+    const bySlug = new Map(cheatsheets.map((c) => [c.slug, c]));
+    return search(own, query)
+      .map((hit) => bySlug.get(hit.doc.slug))
+      .filter((c): c is Cheatsheet => c !== undefined)
+      .filter((c) => category === 'All' || c.category === category);
+  }, [cheatsheets, own, category, query]);
 
   return (
     <div>
@@ -69,6 +82,8 @@ export default function CheatsheetsIndex({ cheatsheets }: { cheatsheets: Cheatsh
           />
         </label>
       </div>
+
+      <CrossContentHint query={query} docs={elsewhere} kind="cheatsheet" />
 
       {/* result count */}
       <p className="mb-6 font-mono text-[11px] text-ink-faint">

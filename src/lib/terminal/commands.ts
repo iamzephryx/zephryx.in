@@ -1,5 +1,5 @@
 import { MAILBOXES, SITE, SOCIALS } from '@/lib/site';
-import { ALLOWED_ROUTES, safeHref, safeMailto, type ParsedCommand } from './safety';
+import { ALLOWED_ROUTES, safeHref, safeMailto, searchRoute, type ParsedCommand } from './safety';
 
 /* ------------------------------------------------------------------ */
 /* Output model                                                        */
@@ -379,6 +379,39 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       run: (_args, ctx) => {
         ctx.navigate('/writeups/');
         return [ok('Opening /writeups …')];
+      },
+    },
+  ],
+  [
+    'search',
+    {
+      name: 'search',
+      summary: 'Search writeups, detections and cheatsheets at once',
+      usage: 'search <terms>',
+      run: (args, ctx) => {
+        if (args.length === 0) {
+          ctx.navigate('/search/');
+          return [ok('Opening /search …')];
+        }
+        // The route is built from parsed tokens and re-encoded by safeRoute,
+        // so nothing typed here reaches the URL uninspected.
+        ctx.navigate(searchRoute(args));
+        return [ok(`Searching all content for "${args.join(' ')}" …`)];
+      },
+    },
+  ],
+  [
+    // Muscle memory: the site describes every filter box as a grep.
+    'grep',
+    {
+      name: 'grep',
+      summary: 'Search all content',
+      usage: 'grep <terms>',
+      secret: true,
+      run: (args, ctx) => {
+        const terms = args.filter((a) => !a.startsWith('-'));
+        ctx.navigate(searchRoute(terms));
+        return [ok(terms.length ? `Searching for "${terms.join(' ')}" …` : 'Opening /search …')];
       },
     },
   ],

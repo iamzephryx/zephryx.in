@@ -129,9 +129,43 @@ export const ALLOWED_ROUTES = new Set([
   '/detections/',
   '/matrix/',
   '/arsenal/',
+  '/search/',
   '/security/',
   '/handshake/',
 ]);
+
+/** Max characters carried in a route's `q` value — matches the search input cap. */
+const QUERY_MAX = 64;
+
+/**
+ * Validate an internal navigation target that may carry a search query.
+ *
+ * The path still has to be on the allowlist; the only query parameter permitted
+ * is `q`, and its value is re-encoded from sanitized text rather than passed
+ * through, so nothing a visitor types can smuggle extra parameters, a fragment
+ * or a second path into the URL the router is handed.
+ */
+export function safeRoute(value: string): string | null {
+  if (!value.startsWith('/')) return null;
+
+  const [path, ...rest] = value.split('?');
+  if (!ALLOWED_ROUTES.has(path)) return null;
+  if (rest.length === 0) return path;
+  // A second '?' means the value was assembled wrong; refuse rather than guess.
+  if (rest.length > 1) return null;
+
+  const q = sanitize(new URLSearchParams(rest[0]).get('q') ?? '')
+    .trim()
+    .slice(0, QUERY_MAX);
+
+  return q ? `${path}?q=${encodeURIComponent(q)}` : path;
+}
+
+/** Build a search route for a set of already-parsed terms. */
+export function searchRoute(terms: readonly string[]): string {
+  const q = terms.join(' ').trim().slice(0, QUERY_MAX);
+  return q ? `/search/?q=${encodeURIComponent(q)}` : '/search/';
+}
 
 /**
  * Returns a safe href, or null. Rejects anything that is not https on an

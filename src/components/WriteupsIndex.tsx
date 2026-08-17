@@ -2,29 +2,42 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import CrossContentHint from './CrossContentHint';
 import { formatDate } from '@/lib/format';
+import { partitionByKind, search, type SearchDoc } from '@/lib/searchTypes';
 import type { WriteupMeta } from '@/lib/writeups';
 
 const CATEGORIES = ['All', 'CTF', 'Research', 'Detection', 'Tradecraft'] as const;
 
 /**
  * Client-side filtering only. The list is a compile-time array of first-party
- * metadata; the search box compares against it in memory and renders plain text
- * nodes, so there is no injection surface here.
+ * metadata; matching happens in memory and every match renders as a plain text
+ * node, so there is no injection surface here.
+ *
+ * Scoped view of the site-wide search rather than a private substring filter:
+ * this box ranks writeups with the shared matcher, so a query behaves exactly
+ * as it would on /search, and `index` also carries the other shelves so the
+ * hint below can report the rules and sheets the same query hits.
  */
-export default function WriteupsIndex({ writeups }: { writeups: WriteupMeta[] }) {
+export default function WriteupsIndex({
+  writeups,
+  index,
+}: {
+  writeups: WriteupMeta[];
+  index: SearchDoc[];
+}) {
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('All');
   const [query, setQuery] = useState('');
 
+  const { own, elsewhere } = useMemo(() => partitionByKind(index, 'writeup'), [index]);
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase().slice(0, 64);
-    return writeups.filter((w) => {
-      if (category !== 'All' && w.category !== category) return false;
-      if (!q) return true;
-      const haystack = `${w.title} ${w.excerpt} ${w.tags.join(' ')}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [writeups, category, query]);
+    const bySlug = new Map(writeups.map((w) => [w.slug, w]));
+    return search(own, query)
+      .map((hit) => bySlug.get(hit.doc.slug))
+      .filter((w): w is WriteupMeta => w !== undefined)
+      .filter((w) => category === 'All' || w.category === category);
+  }, [writeups, own, category, query]);
 
   return (
     <div>
@@ -69,6 +82,8 @@ export default function WriteupsIndex({ writeups }: { writeups: WriteupMeta[] })
           />
         </label>
       </div>
+
+      <CrossContentHint query={query} docs={elsewhere} kind="writeup" />
 
       {/* result count */}
       <p className="mb-6 font-mono text-[11px] text-ink-faint">

@@ -1,13 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { NAV, SITE } from '@/lib/site';
 import ThemeToggle from './ThemeToggle';
 
+const SEARCH_HREF = '/search/';
+
 export default function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -25,6 +28,27 @@ export default function Nav() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  // `/` and ⌘/Ctrl+K open the unified search from anywhere. Guarded on the
+  // focused element so the section filter boxes, the terminal prompt and the
+  // contact form keep receiving the keystroke they were typed into.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el?.isContentEditable || /^(input|textarea|select)$/i.test(el?.tagName ?? '')) return;
+
+      const slash = e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey;
+      const cmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+      if (!slash && !cmdK) return;
+      if (pathname === SEARCH_HREF.replace(/\/$/, '') || pathname === SEARCH_HREF) return;
+
+      e.preventDefault();
+      router.push(SEARCH_HREF);
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [pathname, router]);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href.replace(/\/$/, ''));
@@ -101,6 +125,40 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-2.5">
+          {/* One box for writeups, detections and cheatsheets alike. */}
+          <Link
+            href={SEARCH_HREF}
+            aria-label="Search writeups, detections and cheatsheets"
+            title="Search everything ( / )"
+            aria-current={isActive(SEARCH_HREF) ? 'page' : undefined}
+            className={`flex h-9 items-center gap-2 border px-2.5 transition-colors duration-300 ${
+              isActive(SEARCH_HREF)
+                ? 'border-red-deep bg-red-ash/25 text-red-blood'
+                : 'border-line text-ink-dim hover:border-red-deep/60 hover:text-red-blood'
+            }`}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
+              <circle
+                cx="10.5"
+                cy="10.5"
+                r="6.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              />
+              <path
+                d="M15.5 15.5 21 21"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+            <kbd className="hidden font-mono text-[10px] text-ink-faint sm:inline" aria-hidden>
+              /
+            </kbd>
+          </Link>
+
           <ThemeToggle />
 
           {/* mobile toggle */}

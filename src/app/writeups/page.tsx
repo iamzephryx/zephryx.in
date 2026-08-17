@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Reveal from '@/components/Reveal';
 import WriteupsIndex from '@/components/WriteupsIndex';
 import { getAllWriteups } from '@/lib/writeups';
+import { getSearchIndex } from '@/lib/search';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 
 export default function WriteupsPage() {
   const writeups = getAllWriteups();
+  const index = getSearchIndex();
 
   return (
     <>
@@ -41,7 +43,7 @@ export default function WriteupsPage() {
 
       <section className="relative mx-auto max-w-6xl px-5 py-10 sm:px-8">
         <Reveal>
-          <WriteupsIndex writeups={writeups} />
+          <WriteupsIndex writeups={writeups} index={index} />
         </Reveal>
       </section>
     </>
