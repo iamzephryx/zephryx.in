@@ -3,7 +3,6 @@ title: 'Broken Access Control: Bypassing OTP Verification on a Crypto Exchange'
 date: '2026-08-09'
 category: 'Tradecraft'
 difficulty: 'Medium'
-featured: false
 techniques: ['T1556.006']
 tags: ['broken-access-control', 'authentication', 'bug-bounty', 'web', 'mfa-bypass']
 excerpt: 'The password-reset OTP check lived entirely in a JSON response the client was trusted to report honestly. Capture one successful response, replay it over a failed one, and the verification step disappears.'

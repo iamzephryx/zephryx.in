@@ -3,7 +3,7 @@ import Terminal from '@/components/Terminal';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { getFeaturedWriteups, formatDate } from '@/lib/writeups';
+import { getLatestWriteups, formatDate } from '@/lib/writeups';
 import { getDetectionCount } from '@/lib/detections';
 import { getCoverage } from '@/lib/attack';
 import { creditedCount } from '@/lib/arsenal';
@@ -50,7 +50,7 @@ const CAPABILITIES = [
 ];
 
 export default function HomePage() {
-  const featured = getFeaturedWriteups(3);
+  const latest = getLatestWriteups(3);
   const coverage = getCoverage();
   const ruleCount = getDetectionCount();
 
@@ -200,8 +200,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ======================= FEATURED WRITEUPS ======================= */}
-      {featured.length > 0 ? (
+      {/* ======================== LATEST WRITEUPS ======================== */}
+      {latest.length > 0 ? (
         <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-4">
@@ -214,7 +214,7 @@ export default function HomePage() {
           </Reveal>
 
           <div className="grid gap-5 md:grid-cols-3">
-            {featured.map((w, i) => (
+            {latest.map((w, i) => (
               <Reveal key={w.slug} delay={i * 90}>
                 <Link
                   href={`/writeups/${w.slug}/`}

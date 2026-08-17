@@ -3,7 +3,6 @@ title: 'How I Investigated a Real Password Spray Attack on a Firewall Admin Logi
 date: '2026-08-16'
 category: 'Detection'
 difficulty: 'Medium'
-featured: false
 techniques: ['T1110.003']
 tags: ['soc-analyst', 'threat-hunting', 'fortinet', 'password-spray', 'siem']
 excerpt: 'A real SOC investigation, step by step. 19 rotating IPs tried to break into a firewall admin login. Here is how I checked if it actually worked — and found a bigger problem than the alert itself.'
