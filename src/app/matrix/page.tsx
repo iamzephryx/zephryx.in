@@ -7,9 +7,9 @@ import { getCoverage } from '@/lib/attack';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'matrix',
+  title: 'techniques',
   description:
-    "A board of which ATT&CK techniques I've actually written an attack for, which of those I've also written a detection for, and where I still owe myself work.",
+    "Which ATT&CK techniques I've actually run and published an attack for, which of those I went back and wrote a detection for, and where I still owe myself the work.",
   alternates: { canonical: `${SITE.url}/matrix/` },
 };
 
@@ -18,10 +18,10 @@ export default function MatrixPage() {
   const openGaps = coverage.emulated - coverage.both;
 
   const STATS: ReadonlyArray<[string, string]> = [
-    [String(coverage.total), 'techniques tracked'],
-    [String(coverage.emulated), 'emulated'],
-    [String(coverage.detected), 'with a rule'],
+    [String(coverage.emulated), 'techniques run'],
     [String(coverage.both), 'loops closed'],
+    [String(coverage.detected), 'with a rule'],
+    [String(coverage.total), 'tracked'],
   ];
 
   return (
@@ -31,23 +31,23 @@ export default function MatrixPage() {
         <div className="mx-auto max-w-7xl">
           <Reveal>
             <p className="mb-5 font-mono text-sm text-ink-dim">
-              <span className="text-red-blood">$</span> ./attack-navigator --layer coverage.json
+              <span className="text-red-blood">$</span> ./attack-navigator --layer techniques.json
             </p>
           </Reveal>
 
           <Reveal delay={80}>
             <h1 className="font-mono text-4xl font-bold leading-[1.05] tracking-tight text-ink sm:text-6xl">
-              <span className="text-red-blood text-glow">coverage</span>
-              <span className="text-ink-faint"> — both sides of the wire</span>
+              <span className="text-red-blood text-glow">techniques</span>
+              <span className="text-ink-faint"> — what I&apos;ve actually run</span>
             </h1>
           </Reveal>
 
           <Reveal delay={140}>
             <p className="mt-6 max-w-3xl text-lg leading-relaxed text-ink-dim">
-              This is basically my own scorecard, made public. Red is a technique I've
-              published an attack for. Green means I went back and wrote the detection too.
-              Amber is a rule that exists without a writeup behind it, and grey just means
-              I'm tracking the technique and haven't gotten around to either one yet.
+              My own scorecard, made public. Red is a technique I've run and published an
+              attack for. Green means I went back afterwards and wrote the detection too.
+              Amber is a rule that exists without a writeup behind it yet, and grey just
+              means I'm tracking the technique and haven't got to either side of it.
             </p>
           </Reveal>
 
@@ -79,7 +79,7 @@ export default function MatrixPage() {
           <SectionHeading
             index="01 / METHOD"
             title="what this board isn't claiming"
-            sub="I've seen enough coverage boards used to oversell a program that I want to be clear about what this one actually is."
+            sub="This tracks what I have personally run and written up. It is not a claim about anyone's defensive coverage, and I have seen enough ATT&CK boards used that way to want it said plainly."
           />
         </Reveal>
 

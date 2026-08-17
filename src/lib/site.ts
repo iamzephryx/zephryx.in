@@ -7,11 +7,17 @@ export const SITE = {
   name: 'Zephryx',
   handle: 'zephryx',
   /**
-   * `role` is the profession — what the paycheck actually says — and `subrole` is
-   * the other half, which is real work but not a job title. The order matters:
-   * every surface that renders SITE.role is making an employment claim, and the
-   * whoami page has always said the SOC is the day job.
+   * Two different claims, deliberately kept apart.
+   *
+   * `craft` is what this site is *about* — the subject of the writeups, the
+   * tools, the cheatsheets. It leads on titles, social cards and the footer,
+   * because that is what a reader is here for.
+   *
+   * `role` is what the paycheck actually says. It backs the structured-data
+   * jobTitle and the terminal's `day job` line, and nothing else, so the site
+   * can read as a pentester's without ever misstating who employs me.
    */
+  craft: 'Penetration Tester & Security Researcher',
   role: 'SOC Analyst & Threat Hunter',
   subrole: 'Offensive Security Researcher',
   domain: 'zephryx.in',
@@ -121,7 +127,7 @@ export const MAILBOXES: MailBox[] = [
  * Everything else is one tap away in the mobile drawer and the footer — but
  * the drawer is mobile-only, so a page demoted here needs a cross-link from
  * the content that relates to it or the footer becomes its only way in on
- * desktop. Coverage has those (home, the Detections index, every detection);
+ * desktop. Techniques has those (home, the Detections index, every detection);
  * Cheatsheets has none, which is why it holds a slot in the bar. Search is
  * demoted for the same reason it is always reachable: the nav renders it as a
  * dedicated icon button beside the theme toggle, and every content index links
@@ -129,13 +135,13 @@ export const MAILBOXES: MailBox[] = [
  */
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false },
-  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
-  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
-  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
-  { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
-  { href: '/matrix/', label: 'Coverage', cmd: 'att&ck', primary: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
+  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
+  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
+  { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
+  { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false },
+  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
 ] as const;
 
