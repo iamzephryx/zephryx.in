@@ -37,8 +37,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-dim">
-              {SITE.role} · {SITE.subrole}. Offensive research, adversary emulation and the detections
-              that catch it.
+              {SITE.role} · {SITE.subrole}. Threat hunting, detection engineering, and the
+              offensive research that informs both.
             </p>
             <p className="mt-4 font-mono text-[11px] leading-relaxed text-ink-faint">
               PGP fingerprint available on request via{' '}

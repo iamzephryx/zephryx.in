@@ -10,20 +10,22 @@ import { creditedCount } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 const ROLES = [
-  'red_team_operator',
-  'adversary_emulation',
   'threat_hunter',
-  'initial_access_dev',
   'detection_engineer',
+  'soc_analyst',
+  'offensive_researcher',
+  'ad_attack_paths',
 ] as const;
 
 /**
- * The CVE figure is derived from the advisory list rather than typed here, so
- * the front page can never claim a number the arsenal cannot show.
+ * Both figures here are derived from the content they link to rather than typed
+ * in, so the front page can never claim a number the rest of the site cannot
+ * show. That principle is what ruled out the stat this replaced — an engagement
+ * count no reader could check and no page could back up.
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '150+', label: 'boxes rooted' },
-  { value: '40+', label: 'engagements' },
+  { value: String(getDetectionCount()), label: 'detections shipped', href: '/detections/' },
   { value: String(creditedCount()), label: 'CVEs credited', href: '/arsenal/' },
   { value: '∞', label: 'assume breach' },
 ];
@@ -90,12 +92,12 @@ export default function HomePage() {
             </div>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-dim">
-              I'm 23, and I've been doing this long enough now that people ask what I
-              actually do all day. Short version: I get paid to break into companies
-              on purpose, and when I'm not doing that I'm on the SOC side as a{' '}
-              <span className="text-ink">threat hunter</span>, looking for the people
-              who broke in without permission. Everything on this site comes out of
-              one of those two jobs.
+              I'm 23, and people keep asking what I actually do all day. Short version:
+              my paycheck comes from a SOC, where I work as a{' '}
+              <span className="text-ink">threat hunter</span> — chasing whatever faint
+              signal says someone is already inside. The rest of my time goes to the
+              offensive side, learning to build the attacks I spend my shifts looking
+              for. Everything on this site comes out of that loop.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
