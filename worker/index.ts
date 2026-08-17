@@ -366,41 +366,90 @@ async function verifyTurnstile(secret: string, token: string, ip: string | null)
   }
 }
 
+/** DoH RCODE 3 — the name definitively does not exist. A real answer, not a failure. */
+const DNS_NXDOMAIN = 3;
+/**
+ * Per-lookup budget, applied to each call rather than shared across all three —
+ * one 3s AbortController spanning three sequential lookups meant a slow MX
+ * query left nothing for the A/AAAA fallback. DNS_TOTAL_MS still bounds the
+ * whole check so a visitor never waits three full timeouts.
+ */
+const DNS_TIMEOUT_MS = 3000;
+const DNS_TOTAL_MS = 5000;
+
+/** What one lookup established: the domain has records, has none, or we couldn't tell. */
+type LookupResult = 'records' | 'none' | 'unavailable';
+
+/**
+ * One DoH query. The distinction that matters is between "the resolver
+ * answered and there is nothing there" and "the resolver did not answer" —
+ * collapsing those into a boolean is what made a resolver 429 or 5xx look
+ * identical to a made-up domain.
+ */
+async function lookup(
+  domain: string,
+  type: 'MX' | 'A' | 'AAAA',
+  budgetMs: number,
+): Promise<LookupResult> {
+  if (budgetMs <= 0) return 'unavailable';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), Math.min(DNS_TIMEOUT_MS, budgetMs));
+  try {
+    const res = await fetch(
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`,
+      { headers: { accept: 'application/dns-json' }, signal: controller.signal },
+    );
+    if (!res.ok) {
+      console.warn(`contact: DoH ${type} lookup for ${domain} returned ${res.status}`);
+      return 'unavailable';
+    }
+    const data = (await res.json()) as { Status?: unknown; Answer?: unknown[] };
+    if (data.Status === DNS_NXDOMAIN) return 'none';
+    if (typeof data.Status === 'number' && data.Status !== 0) return 'unavailable';
+    return Array.isArray(data.Answer) && data.Answer.length > 0 ? 'records' : 'none';
+  } catch (e) {
+    console.warn(`contact: DoH ${type} lookup for ${domain} failed`, e);
+    return 'unavailable';
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 /**
  * Confirms the email's domain can plausibly receive mail at all, catching
  * typos and made-up domains without claiming to verify the specific mailbox
  * or that the visitor owns it. Checks MX first, then falls back to A/AAAA
  * per RFC 5321 (a domain with no MX can still receive mail at its host
- * record). Fails open on lookup errors/timeouts — a degraded DNS check
- * should never block a genuine message.
+ * record).
+ *
+ * Fails open, and now actually does: the address is only rejected when the
+ * resolver gave a real answer for every record type and every one of them was
+ * empty. Previously any non-2xx — a DoH throttle, a 5xx — read as "no records"
+ * and rejected every submission with a message blaming the visitor's address.
+ * Workers egress shares IP space with a lot of traffic, so that is not a
+ * hypothetical failure mode.
+ *
+ * Exported for testing against a stubbed resolver; the runtime only ever calls
+ * the default export.
  */
-async function domainAcceptsMail(email: string): Promise<boolean> {
+export async function domainAcceptsMail(email: string): Promise<boolean> {
   const domain = email.split('@')[1];
   if (!domain) return false;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 3000);
-
-  const hasRecords = async (type: 'MX' | 'A' | 'AAAA'): Promise<boolean> => {
-    const res = await fetch(
-      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`,
-      { headers: { accept: 'application/dns-json' }, signal: controller.signal },
-    );
-    if (!res.ok) return false;
-    const data = (await res.json()) as { Answer?: unknown[] };
-    return Array.isArray(data.Answer) && data.Answer.length > 0;
-  };
-
-  try {
-    if (await hasRecords('MX')) return true;
-    if (await hasRecords('A')) return true;
-    if (await hasRecords('AAAA')) return true;
-    return false;
-  } catch {
-    return true;
-  } finally {
-    clearTimeout(timeout);
+  const deadline = Date.now() + DNS_TOTAL_MS;
+  let answered = true;
+  for (const type of ['MX', 'A', 'AAAA'] as const) {
+    const result = await lookup(domain, type, deadline - Date.now());
+    if (result === 'records') return true;
+    if (result === 'unavailable') answered = false;
   }
+
+  // Every type answered, every one of them empty: a genuine dead domain.
+  // Otherwise the check is degraded and must not stand in the way.
+  if (!answered) {
+    console.warn(`contact: DNS check degraded for ${domain}, accepting the address`);
+  }
+  return !answered;
 }
 
 function renderEmail(v: {
