@@ -16,16 +16,18 @@ no network.
 
 ## What's the same in all three
 
-Copy is written in the site's first-person voice, and the numbers are drawn from
-what `zephryx.in` already claims (40+ engagements, 150+ boxes, CVEs credited) so
-nothing here over-promises relative to the main site. Pricing (₹14,900 single /
+Copy is written in the site's first-person voice and follows the same positioning
+as the main site: the SOC work is the profession, the offensive work is what fills
+the rest of the time. Figures are drawn from what `zephryx.in` can actually show
+(published detections, credited CVEs, boxes rooted), so nothing here over-promises
+relative to the main site. There is deliberately no engagement count. Pricing (₹14,900 single /
 ₹64,900 full) and the 12-seat cohort cap are **placeholders** — they're there to
 make the layout real, not because they're decided.
 
 ## What differs, and why it matters
 
 - **V1** reuses the tokens from `src/app/globals.css` verbatim. Pick this if the
-  academy should read as the same operator rather than a separate brand.
+  academy should read as the same person rather than a separate brand.
 - **V2** makes colour mean something: green cleared, amber in progress, red not
   started. That's a real system to maintain, not decoration — the phase state
   appears on the spine, the phase rows, and the coverage matrix, and all three

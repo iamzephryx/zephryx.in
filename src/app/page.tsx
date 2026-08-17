@@ -30,24 +30,29 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '∞', label: 'assume breach' },
 ];
 
+/**
+ * Ordered profession first. The SOC work is what the paycheck covers, so it
+ * leads; the offensive cards follow as what they are — research, and the reason
+ * the hunting gets better.
+ */
 const CAPABILITIES = [
   {
-    tag: 'ATK',
-    title: 'Adversary Emulation',
-    body: "This is the actual job most of the time: get hired to act like a real threat actor against a client's environment, start to finish, and map whatever I do back to ATT&CK so the report means something.",
-    items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
+    tag: 'DEF',
+    title: 'Detection & Hunting',
+    body: "The day job. Hypothesis-driven hunting on a live SOC, then writing the rule for whatever the hunt turned up and tuning it until it stops crying wolf. Most of what I know about attacking, I learned watching attacks land here first.",
+    items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
   },
   {
     tag: 'AD',
     title: 'Active Directory',
-    body: "Most environments I land in are Windows shops, so most of my time goes here. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, ADCS templates that were never locked down.",
+    body: "Where most of my offensive research goes, because it's where most real intrusions go. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, ADCS templates that were never locked down.",
     items: ['Kerberoasting & delegation', 'ADCS escalation (ESC1-8)', 'BloodHound path analysis'],
   },
   {
-    tag: 'DEF',
-    title: 'Purple Loop',
-    body: "Having a foot in the SOC changes how I attack — I know what actually gets noticed. So I try to leave every engagement with a rule attached, not just a report nobody reads twice.",
-    items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
+    tag: 'ATK',
+    title: 'Adversary Emulation',
+    body: "Acting like a real threat actor start to finish and mapping it to ATT&CK — then going back to the console to work out how much of it I would actually have caught. That second pass is the whole reason I do the first.",
+    items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
   },
 ];
 
@@ -68,7 +73,7 @@ export default function HomePage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
               </span>
-              AVAILABLE FOR RED TEAM ENGAGEMENTS
+              AVAILABLE FOR OFFENSIVE SECURITY WORK
             </div>
 
             <p className="mb-4 font-mono text-sm text-ink-dim">

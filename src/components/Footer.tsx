@@ -14,6 +14,7 @@ export default function Footer() {
               <span className="text-signal">● OPERATIONAL</span>
               <span>ASSUME BREACH</span>
               <span className="text-red-blood/70">TTP: T1059 / T1055 / T1548</span>
+              <span>THREAT HUNTING</span>
               <span>DETECTION ENGINEERING</span>
               <span>ADVERSARY EMULATION</span>
               <span className="text-red-blood/70">PURPLE TEAM LOOP</span>
