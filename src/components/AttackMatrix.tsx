@@ -12,7 +12,7 @@ import type { CoverageState, CoverageSummary, TechniqueCoverage } from '@/lib/at
  *   open    — emulated, no rule published yet. An honest gap, and the most
  *             useful cell on the board.
  *   guarded — a rule exists with no published offensive work behind it.
- *   none    — not covered. Shown on purpose; a matrix with no grey is a lie.
+ *   none    — neither run nor detected. Shown on purpose; a board with no grey is a lie.
  */
 const STATE_META: Record<
   CoverageState,
@@ -25,7 +25,7 @@ const STATE_META: Record<
     order: 0,
   },
   emulated: {
-    label: 'emulated · no rule yet',
+    label: 'run · no rule yet',
     cell: 'border-red-deep/60 bg-red-ash/20 text-ink hover:border-red-blood',
     dot: 'bg-red-blood',
     order: 1,
@@ -37,7 +37,7 @@ const STATE_META: Record<
     order: 2,
   },
   none: {
-    label: 'not covered',
+    label: 'neither yet',
     cell: 'border-line bg-abyss/50 text-ink-faint hover:border-ink-faint/50',
     dot: 'bg-line',
     order: 3,
@@ -46,7 +46,7 @@ const STATE_META: Record<
 
 const FILTERS = [
   { id: 'all', label: 'everything' },
-  { id: 'covered', label: 'covered only' },
+  { id: 'covered', label: 'touched only' },
   { id: 'gaps', label: 'open gaps' },
 ] as const;
 

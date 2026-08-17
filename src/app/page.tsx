@@ -3,18 +3,18 @@ import Terminal from '@/components/Terminal';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { getLatestWriteups, formatDate } from '@/lib/writeups';
+import { getAllWriteups, getLatestWriteups, formatDate } from '@/lib/writeups';
 import { getDetectionCount } from '@/lib/detections';
 import { getCoverage } from '@/lib/attack';
 import { creditedCount } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 const ROLES = [
-  'threat_hunter',
-  'detection_engineer',
-  'soc_analyst',
-  'offensive_researcher',
+  'penetration_tester',
   'ad_attack_paths',
+  'adversary_emulation',
+  'initial_access_dev',
+  'threat_hunter',
 ] as const;
 
 /**
@@ -25,34 +25,34 @@ const ROLES = [
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '150+', label: 'boxes rooted' },
-  { value: String(getDetectionCount()), label: 'detections shipped', href: '/detections/' },
   { value: String(creditedCount()), label: 'CVEs credited', href: '/arsenal/' },
-  { value: '∞', label: 'assume breach' },
+  { value: String(getAllWriteups().length), label: 'writeups published', href: '/writeups/' },
+  { value: String(getDetectionCount()), label: 'detections shipped', href: '/detections/' },
 ];
 
 /**
- * Ordered profession first. The SOC work is what the paycheck covers, so it
- * leads; the offensive cards follow as what they are — research, and the reason
- * the hunting gets better.
+ * Offensive work leads, because that is what the site is about and what a reader
+ * came for. The detection card closes the set rather than opening it — it is the
+ * last move in the loop, not a second discipline competing for the front page.
  */
 const CAPABILITIES = [
   {
-    tag: 'DEF',
-    title: 'Detection & Hunting',
-    body: "The day job. Hypothesis-driven hunting on a live SOC, then writing the rule for whatever the hunt turned up and tuning it until it stops crying wolf. Most of what I know about attacking, I learned watching attacks land here first.",
-    items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
-  },
-  {
     tag: 'AD',
     title: 'Active Directory',
-    body: "Where most of my offensive research goes, because it's where most real intrusions go. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, ADCS templates that were never locked down.",
+    body: "Where most of my work goes, because it's where most real intrusions go. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, and ADCS templates that were never locked down.",
     items: ['Kerberoasting & delegation', 'ADCS escalation (ESC1-8)', 'BloodHound path analysis'],
   },
   {
     tag: 'ATK',
     title: 'Adversary Emulation',
-    body: "Acting like a real threat actor start to finish and mapping it to ATT&CK — then going back to the console to work out how much of it I would actually have caught. That second pass is the whole reason I do the first.",
+    body: "Acting like a real threat actor start to finish — infrastructure, payload, access, objective — and mapping the whole run back to ATT&CK afterwards so it reads as something you can act on rather than a war story.",
     items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
+  },
+  {
+    tag: 'DEF',
+    title: 'Closing the Loop',
+    body: "Then I go back to the console and work out how much of it I'd actually have caught. Sitting on a SOC is what makes this half possible, and it's the reason I know which of my own attacks were loud.",
+    items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
   },
 ];
 
@@ -77,7 +77,7 @@ export default function HomePage() {
             </div>
 
             <p className="mb-4 font-mono text-sm text-ink-dim">
-              <span className="text-red-blood">$</span> ./initialize --operator
+              <span className="text-red-blood">$</span> ./initialize --pentester
             </p>
 
             <h1 className="font-mono text-5xl font-bold leading-[0.95] tracking-tight text-ink sm:text-7xl">
@@ -97,12 +97,11 @@ export default function HomePage() {
             </div>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-dim">
-              I'm 23, and people keep asking what I actually do all day. Short version:
-              my paycheck comes from a SOC, where I work as a{' '}
-              <span className="text-ink">threat hunter</span> — chasing whatever faint
-              signal says someone is already inside. The rest of my time goes to the
-              offensive side, learning to build the attacks I spend my shifts looking
-              for. Everything on this site comes out of that loop.
+              I'm 23, and I break into things — <span className="text-ink">Active
+              Directory</span> mostly — then write up exactly how, with the dead ends
+              still in. The paycheck comes from a SOC, where I hunt the people doing it
+              for real, and that half is why the first half is any good: I know what
+              gets noticed. Everything here comes out of that loop.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">

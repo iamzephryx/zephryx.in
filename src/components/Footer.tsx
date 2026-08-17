@@ -38,8 +38,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-dim">
-              {SITE.role} · {SITE.subrole}. Threat hunting, detection engineering, and the
-              offensive research that informs both.
+              {SITE.craft}. Active Directory attack paths, tooling and CTF work — and the
+              detection for each one, written from the SOC side that pays for it.
             </p>
             <p className="mt-4 font-mono text-[11px] leading-relaxed text-ink-faint">
               PGP fingerprint available on request via{' '}

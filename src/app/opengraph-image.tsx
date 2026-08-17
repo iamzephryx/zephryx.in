@@ -103,7 +103,7 @@ export default function OgImage() {
             color: '#98a1af',
           }}
         >
-          {SITE.role} · {SITE.subrole}
+          {SITE.craft}
         </div>
 
         {/* footer wordmark */}
