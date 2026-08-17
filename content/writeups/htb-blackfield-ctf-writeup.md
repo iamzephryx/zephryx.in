@@ -3,7 +3,6 @@ title: 'HTB "Blackfield" — AS-REP Roasting to Backup Operator SeBackup'
 date: '2026-05-30'
 category: 'CTF'
 difficulty: 'Hard'
-featured: false
 techniques: ['T1087.002', 'T1558.004', 'T1098', 'T1003.003', 'T1003.001']
 tags: ['htb', 'active-directory', 'as-rep-roast', 'sebackupprivilege']
 excerpt: 'A clean AD chain: null-session user enumeration, AS-REP roasting, a forced password reset over SMB, and abusing SeBackupPrivilege to steal the DIT.'

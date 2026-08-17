@@ -3,7 +3,6 @@ title: 'Breaching the Forest: From Zero to Enterprise Admin via ADCS ESC8'
 date: '2026-07-22'
 category: 'Tradecraft'
 difficulty: 'Hard'
-featured: true
 techniques: ['T1187', 'T1649', 'T1550.003', 'T1078.002']
 tags: ['active-directory', 'adcs', 'ntlm-relay', 'privilege-escalation']
 excerpt: 'A full walk from an unauthenticated foothold to Enterprise Admin by coercing a Domain Controller and relaying its NTLM authentication to the AD CS web enrollment endpoint.'

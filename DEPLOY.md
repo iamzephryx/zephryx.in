@@ -165,13 +165,20 @@ title: 'Your Title'
 date: '2026-08-07'
 category: 'Research'      # CTF | Research | Detection | Tradecraft
 difficulty: 'Medium'      # Easy | Medium | Hard | Insane
-featured: true            # surfaces on the home page
+techniques: ['T1558.003'] # optional — ATT&CK IDs, drives the /matrix coverage board
 tags: ['active-directory', 'kerberos']
 excerpt: 'One or two sentences shown on cards and used as the meta description.'
 ---
 
 ## Your content in Markdown
 ```
+
+That's the whole job. The home page's **latest writeups** section is derived from
+`date:` at build time and always shows the three newest files — there is no flag to
+set and nothing to edit by hand. `/writeups`, the sitemap and `/feed.xml` pick the
+file up from the same read, so a new post lands everywhere at once. Date it in the
+future and it simply sits at the top the moment it builds, so publish-by-backdating
+works but scheduling does not.
 
 Raw HTML inside Markdown is intentionally stripped at render time (XSS-safe). Commit,
 push, and Cloudflare rebuilds automatically.

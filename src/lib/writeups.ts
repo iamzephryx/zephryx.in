@@ -23,7 +23,6 @@ export type Writeup = {
   tags: string[];
   excerpt: string;
   readingMinutes: number;
-  featured: boolean;
   /** Rendered HTML. Authored locally; raw HTML in source is discarded. */
   html: string;
   /** Section headings of the rendered body, in document order. */
@@ -111,13 +110,14 @@ function readAll(): Writeup[] {
         techniques,
         tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
         excerpt: String(data.excerpt ?? ''),
-        featured: Boolean(data.featured),
         readingMinutes: Math.max(1, Math.round(words / 220)),
         html,
         toc,
       };
     })
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    // Newest first. Same-day posts fall back to slug so the order — and with it
+    // the home page's three cards — is stable across builds.
+    .sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : a.date < b.date ? 1 : -1));
 }
 
 const strip = ({ html: _html, toc: _toc, ...meta }: Writeup): WriteupMeta => meta;
@@ -126,10 +126,13 @@ export function getAllWriteups(): WriteupMeta[] {
   return readAll().map(strip);
 }
 
-export function getFeaturedWriteups(limit = 3): WriteupMeta[] {
-  const all = readAll().map(strip);
-  const featured = all.filter((w) => w.featured);
-  return (featured.length ? featured : all).slice(0, limit);
+/**
+ * Newest writeups first. The home page shows these, so publishing a file under
+ * content/writeups is the only step needed to surface it there — there is no
+ * hand-maintained "featured" flag that can drift out of date behind the index.
+ */
+export function getLatestWriteups(limit = 3): WriteupMeta[] {
+  return readAll().map(strip).slice(0, limit);
 }
 
 export function getWriteup(slug: string): Writeup | null {

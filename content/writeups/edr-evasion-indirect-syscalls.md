@@ -3,7 +3,6 @@ title: 'Notes on EDR Evasion: Indirect Syscalls Without the Hype'
 date: '2026-04-18'
 category: 'Research'
 difficulty: 'Insane'
-featured: true
 techniques: ['T1106', 'T1055', 'T1620', 'T1562.001']
 tags: ['maldev', 'edr', 'syscalls', 'evasion', 'windows-internals']
 excerpt: 'Why direct syscalls got caught, how indirect syscalls restore a clean call stack, and the detections that still see through both.'
