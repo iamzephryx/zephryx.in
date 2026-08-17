@@ -74,7 +74,7 @@ Pair it with a volume rule — one account pulling tickets for many distinct SPN
 in a short window is the actual roasting behaviour, and it is very hard to make
 quiet:
 
-```sql
+```kql
 SecurityEvent
 | where EventID == 4769 and TicketEncryptionType == "0x17"
 | where ServiceName !endswith "$" and ServiceName != "krbtgt"

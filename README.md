@@ -100,7 +100,19 @@ npm run deploy    # build + wrangler deploy
 ## Adding content
 
 New writeup or detection = new Markdown file in `content/writeups/` or
-`content/detections/`, commit, push. New cheatsheet = drop the PDF in
+`content/detections/`, commit, push.
+
+Every fenced block in a detection renders with a copy and a download button, and
+the fence language picks the extension the file downloads as (`yaml` → `.yml`,
+`kql` → `.kql`, and so on — see `EXTENSION` in `src/lib/codeblock.ts`). Names
+default to the page slug (`slug.yml`, `slug-2.kql`, …); on a page with several
+queries it's worth naming them in the fence instead:
+
+````markdown
+```kql fortigate-spray-threshold.kql
+````
+
+New cheatsheet = drop the PDF in
 `public/cheatsheets/` plus a matching frontmatter-only Markdown file in
 `content/cheatsheets/`. Cloudflare rebuilds it automatically. Full deploy steps, DNS,
 Resend setup, and the Turnstile/KV hardening options are all in

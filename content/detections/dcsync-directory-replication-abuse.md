@@ -76,7 +76,7 @@ convenient and wrong in a targeted attack — an operator with control of a
 non-DC computer object can replicate too. Tighten it to an explicit allowlist of
 your actual DCs plus your sync accounts:
 
-```sql
+```kql
 let replicationGuids = dynamic([
     "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2",
     "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2",

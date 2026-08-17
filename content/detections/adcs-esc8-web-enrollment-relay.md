@@ -76,7 +76,7 @@ level: critical
 The CA event alone tells you *what* was issued. The IIS log tells you *from
 where* — join them on timestamp and requester to expose the relay host:
 
-```sql
+```kql
 let ca = SecurityEvent
     | where EventID in (4886, 4887)
     | where Requester endswith "$"

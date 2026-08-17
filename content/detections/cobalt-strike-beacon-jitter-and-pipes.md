@@ -74,7 +74,7 @@ Named-pipe detection catches the careless operator. Periodicity catches the
 careful one. Score each internal-to-external destination pair on how tightly its
 callback intervals cluster:
 
-```sql
+```kql
 let window = 24h;
 let minCallbacks = 20;
 CommonSecurityLog
