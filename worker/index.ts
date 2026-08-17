@@ -15,9 +15,13 @@
  * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
  *  - strict body-size cap + per-field length caps + type checks
- *  - honeypot field + submission time-trap (bots fill hidden fields, submit fast)
+ *  - honeypot field + submission time-trap (bots fill hidden fields, submit fast,
+ *    or — the case this used to miss — omit the timing field altogether)
  *  - optional Cloudflare Turnstile verification when TURNSTILE_SECRET is set
- *  - optional KV-backed IP rate limit when the CONTACT_RL namespace is bound
+ *  - per-IP rate limit, always enforced: KV-backed when the CONTACT_RL namespace
+ *    is bound, otherwise a weaker per-isolate counter. It runs before the DNS
+ *    lookup, Turnstile and delivery, so no unauthenticated caller can drive an
+ *    unbounded number of outbound subrequests
  *  - all user content HTML-escaped before it ever reaches the email body
  *  - never reflects secrets; generic errors to the client, details to console
  *
@@ -27,7 +31,9 @@
  *  - CONTACT_FROM     verified Resend sender          e.g. "Zephryx <noreply@zephryx.in>"
  * Optional:
  *  - TURNSTILE_SECRET Cloudflare Turnstile secret key
- *  - CONTACT_RL       KV namespace binding for rate limiting
+ *  - CONTACT_RL       KV namespace binding. Strongly recommended: without it the
+ *                     rate limit falls back to a per-isolate counter that resets
+ *                     on cold start and is not shared across colos.
  *  - MAINTENANCE      set to "on" to serve /503/ for every non-API request
  */
 
@@ -180,10 +186,16 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   const subject = str(body.subject, LIMITS.subject);
   const message = str(body.message, LIMITS.message);
   const honeypot = str(body.company, 100);
-  const elapsedMs = typeof body.elapsedMs === 'number' ? body.elapsedMs : 0;
 
   // --- silent bot rejection ----------------------------------------------
-  if (honeypot.length > 0 || (elapsedMs > 0 && elapsedMs < LIMITS.minElapsedMs)) {
+  // The form always sends elapsedMs, so a submission without a usable one did
+  // not come from the form. Absent, non-numeric, NaN/Infinity and negative
+  // values are all treated as signals rather than waved through: reading this
+  // as `elapsedMs > 0 && elapsedMs < min` let a caller skip the trap entirely
+  // by omitting the field.
+  const elapsedMs =
+    typeof body.elapsedMs === 'number' && Number.isFinite(body.elapsedMs) ? body.elapsedMs : null;
+  if (honeypot.length > 0 || elapsedMs === null || elapsedMs < LIMITS.minElapsedMs) {
     return json({ ok: true });
   }
 
@@ -192,11 +204,15 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'A valid email is required.' }, 422);
   if (message.length < 20) return json({ ok: false, error: 'Message is too short.' }, 422);
 
-  if (!(await domainAcceptsMail(email))) {
-    return json(
-      { ok: false, error: "That email domain doesn't appear to accept mail — check for a typo." },
-      422,
-    );
+  // --- rate limit ---------------------------------------------------------
+  // Ahead of the DNS lookup, Turnstile and delivery: everything below this
+  // point spends an outbound subrequest, and the caller is not authenticated
+  // (the Origin check stops a browser being used as someone else's client, but
+  // any direct client sets that header freely). Nothing past here should be
+  // reachable an unbounded number of times.
+  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
+  if (!(await underRateLimit(env, ip))) {
+    return json({ ok: false, error: 'Too many messages. Try again later.' }, 429);
   }
 
   // --- Turnstile (optional) ----------------------------------------------
@@ -206,15 +222,11 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     if (!ok) return json({ ok: false, error: 'Human verification failed.' }, 403);
   }
 
-  // --- rate limit (optional, KV-backed) ----------------------------------
-  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
-  if (env.CONTACT_RL) {
-    const key = `rl:${ip}`;
-    const count = Number((await env.CONTACT_RL.get(key)) ?? '0');
-    if (count >= LIMITS.rlMax) {
-      return json({ ok: false, error: 'Too many messages. Try again later.' }, 429);
-    }
-    await env.CONTACT_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
+  if (!(await domainAcceptsMail(email))) {
+    return json(
+      { ok: false, error: "That email domain doesn't appear to accept mail — check for a typo." },
+      422,
+    );
   }
 
   // --- config guard --------------------------------------------------------
@@ -259,6 +271,81 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   }
 
   return json({ ok: true });
+}
+
+/**
+ * Per-IP submission counter, held in the isolate rather than KV.
+ *
+ * A Worker isolate is per-colo and can be evicted at any time, so this is
+ * strictly weaker than the KV limiter: a caller who lands on a fresh isolate
+ * starts from zero. It exists because the alternative — the deployed default
+ * before this — was no limit at all, and an unlimited path into the mail
+ * sender is worse than a limit that occasionally resets.
+ */
+const isolateHits = new Map<string, { count: number; resetAt: number }>();
+/** Bound on isolate memory. Well past a real visitor population for this site. */
+const ISOLATE_HITS_MAX = 10_000;
+let warnedNoKv = false;
+
+/**
+ * Returns false when this IP has spent its allowance for the window. Counts the
+ * request when it is allowed, so the caller must only invoke this once, and
+ * only for a request it is about to spend subrequests on.
+ *
+ * Fails open on a KV error: a storage blip should not take the contact form
+ * down, and the isolate counter below is not a safe fallback to promote to
+ * primary (a KV outage would otherwise become a lockout).
+ */
+async function underRateLimit(env: Env, ip: string): Promise<boolean> {
+  if (env.CONTACT_RL) {
+    const key = `rl:${ip}`;
+    try {
+      const stored = await env.CONTACT_RL.get(key);
+      // A missing key is a first request; anything unparseable is treated the
+      // same way rather than left to become NaN, which compares false against
+      // the cap and would sail past the limit indefinitely.
+      const parsed = stored === null ? 0 : Number(stored);
+      const count = Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0;
+      if (count >= LIMITS.rlMax) return false;
+      await env.CONTACT_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
+      return true;
+    } catch (e) {
+      console.error('contact: KV rate limit unavailable, allowing request', e);
+      return true;
+    }
+  }
+
+  if (!warnedNoKv) {
+    warnedNoKv = true;
+    console.warn(
+      'contact: CONTACT_RL is not bound — falling back to a per-isolate counter, which ' +
+        'resets on cold start and is not shared across colos. Bind the KV namespace ' +
+        '(see DEPLOY.md) for a real limit.',
+    );
+  }
+
+  const now = Date.now();
+  const windowMs = LIMITS.rlWindowSec * 1000;
+  const entry = isolateHits.get(ip);
+
+  if (!entry || entry.resetAt <= now) {
+    if (isolateHits.size >= ISOLATE_HITS_MAX) {
+      for (const [key, value] of isolateHits) {
+        if (value.resetAt <= now) isolateHits.delete(key);
+      }
+      // Still full of live windows — drop the oldest insertion to stay bounded.
+      if (isolateHits.size >= ISOLATE_HITS_MAX) {
+        const oldest = isolateHits.keys().next();
+        if (!oldest.done) isolateHits.delete(oldest.value);
+      }
+    }
+    isolateHits.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+
+  if (entry.count >= LIMITS.rlMax) return false;
+  entry.count += 1;
+  return true;
 }
 
 async function verifyTurnstile(secret: string, token: string, ip: string | null): Promise<boolean> {

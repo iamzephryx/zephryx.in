@@ -7,6 +7,11 @@
     "CONTACT_TO": "contact@zephryx.in",
     "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>"
   },
+  // Rate limiting for /api/contact. Without this binding the Worker falls back
+  // to a per-isolate counter, which resets on cold start and is not shared
+  // across colos — it bounds abuse but does not enforce 5/hour properly.
+  // Create the namespace and uncomment (see DEPLOY.md → "KV rate limit"):
+  // "kv_namespaces": [{ "binding": "CONTACT_RL", "id": "<namespace-id>" }],
   "assets": {
     "directory": "out",
     "binding": "ASSETS",

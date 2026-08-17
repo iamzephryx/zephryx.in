@@ -125,13 +125,24 @@ All three share `src/components/ErrorScreen.tsx` — edit copy there.
    connect-src 'self' https://challenges.cloudflare.com
    ```
 
-### KV rate limit (5 messages / IP / hour)
+### KV rate limit (5 messages / IP / hour) — do this one
+
+Not optional in the way the rest of this section is. The Worker always rate
+limits, but without the KV binding it can only count inside a single isolate:
+that resets on cold start and is not shared across colos, so the effective limit
+is much looser than 5/hour. The Origin check is not a substitute — it stops a
+browser being used as someone else's client, but any direct client sets that
+header itself. KV is what actually caps what a stranger can push through your
+Resend account.
+
 1. **Storage & Databases → KV → Create namespace**, e.g. `zephryx-contact-rl`.
-2. Add to `wrangler.jsonc`:
+2. Uncomment the line in `wrangler.jsonc` and fill in the id:
    ```jsonc
    "kv_namespaces": [{ "binding": "CONTACT_RL", "id": "<namespace-id>" }]
    ```
 3. Redeploy — the limit enforces itself.
+
+Until then the Worker logs a warning on the first submission each isolate serves.
 
 ---
 
