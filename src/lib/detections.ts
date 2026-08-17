@@ -62,7 +62,9 @@ function render(
     renderer: {
       html: () => '',
       heading: anchoredHeadings(toc),
-      code: codeBlockActions(codeBlocks, slug),
+      // Every block here is a rule or a query somebody is meant to deploy, so
+      // all of them are offered as files.
+      code: codeBlockActions(codeBlocks, { base: slug, download: 'always' }),
     },
   });
 

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import ContactForm from '@/components/ContactForm';
+import CopyValue from '@/components/CopyValue';
 import { MAILBOXES, SITE, SOCIALS } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -63,12 +64,16 @@ export default function ContactPage() {
                             </span>
                           ) : null}
                         </div>
-                        <a
-                          href={`mailto:${m.address}`}
-                          className="mt-2 block break-all font-mono text-[13px] text-ink transition-colors hover:text-red-blood"
-                        >
-                          {m.address}
-                        </a>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <a
+                            href={`mailto:${m.address}`}
+                            className="break-all font-mono text-[13px] text-ink transition-colors hover:text-red-blood"
+                          >
+                            {m.address}
+                          </a>
+                          {/* mailto: does nothing for anyone on webmail */}
+                          <CopyValue value={m.address} label={m.address} />
+                        </div>
                         <p className="mt-1.5 text-[12px] leading-relaxed text-ink-dim">{m.detail}</p>
                       </li>
                     ))}

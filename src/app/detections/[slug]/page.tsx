@@ -8,7 +8,7 @@ import { attackUrl, techniqueName } from '@/lib/attack';
 import { SEVERITY_STYLE, STATUS_STYLE } from '@/lib/severity';
 import { SITE } from '@/lib/site';
 import ContentToc from '@/components/ContentToc';
-import DetectionBody from '@/components/DetectionBody';
+import ProseBody from '@/components/ProseBody';
 import RuleActions from '@/components/RuleActions';
 
 type Params = { slug: string };
@@ -151,7 +151,7 @@ export default async function DetectionPage({ params }: { params: Promise<Params
         {/* in-page nav — sticky rail on wide screens, collapsible panel below xl */}
         <ContentToc toc={d.toc} />
 
-        <DetectionBody html={d.html} />
+        <ProseBody html={d.html} />
 
         {/* footer */}
         <footer className="mt-16 border-t border-line pt-8">

@@ -8,6 +8,20 @@ export type CodeBlock = {
   filename: string;
   /** Block contents, exactly as authored, newline-terminated. */
   code: string;
+  /** Whether this block is offered as a file as well as for copying. */
+  downloadable: boolean;
+};
+
+export type CodeBlockOptions = {
+  /** Stem for generated file names — the document slug. */
+  base: string;
+  /**
+   * Which blocks are offered as a download. `always` suits documents whose
+   * blocks are files you deploy (detection rules); `named` only offers the
+   * ones whose fence names a file, so pasted output is not dressed up as
+   * something worth saving. Copy is offered either way.
+   */
+  download: 'always' | 'named';
 };
 
 /**
@@ -51,12 +65,14 @@ const escapeHtml = (value: string): string =>
     .replace(/'/g, '&#39;');
 
 /**
- * Code renderer that wraps every fenced block in a labelled figure carrying
- * copy and download controls, and appends the block to `blocks` in document
- * order so the page can also surface the rule itself outside the prose.
+ * Code renderer that wraps every fenced block in a labelled figure carrying a
+ * copy control — and a download control where the block is a file worth
+ * saving — appending each block to `blocks` in document order so a page can
+ * also surface one outside the prose.
  *
  * File names default to the document's base name (`base.yml`, `base-2.kql`, …)
- * and can be overridden from the fence info string:
+ * and can be named from the fence info string, which is also what opts a block
+ * into `download: 'named'`:
  *
  *     ```kql spray-success-check.kql
  *
@@ -69,40 +85,46 @@ const escapeHtml = (value: string): string =>
  */
 export function codeBlockActions(
   blocks: CodeBlock[],
-  base: string,
+  { base, download }: CodeBlockOptions,
 ): NonNullable<RendererObject['code']> {
   return ({ text, lang }) => {
-    const [langToken = '', nameToken = ''] = String(lang ?? '').trim().split(/\s+/);
+    const [langToken = '', nameToken = ''] = String(lang ?? '')
+      .trim()
+      .split(/\s+/);
     const language = langToken.toLowerCase();
     const extension = EXTENSION[language] ?? 'txt';
 
+    const named = overrideFilename(nameToken);
     const position = blocks.length;
     const filename =
-      overrideFilename(nameToken) ??
-      `${base}${position === 0 ? '' : `-${position + 1}`}.${extension}`;
+      named ?? `${base}${position === 0 ? '' : `-${position + 1}`}.${extension}`;
+    const downloadable = download === 'always' || named !== null;
 
     // Trailing newline so a downloaded file ends the way a rule file should.
     const code = `${text.replace(/\n+$/, '')}\n`;
-    blocks.push({ lang: language, filename, code });
+    blocks.push({ lang: language, filename, code, downloadable });
 
     const name = escapeHtml(filename);
     const action = (kind: 'copy' | 'download', label: string, description: string) =>
       `<button type="button" class="code-block__action" data-code-action="${kind}" ` +
-      `aria-label="${description} ${name}">` +
+      `aria-label="${description} ${downloadable ? name : `this ${language || 'code'} block`}">` +
       `<span class="code-block__label" data-code-label>${label}</span>` +
       `</button>`;
 
     return (
-      `<figure class="code-block" data-filename="${name}">` +
+      // The file name only rides on the figure when it names a real download —
+      // otherwise the copy handler falls back to a generic announcement.
+      `<figure class="code-block"${downloadable ? ` data-filename="${name}"` : ''}>` +
       `<figcaption class="code-block__bar">` +
       `<span class="code-block__meta">` +
       `<span class="code-block__lang">${escapeHtml(language || 'text')}</span>` +
-      `<span class="code-block__file">${name}</span>` +
+      (downloadable ? `<span class="code-block__file">${name}</span>` : '') +
       `</span>` +
       // Announcement target for the copy/download result — visually hidden.
       `<span class="code-block__status" role="status" data-code-status></span>` +
       `<span class="code-block__actions">` +
-      `${action('copy', 'copy', 'Copy')}${action('download', 'download', 'Download')}` +
+      action('copy', 'copy', 'Copy') +
+      (downloadable ? action('download', 'download', 'Download') : '') +
       `</span>` +
       `</figcaption>` +
       `<pre><code${language ? ` class="language-${escapeHtml(language)}"` : ''}>` +
@@ -117,5 +139,6 @@ export function codeBlockActions(
  * YAML), falling back to whatever the document leads with.
  */
 export function primaryBlock(blocks: CodeBlock[]): CodeBlock | null {
-  return blocks.find((b) => b.filename.endsWith('.yml')) ?? blocks[0] ?? null;
+  const offered = blocks.filter((b) => b.downloadable);
+  return offered.find((b) => b.filename.endsWith('.yml')) ?? offered[0] ?? null;
 }
