@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import CopyValue from '@/components/CopyValue';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { SITE } from '@/lib/site';
@@ -98,12 +99,16 @@ export default function SecurityPage() {
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
                 security contact
               </p>
-              <a
-                href="mailto:security@zephryx.in"
-                className="mt-2 block font-mono text-xl text-red-blood transition-colors hover:text-red-core"
-              >
-                security@{SITE.domain}
-              </a>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <a
+                  href="mailto:security@zephryx.in"
+                  className="font-mono text-xl text-red-blood transition-colors hover:text-red-core"
+                >
+                  security@{SITE.domain}
+                </a>
+                {/* mailto: is useless to anyone on webmail — let them take the address */}
+                <CopyValue value={`security@${SITE.domain}`} label="the security address" />
+              </div>
               <p className="mt-3 font-mono text-[12px] leading-relaxed text-ink-faint">
                 Acknowledgement within 72 hours · triage within 7 days · encrypt anything
                 sensitive

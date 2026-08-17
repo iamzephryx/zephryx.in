@@ -7,14 +7,14 @@ import { copyText, downloadText } from '@/lib/browser';
 const RESET_MS = 2200;
 
 /**
- * Renders a detection's body and wires the copy/download controls that
- * lib/codeblock.ts bakes into every fenced block.
+ * Renders a long-form body — writeup or detection — and wires the copy and
+ * download controls that lib/codeblock.ts bakes into every fenced block.
  *
  * One delegated listener covers every block on the page, and the controls stay
  * hidden until this component mounts (`prose-terminal--interactive`), so a
- * reader without JavaScript sees the plain rule text instead of dead buttons.
+ * reader without JavaScript sees the plain text instead of dead buttons.
  */
-export default function DetectionBody({ html }: { html: string }) {
+export default function ProseBody({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [interactive, setInteractive] = useState(false);
 
@@ -65,9 +65,11 @@ export default function DetectionBody({ html }: { html: string }) {
       const code = block?.querySelector('pre code')?.textContent;
       if (!block || code == null) return;
 
-      const filename = block.dataset.filename || 'rule.txt';
+      // Only blocks offered as a file carry a name; the rest are copy-only.
+      const filename = block.dataset.filename;
 
       if (button.dataset.codeAction === 'download') {
+        if (!filename) return;
         downloadText(filename, code);
         flash(button, 'saved', 'done', `Downloaded ${filename}`);
         return;
@@ -78,7 +80,9 @@ export default function DetectionBody({ html }: { html: string }) {
           button,
           ok ? 'copied' : 'failed',
           ok ? 'done' : 'error',
-          ok ? `Copied ${filename} to the clipboard` : 'Copy failed — select the text manually',
+          ok
+            ? `Copied ${filename ?? 'the code block'} to the clipboard`
+            : 'Copy failed — select the text manually',
         ),
       );
     };
@@ -92,10 +96,11 @@ export default function DetectionBody({ html }: { html: string }) {
 
   return (
     /*
-      Body HTML is produced by the markdown pipeline in lib/detections.ts,
-      which disables raw-HTML passthrough (html: () => ''). The content is
-      first-party and cannot emit author-controlled markup, so injecting it
-      here carries no stored-XSS surface.
+      Body HTML is produced by the markdown pipelines in lib/writeups.ts and
+      lib/detections.ts, both of which disable raw-HTML passthrough
+      (html: () => ''). The content is first-party and cannot emit
+      author-controlled markup, so injecting it here carries no stored-XSS
+      surface.
     */
     <div
       ref={ref}

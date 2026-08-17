@@ -7,6 +7,7 @@ import { attackUrl, techniqueName } from '@/lib/attack';
 import { SEVERITY_STYLE } from '@/lib/severity';
 import { SITE } from '@/lib/site';
 import ContentToc from '@/components/ContentToc';
+import ProseBody from '@/components/ProseBody';
 
 type Params = { slug: string };
 
@@ -116,16 +117,7 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
         {/* in-page nav — sticky rail on wide screens, collapsible panel below xl */}
         <ContentToc toc={w.toc} />
 
-        {/*
-          Body HTML is produced by the markdown pipeline in lib/writeups.ts,
-          which disables raw-HTML passthrough (html: () => ''). The content is
-          first-party and cannot emit author-controlled markup, so injecting it
-          here carries no stored-XSS surface.
-        */}
-        <div
-          className="prose-terminal mt-10"
-          dangerouslySetInnerHTML={{ __html: w.html }}
-        />
+        <ProseBody html={w.html} />
 
         {/* the other half of the loop */}
         {detections.length ? (

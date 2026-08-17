@@ -3,6 +3,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { Marked } from 'marked';
 import { anchoredHeadings, type TocEntry } from './toc';
+import { codeBlockActions, type CodeBlock } from './codeblock';
 import { localImageSize } from './imageSize';
 
 // Re-exported so server components can keep importing it from here, while client
@@ -42,12 +43,14 @@ const escapeHtml = (s: string): string =>
   );
 
 /**
- * Renders one document. The instance is per-call because the heading renderer
- * carries document-scoped state (the slugger and the collected table of
- * contents), which a shared instance could leak between files.
+ * Renders one document. The instance is per-call because the heading and code
+ * renderers carry document-scoped state (the slugger, the collected table of
+ * contents, the block numbering), which a shared instance could leak between
+ * files.
  */
-function render(content: string): { html: string; toc: TocEntry[] } {
+function render(content: string, slug: string): { html: string; toc: TocEntry[] } {
   const toc: TocEntry[] = [];
+  const codeBlocks: CodeBlock[] = [];
 
   const marked = new Marked({ gfm: true, breaks: false });
   marked.use({
@@ -65,6 +68,10 @@ function render(content: string): { html: string; toc: TocEntry[] } {
         return `<figure><img src="${escapeHtml(href)}" alt="${safeText}"${dims} loading="lazy" />${caption}</figure>`;
       },
       heading: anchoredHeadings(toc),
+      // Commands and payloads here are meant to be lifted, so every block gets
+      // a copy control. Most of them are pasted output rather than files
+      // though, so a download is only offered where the fence names one.
+      code: codeBlockActions(codeBlocks, { base: slug, download: 'named' }),
     },
   });
 
@@ -99,7 +106,7 @@ function readAll(): Writeup[] {
       );
 
       const words = content.trim().split(/\s+/).length;
-      const { html, toc } = render(content);
+      const { html, toc } = render(content, slug);
 
       return {
         slug,
