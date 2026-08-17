@@ -83,15 +83,22 @@ it sloppy:
   length and rate caps, and outbound links are checked against an allowlist before
   they're followed. Output only ever renders as plain React text nodes — I tested
   `echo <img onerror=...>` and it just prints, inert.
-- `worker/index.ts` (the contact API) checks same-origin, caps body size and field
-  lengths, has a honeypot field plus a time-trap for bots, supports optional
-  Turnstile, supports an optional KV-backed rate limit, and HTML-escapes anything
-  before it touches an email. No secret ever gets echoed back to the client.
+- `worker/index.ts` (the contact API) caps body size and field lengths, has a honeypot
+  field plus a time-trap for bots, rate-limits per IP, supports optional Turnstile, and
+  HTML-escapes anything before it touches an email. No secret ever gets echoed back to
+  the client. The same-origin check is there to stop a visitor's browser being used as
+  someone else's client — it is not authentication, since any non-browser can set the
+  header, so the rate limit is what actually bounds abuse. That limit is KV-backed when
+  `CONTACT_RL` is bound and falls back to a per-isolate counter when it isn't, so the
+  endpoint is never completely open. Bind the namespace (see DEPLOY.md) for a real cap.
 - `public/_headers` sets a real CSP, HSTS preload, `X-Frame-Options: DENY`, `nosniff`,
   a locked-down `Permissions-Policy`, and COOP/CORP. There's a note in that file about
   the one `unsafe-inline` trade-off the static export forces on me.
-- Markdown writeups can't emit raw HTML, so there's no stored-XSS path through
-  content I write.
+- Markdown writeups can't emit raw HTML, and link/image URLs go through a scheme
+  allowlist (`src/lib/safeUrl.ts`) — `marked` stopped filtering those in v5, so
+  `[x](javascript:…)` would otherwise render live, and `script-src 'unsafe-inline'`
+  means the CSP wouldn't catch it either. Both halves are needed to actually close the
+  stored-XSS path through content I write.
 - Search runs entirely client-side against a build-time index of first-party
   metadata — no query ever leaves the browser and there's no search backend to
   inject into. The `?q=` value is length-capped and only ever rendered as text

@@ -42,9 +42,13 @@ Rules the implementation follows, worth keeping if you extend it:
 
 ## Other things worth knowing
 
-- Both markdown pipelines disable raw HTML (`html: () => ''`). Content is
-  first-party, but that keeps stored XSS off the board entirely — don't
-  re-enable it to solve a formatting problem.
+- Both markdown pipelines disable raw HTML (`html: () => ''`) **and** route every
+  link/image URL through `safeContentUrl()` in `src/lib/safeUrl.ts`. Both halves
+  are load-bearing: disabling raw HTML says nothing about URLs inside ordinary
+  markdown syntax, and `marked` has passed `javascript:` and `data:` straight
+  through to `href` since v5. Content is first-party, but together these keep
+  stored XSS off the board — don't re-enable raw HTML or drop the URL guard to
+  solve a formatting problem.
 - The build is the validator: a malformed ATT&CK id, an unknown technique, or a
   cheatsheet pointing at a missing PDF fails `npm run build` rather than
   shipping a quiet gap in the coverage matrix.

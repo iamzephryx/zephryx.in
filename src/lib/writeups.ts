@@ -5,6 +5,7 @@ import { Marked } from 'marked';
 import { anchoredHeadings, type TocEntry } from './toc';
 import { codeBlockActions, type CodeBlock } from './codeblock';
 import { localImageSize } from './imageSize';
+import { safeContentUrl, safeLink } from './safeUrl';
 
 // Re-exported so server components can keep importing it from here, while client
 // components import the pure helper directly from '@/lib/format'.
@@ -62,11 +63,16 @@ function render(content: string, slug: string): { html: string; toc: TocEntry[] 
       // which keeps anchored sections from sliding out from under a jump.
       image({ href, text }) {
         const safeText = escapeHtml(text ?? '');
+        // `marked` no longer filters URL schemes, so a `javascript:` or
+        // `data:` src would otherwise land in the DOM verbatim.
+        const src = safeContentUrl(href);
+        if (!src) return safeText;
         const caption = safeText ? `<figcaption>${safeText}</figcaption>` : '';
-        const size = localImageSize(href);
+        const size = localImageSize(src);
         const dims = size ? ` width="${size.width}" height="${size.height}"` : '';
-        return `<figure><img src="${escapeHtml(href)}" alt="${safeText}"${dims} loading="lazy" />${caption}</figure>`;
+        return `<figure><img src="${escapeHtml(src)}" alt="${safeText}"${dims} loading="lazy" />${caption}</figure>`;
       },
+      link: safeLink(),
       heading: anchoredHeadings(toc),
       // Commands and payloads here are meant to be lifted, so every block gets
       // a copy control. Most of them are pasted output rather than files

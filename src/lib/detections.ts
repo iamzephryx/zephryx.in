@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import { Marked } from 'marked';
 import { anchoredHeadings, type TocEntry } from './toc';
 import { codeBlockActions, primaryBlock, type CodeBlock } from './codeblock';
+import { safeImage, safeLink } from './safeUrl';
 
 export type { TocEntry } from './toc';
 export { primaryBlock, type CodeBlock } from './codeblock';
@@ -61,6 +62,10 @@ function render(
   marked.use({
     renderer: {
       html: () => '',
+      // Disabling raw HTML says nothing about the URLs inside ordinary
+      // markdown syntax — `marked` passes any scheme straight through.
+      link: safeLink(),
+      image: safeImage(),
       heading: anchoredHeadings(toc),
       // Every block here is a rule or a query somebody is meant to deploy, so
       // all of them are offered as files.

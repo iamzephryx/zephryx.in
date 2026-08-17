@@ -13,11 +13,15 @@
  * out/_headers).
  *
  * Security posture for /api/contact (mirrors the previous Pages Function):
- *  - same-origin only (Origin/Referer checked against the deployment host)
+ *  - same-origin only (Origin/Referer checked against the deployment host).
+ *    This stops a browser being used as the attacker's client; it is not an
+ *    authentication check, because a header is trivially forged by anything
+ *    that is not a browser. The rate limit below is what actually bounds abuse.
  *  - strict body-size cap + per-field length caps + type checks
  *  - honeypot field + submission time-trap (bots fill hidden fields, submit fast)
+ *  - IP rate limit: KV-backed when the CONTACT_RL namespace is bound, falling
+ *    back to a per-isolate limiter so the endpoint is never wide open
  *  - optional Cloudflare Turnstile verification when TURNSTILE_SECRET is set
- *  - optional KV-backed IP rate limit when the CONTACT_RL namespace is bound
  *  - all user content HTML-escaped before it ever reaches the email body
  *  - never reflects secrets; generic errors to the client, details to console
  *
@@ -74,6 +78,25 @@ const LIMITS = {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
+ * Baseline headers for responses this Worker generates itself — the JSON API
+ * results, the retired-route redirects. Static assets get the full policy from
+ * out/_headers, but that file never applies to a response the Worker builds,
+ * which left every /api/* reply without so much as HSTS.
+ */
+const BASE_SECURITY_HEADERS: Readonly<Record<string, string>> = {
+  'strict-transport-security': 'max-age=63072000; includeSubDomains; preload',
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'DENY',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'content-security-policy': "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+};
+
+const withSecurityHeaders = (headers: Headers): Headers => {
+  for (const [key, value] of Object.entries(BASE_SECURITY_HEADERS)) headers.set(key, value);
+  return headers;
+};
+
+/**
  * Retired routes, mapped to whatever replaced them. A static export has no
  * server to answer for a path that no longer builds, so old links would hit
  * the 404 page instead; the Worker runs first, which makes this the only
@@ -89,11 +112,12 @@ const REDIRECTS: ReadonlyMap<string, string> = new Map([
 const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
     status,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store',
-      'x-content-type-options': 'nosniff',
-    },
+    headers: withSecurityHeaders(
+      new Headers({
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store',
+      }),
+    ),
   });
 
 const escapeHtml = (s: string): string =>
@@ -103,6 +127,21 @@ const escapeHtml = (s: string): string =>
 
 const str = (v: unknown, max: number): string =>
   typeof v === 'string' ? v.trim().slice(0, max) : '';
+
+/**
+ * A single-line field on its way into a mail header. Resend takes JSON rather
+ * than raw SMTP, so a newline here is not a header-injection primitive today —
+ * but `subject` was reaching the Subject header with its control characters
+ * intact, which is a dependency's escaping decision away from being one.
+ * Collapse them at the boundary instead.
+ */
+const CONTROL_CHARS = new RegExp(
+  `[${String.fromCharCode(0)}-${String.fromCharCode(0x1f)}${String.fromCharCode(0x7f)}]+`,
+  'g',
+);
+
+const headerSafe = (v: string): string =>
+  v.replace(CONTROL_CHARS, ' ').replace(/\s{2,}/g, ' ').trim();
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -124,7 +163,9 @@ export default {
       target.search = url.search;
       return new Response(null, {
         status: 301,
-        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
+        headers: withSecurityHeaders(
+          new Headers({ location: target.toString(), 'cache-control': 'public, max-age=3600' }),
+        ),
       });
     }
 
@@ -169,22 +210,49 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   let body: Body;
   try {
     const raw = await request.text();
-    if (raw.length > LIMITS.bodyBytes) return json({ ok: false, error: 'Payload too large.' }, 413);
+    // Measured in bytes, not UTF-16 code units: a body of multi-byte
+    // characters is several times its `.length` on the wire, and a request
+    // that omits content-length reaches this check as its only cap.
+    if (new TextEncoder().encode(raw).length > LIMITS.bodyBytes) {
+      return json({ ok: false, error: 'Payload too large.' }, 413);
+    }
     body = JSON.parse(raw) as Body;
   } catch {
     return json({ ok: false, error: 'Malformed request.' }, 400);
   }
 
-  const name = str(body.name, LIMITS.name);
+  // name and subject end up in mail headers; message is a body and keeps its
+  // line breaks.
+  const name = headerSafe(str(body.name, LIMITS.name));
   const email = str(body.email, LIMITS.email);
-  const subject = str(body.subject, LIMITS.subject);
+  const subject = headerSafe(str(body.subject, LIMITS.subject));
   const message = str(body.message, LIMITS.message);
   const honeypot = str(body.company, 100);
-  const elapsedMs = typeof body.elapsedMs === 'number' ? body.elapsedMs : 0;
+
+  /*
+   * The time-trap only means anything if a missing or nonsensical value counts
+   * against the sender. Previously the check was `elapsedMs > 0 && elapsedMs <
+   * min`, so omitting the field, or sending 0, a negative number or a string,
+   * skipped the trap entirely — which is precisely what a script does and a
+   * real form never does, since ContactForm always sends a positive integer.
+   */
+  const elapsedMs =
+    typeof body.elapsedMs === 'number' && Number.isFinite(body.elapsedMs) ? body.elapsedMs : -1;
+  const tooFast = elapsedMs < LIMITS.minElapsedMs;
 
   // --- silent bot rejection ----------------------------------------------
-  if (honeypot.length > 0 || (elapsedMs > 0 && elapsedMs < LIMITS.minElapsedMs)) {
+  if (honeypot.length > 0 || tooFast) {
     return json({ ok: true });
+  }
+
+  /*
+   * Rate limit before anything that costs money or makes a subrequest. It used
+   * to sit after the DNS check and Turnstile, so an unauthenticated caller
+   * could drive unbounded outbound lookups regardless of the cap.
+   */
+  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
+  if (!(await allowRequest(env, ip))) {
+    return json({ ok: false, error: 'Too many messages. Try again later.' }, 429);
   }
 
   // --- validation ---------------------------------------------------------
@@ -204,17 +272,6 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     const token = str(body.turnstileToken, 2048);
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, token, request.headers.get('cf-connecting-ip'));
     if (!ok) return json({ ok: false, error: 'Human verification failed.' }, 403);
-  }
-
-  // --- rate limit (optional, KV-backed) ----------------------------------
-  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
-  if (env.CONTACT_RL) {
-    const key = `rl:${ip}`;
-    const count = Number((await env.CONTACT_RL.get(key)) ?? '0');
-    if (count >= LIMITS.rlMax) {
-      return json({ ok: false, error: 'Too many messages. Try again later.' }, 429);
-    }
-    await env.CONTACT_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
   }
 
   // --- config guard --------------------------------------------------------
@@ -261,6 +318,78 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   return json({ ok: true });
 }
 
+/**
+ * Per-isolate fallback counters, used when no KV namespace is bound.
+ *
+ * This is deliberately not a substitute for the KV limiter: Cloudflare runs
+ * many isolates, so a determined flood spread across colos still gets more than
+ * `rlMax` through. It exists because the alternative — what shipped before —
+ * was no limit at all whenever CONTACT_RL was unset, which is the default state
+ * of the deployment (wrangler.jsonc binds no namespace, and DEPLOY.md lists the
+ * binding as optional). An unauthenticated caller could therefore send
+ * unlimited mail through the Resend account, bounded only by a forgeable Origin
+ * header. A best-effort cap turns that into work; KV turns it into a real one.
+ */
+const memoryHits = new Map<string, number[]>();
+let warnedNoKv = false;
+
+function allowInMemory(ip: string, now = Date.now()): boolean {
+  const windowMs = LIMITS.rlWindowSec * 1000;
+  const recent = (memoryHits.get(ip) ?? []).filter((t) => now - t < windowMs);
+
+  if (recent.length >= LIMITS.rlMax) {
+    memoryHits.set(ip, recent);
+    return false;
+  }
+
+  recent.push(now);
+  memoryHits.set(ip, recent);
+
+  // Bound the map: an isolate is short-lived, but not so short that a spray
+  // across many source IPs cannot grow this without a sweep.
+  if (memoryHits.size > 2048) {
+    for (const [key, hits] of memoryHits) {
+      if (hits.every((t) => now - t >= windowMs)) memoryHits.delete(key);
+    }
+  }
+
+  return true;
+}
+
+/** @returns true when the sender is under the cap. */
+async function allowRequest(env: Env, ip: string): Promise<boolean> {
+  if (!env.CONTACT_RL) {
+    if (!warnedNoKv) {
+      warnedNoKv = true;
+      console.warn(
+        'contact: CONTACT_RL is not bound — falling back to a per-isolate rate limit. ' +
+          'Bind a KV namespace (see DEPLOY.md) for a durable cap.',
+      );
+    }
+    return allowInMemory(ip);
+  }
+
+  const key = `rl:${ip}`;
+  try {
+    const stored = Number(await env.CONTACT_RL.get(key));
+    // A missing key reads as null -> NaN; treat anything unparseable as zero
+    // rather than letting NaN comparisons silently pass the cap.
+    const count = Number.isFinite(stored) && stored > 0 ? stored : 0;
+    if (count >= LIMITS.rlMax) return false;
+    await env.CONTACT_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
+  } catch (e) {
+    // KV unavailable: fall back rather than either dropping the cap or
+    // rejecting a genuine message outright.
+    console.error('contact: rate-limit store failed', e);
+    return allowInMemory(ip);
+  }
+
+  // KV is eventually consistent and read-then-write is not atomic, so a burst
+  // of concurrent requests can share a stale count. The isolate-local counter
+  // closes that window for the common case of a single flooding connection.
+  return allowInMemory(ip);
+}
+
 async function verifyTurnstile(secret: string, token: string, ip: string | null): Promise<boolean> {
   if (!token) return false;
   try {
@@ -291,29 +420,52 @@ async function domainAcceptsMail(email: string): Promise<boolean> {
   const domain = email.split('@')[1];
   if (!domain) return false;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 3000);
+  /*
+   * Three outcomes, not two. Collapsing "the resolver said no records" and
+   * "the resolver did not answer" into a single `false` is what made the
+   * fail-open promise above untrue: a 429 or 5xx from the DoH endpoint — which
+   * is exactly what a shared Workers egress range attracts — made every lookup
+   * return false, and every visitor was told their address had a typo.
+   */
+  type Lookup = 'records' | 'none' | 'unavailable';
 
-  const hasRecords = async (type: 'MX' | 'A' | 'AAAA'): Promise<boolean> => {
-    const res = await fetch(
-      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`,
-      { headers: { accept: 'application/dns-json' }, signal: controller.signal },
-    );
-    if (!res.ok) return false;
-    const data = (await res.json()) as { Answer?: unknown[] };
-    return Array.isArray(data.Answer) && data.Answer.length > 0;
+  const lookup = async (type: 'MX' | 'A' | 'AAAA'): Promise<Lookup> => {
+    // Per-lookup budget. A single shared 3s deadline across three sequential
+    // calls left the later ones with whatever the first had not spent.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    try {
+      const res = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`,
+        { headers: { accept: 'application/dns-json' }, signal: controller.signal },
+      );
+      if (!res.ok) return 'unavailable';
+      const data = (await res.json()) as { Status?: number; Answer?: unknown[] };
+      // NXDOMAIN (3) is a real answer: the domain does not exist.
+      if (data.Status === 3) return 'none';
+      if (typeof data.Status === 'number' && data.Status !== 0) return 'unavailable';
+      return Array.isArray(data.Answer) && data.Answer.length > 0 ? 'records' : 'none';
+    } catch {
+      return 'unavailable';
+    } finally {
+      clearTimeout(timeout);
+    }
   };
 
-  try {
-    if (await hasRecords('MX')) return true;
-    if (await hasRecords('A')) return true;
-    if (await hasRecords('AAAA')) return true;
-    return false;
-  } catch {
-    return true;
-  } finally {
-    clearTimeout(timeout);
+  let degraded = false;
+  for (const type of ['MX', 'A', 'AAAA'] as const) {
+    const result = await lookup(type);
+    if (result === 'records') return true;
+    if (result === 'unavailable') degraded = true;
   }
+
+  // Only reject when the resolver actually answered for every type and none of
+  // them produced a record. A degraded check never blocks a genuine message.
+  if (degraded) {
+    console.warn('contact: DNS check degraded, accepting without verification');
+    return true;
+  }
+  return false;
 }
 
 function renderEmail(v: {

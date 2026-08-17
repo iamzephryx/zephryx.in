@@ -126,6 +126,12 @@ All three share `src/components/ErrorScreen.tsx` — edit copy there.
    ```
 
 ### KV rate limit (5 messages / IP / hour)
+
+Do this one. Without the binding the Worker falls back to a per-isolate counter,
+which stops a naive flood but not one spread across colos — and `/api/contact`
+spends your Resend quota, so the cap is the control that matters. The Worker logs
+a warning on every cold start until the namespace is bound.
+
 1. **Storage & Databases → KV → Create namespace**, e.g. `zephryx-contact-rl`.
 2. Add to `wrangler.jsonc`:
    ```jsonc
