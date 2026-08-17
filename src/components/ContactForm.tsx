@@ -182,6 +182,7 @@ export default function ContactForm() {
             onBlur={onBlur('name')}
             error={errors.name}
             disabled={disabled}
+            required
             autoComplete="name"
             inputRef={nameRef}
           />
@@ -196,6 +197,7 @@ export default function ContactForm() {
             onBlur={onBlur('email')}
             error={errors.email}
             disabled={disabled}
+            required
             autoComplete="email"
             inputRef={emailRef}
           />
@@ -224,6 +226,7 @@ export default function ContactForm() {
             onBlur={onBlur('message')}
             maxLength={LIMITS.message}
             disabled={disabled}
+            required
             spellCheck
             placeholder="Scope, timeline, target surface — or just say hello."
             aria-invalid={!!errors.message}
@@ -310,6 +313,7 @@ function Field({
   type = 'text',
   error,
   disabled,
+  required,
   autoComplete,
   inputRef,
 }: {
@@ -323,6 +327,7 @@ function Field({
   type?: string;
   error?: string;
   disabled?: boolean;
+  required?: boolean;
   autoComplete?: string;
   inputRef?: React.Ref<HTMLInputElement>;
 }) {
@@ -340,6 +345,7 @@ function Field({
         onBlur={onBlur}
         maxLength={max}
         disabled={disabled}
+        required={required}
         autoComplete={autoComplete}
         spellCheck={false}
         aria-invalid={!!error}
