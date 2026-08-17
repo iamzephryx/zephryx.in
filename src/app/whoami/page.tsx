@@ -281,7 +281,7 @@ export default function WhoamiPage() {
           <SectionHeading
             index="05 / ETHICS"
             title="rules I actually stick to"
-            sub="Without these, what I do for a living is just a different word for the same crime. I don't bend on any of them."
+            sub="Without these, the offensive half of this is just a different word for the same crime. I don't bend on any of them."
           />
         </Reveal>
 

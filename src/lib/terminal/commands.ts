@@ -480,7 +480,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       summary: 'System information',
       usage: 'uname [-a]',
       run: () => [
-        out('ZephryxOS 6.6.0-redteam #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux'),
+        out('ZephryxOS 6.6.0-purple #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux'),
         dim('edge: cloudflare · csp: strict · object-src: none · frame-ancestors: none'),
       ],
     },
@@ -652,7 +652,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       usage: 'id',
       secret: true,
       run: () => [
-        out('uid=1337(zephryx) gid=1337(redteam) groups=1337(redteam),27(soc),4(threat-hunt)'),
+        out('uid=1337(zephryx) gid=1337(soc) groups=1337(soc),27(threat-hunt),4(redteam)'),
       ],
     },
   ],
