@@ -6,13 +6,19 @@
 export const SITE = {
   name: 'Zephryx',
   handle: 'zephryx',
-  role: 'Red Team Operator',
-  subrole: 'SOC Analyst & Threat Hunter',
+  /**
+   * `role` is the profession — what the paycheck actually says — and `subrole` is
+   * the other half, which is real work but not a job title. The order matters:
+   * every surface that renders SITE.role is making an employment claim, and the
+   * whoami page has always said the SOC is the day job.
+   */
+  role: 'SOC Analyst & Threat Hunter',
+  subrole: 'Offensive Security Researcher',
   domain: 'zephryx.in',
   url: 'https://zephryx.in',
-  tagline: "I break things before they do — then I write up how, and what would've caught it.",
+  tagline: "I hunt intrusions for a living — and break into things to understand what I'm hunting.",
   description:
-    "I'm Zephryx — a red team operator by trade, and a SOC threat hunter the rest of the time. This is where I post the offensive research, CTF boxes, and detection rules I build along the way.",
+    "I'm Zephryx — a SOC analyst and threat hunter by profession, and an offensive security researcher the rest of the time. This is where I post the research, the boxes I break, and the detection rules that come out of both.",
   locale: 'en_IN',
 } as const;
 
