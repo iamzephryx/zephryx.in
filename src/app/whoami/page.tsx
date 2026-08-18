@@ -134,8 +134,8 @@ export default function WhoamiPage() {
                   <dl className="space-y-2">
                     {[
                       ['handle', SITE.name],
-                      ['role', 'Red Team Operator'],
                       ['day_job', 'SOC / Threat Hunter'],
+                      ['off_hours', 'Offensive Research'],
                       ['age', '23'],
                       ['since', '8th standard'],
                       ['based', 'India · remote'],
@@ -153,7 +153,7 @@ export default function WhoamiPage() {
               {/* narrative */}
               <div className="space-y-5 text-lg leading-relaxed text-ink-dim">
                 <p>
-                  I&apos;m {SITE.name}, 23, and I do offensive security for a living. It started
+                  I&apos;m {SITE.name}, 23, and I do security for a living. It started
                   in 8th standard with a shared school-lab login and a lot of free time, and
                   somewhere along the way it turned from a thing I did after homework into
                   an actual career, which still feels a little unreal to say out loud.
@@ -281,7 +281,7 @@ export default function WhoamiPage() {
           <SectionHeading
             index="05 / ETHICS"
             title="rules I actually stick to"
-            sub="Without these, what I do for a living is just a different word for the same crime. I don't bend on any of them."
+            sub="Without these, the offensive half of this is just a different word for the same crime. I don't bend on any of them."
           />
         </Reveal>
 

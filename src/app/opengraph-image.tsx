@@ -78,7 +78,7 @@ export default function OgImage() {
           }}
         >
           <div style={{ width: 9, height: 9, borderRadius: 999, background: '#29d391', display: 'flex' }} />
-          AVAILABLE FOR RED TEAM ENGAGEMENTS
+          AVAILABLE FOR OFFENSIVE SECURITY WORK
         </div>
 
         {/* wordmark */}
@@ -103,7 +103,7 @@ export default function OgImage() {
             color: '#98a1af',
           }}
         >
-          {SITE.role} · {SITE.subrole}
+          {SITE.craft}
         </div>
 
         {/* footer wordmark */}

@@ -3,48 +3,55 @@ import Terminal from '@/components/Terminal';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { getLatestWriteups, formatDate } from '@/lib/writeups';
+import { getAllWriteups, getLatestWriteups, formatDate } from '@/lib/writeups';
 import { getDetectionCount } from '@/lib/detections';
 import { getCoverage } from '@/lib/attack';
 import { creditedCount } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 const ROLES = [
-  'red_team_operator',
+  'penetration_tester',
+  'ad_attack_paths',
   'adversary_emulation',
-  'threat_hunter',
   'initial_access_dev',
-  'detection_engineer',
+  'threat_hunter',
 ] as const;
 
 /**
- * The CVE figure is derived from the advisory list rather than typed here, so
- * the front page can never claim a number the arsenal cannot show.
+ * Both figures here are derived from the content they link to rather than typed
+ * in, so the front page can never claim a number the rest of the site cannot
+ * show. That principle is what ruled out the stat this replaced — an engagement
+ * count no reader could check and no page could back up.
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '150+', label: 'boxes rooted' },
-  { value: '40+', label: 'engagements' },
   { value: String(creditedCount()), label: 'CVEs credited', href: '/arsenal/' },
-  { value: '∞', label: 'assume breach' },
+  { value: String(getAllWriteups().length), label: 'writeups published', href: '/writeups/' },
+  { value: String(getDetectionCount()), label: 'detections shipped', href: '/detections/' },
 ];
 
+/**
+ * Offensive work leads, because that is what the site is about and what a reader
+ * came for. The detection card closes the set rather than opening it — it is the
+ * last move in the loop, not a second discipline competing for the front page.
+ */
 const CAPABILITIES = [
-  {
-    tag: 'ATK',
-    title: 'Adversary Emulation',
-    body: "This is the actual job most of the time: get hired to act like a real threat actor against a client's environment, start to finish, and map whatever I do back to ATT&CK so the report means something.",
-    items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
-  },
   {
     tag: 'AD',
     title: 'Active Directory',
-    body: "Most environments I land in are Windows shops, so most of my time goes here. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, ADCS templates that were never locked down.",
+    body: "Where most of my work goes, because it's where most real intrusions go. Kerberos abuse, bad ACLs, delegation nobody remembers configuring, and ADCS templates that were never locked down.",
     items: ['Kerberoasting & delegation', 'ADCS escalation (ESC1-8)', 'BloodHound path analysis'],
   },
   {
+    tag: 'ATK',
+    title: 'Adversary Emulation',
+    body: "Acting like a real threat actor start to finish — infrastructure, payload, access, objective — and mapping the whole run back to ATT&CK afterwards so it reads as something you can act on rather than a war story.",
+    items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
+  },
+  {
     tag: 'DEF',
-    title: 'Purple Loop',
-    body: "Having a foot in the SOC changes how I attack — I know what actually gets noticed. So I try to leave every engagement with a rule attached, not just a report nobody reads twice.",
+    title: 'Closing the Loop',
+    body: "Then I go back to the console and work out how much of it I'd actually have caught. Sitting on a SOC is what makes this half possible, and it's the reason I know which of my own attacks were loud.",
     items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
   },
 ];
@@ -66,11 +73,11 @@ export default function HomePage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
               </span>
-              AVAILABLE FOR RED TEAM ENGAGEMENTS
+              AVAILABLE FOR OFFENSIVE SECURITY WORK
             </div>
 
             <p className="mb-4 font-mono text-sm text-ink-dim">
-              <span className="text-red-blood">$</span> ./initialize --operator
+              <span className="text-red-blood">$</span> ./initialize --pentester
             </p>
 
             <h1 className="font-mono text-5xl font-bold leading-[0.95] tracking-tight text-ink sm:text-7xl">
@@ -90,12 +97,11 @@ export default function HomePage() {
             </div>
 
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-dim">
-              I'm 23, and I've been doing this long enough now that people ask what I
-              actually do all day. Short version: I get paid to break into companies
-              on purpose, and when I'm not doing that I'm on the SOC side as a{' '}
-              <span className="text-ink">threat hunter</span>, looking for the people
-              who broke in without permission. Everything on this site comes out of
-              one of those two jobs.
+              I'm 23, and I break into things — <span className="text-ink">Active
+              Directory</span> mostly — then write up exactly how, with the dead ends
+              still in. The paycheck comes from a SOC, where I hunt the people doing it
+              for real, and that half is why the first half is any good: I know what
+              gets noticed. Everything here comes out of that loop.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">

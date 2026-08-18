@@ -14,6 +14,7 @@ export default function Footer() {
               <span className="text-signal">● OPERATIONAL</span>
               <span>ASSUME BREACH</span>
               <span className="text-red-blood/70">TTP: T1059 / T1055 / T1548</span>
+              <span>THREAT HUNTING</span>
               <span>DETECTION ENGINEERING</span>
               <span>ADVERSARY EMULATION</span>
               <span className="text-red-blood/70">PURPLE TEAM LOOP</span>
@@ -37,8 +38,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-dim">
-              {SITE.role} · {SITE.subrole}. Offensive research, adversary emulation and the detections
-              that catch it.
+              {SITE.craft}. Active Directory attack paths, tooling and CTF work — and the
+              detection for each one, written from the SOC side that pays for it.
             </p>
             <p className="mt-4 font-mono text-[11px] leading-relaxed text-ink-faint">
               PGP fingerprint available on request via{' '}

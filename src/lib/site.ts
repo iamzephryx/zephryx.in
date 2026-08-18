@@ -6,13 +6,25 @@
 export const SITE = {
   name: 'Zephryx',
   handle: 'zephryx',
-  role: 'Red Team Operator',
-  subrole: 'SOC Analyst & Threat Hunter',
+  /**
+   * Two different claims, deliberately kept apart.
+   *
+   * `craft` is what this site is *about* — the subject of the writeups, the
+   * tools, the cheatsheets. It leads on titles, social cards and the footer,
+   * because that is what a reader is here for.
+   *
+   * `role` is what the paycheck actually says. It backs the structured-data
+   * jobTitle and the terminal's `day job` line, and nothing else, so the site
+   * can read as a pentester's without ever misstating who employs me.
+   */
+  craft: 'Penetration Tester & Security Researcher',
+  role: 'SOC Analyst & Threat Hunter',
+  subrole: 'Offensive Security Researcher',
   domain: 'zephryx.in',
   url: 'https://zephryx.in',
-  tagline: "I break things before they do — then I write up how, and what would've caught it.",
+  tagline: "I hunt intrusions for a living — and break into things to understand what I'm hunting.",
   description:
-    "I'm Zephryx — a red team operator by trade, and a SOC threat hunter the rest of the time. This is where I post the offensive research, CTF boxes, and detection rules I build along the way.",
+    "I'm Zephryx — a SOC analyst and threat hunter by profession, and an offensive security researcher the rest of the time. This is where I post the research, the boxes I break, and the detection rules that come out of both.",
   locale: 'en_IN',
 } as const;
 
@@ -115,7 +127,7 @@ export const MAILBOXES: MailBox[] = [
  * Everything else is one tap away in the mobile drawer and the footer — but
  * the drawer is mobile-only, so a page demoted here needs a cross-link from
  * the content that relates to it or the footer becomes its only way in on
- * desktop. Coverage has those (home, the Detections index, every detection);
+ * desktop. Techniques has those (home, the Detections index, every detection);
  * Cheatsheets has none, which is why it holds a slot in the bar. Search is
  * demoted for the same reason it is always reachable: the nav renders it as a
  * dedicated icon button beside the theme toggle, and every content index links
@@ -123,13 +135,13 @@ export const MAILBOXES: MailBox[] = [
  */
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false },
-  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
-  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
-  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
-  { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
-  { href: '/matrix/', label: 'Coverage', cmd: 'att&ck', primary: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
+  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
+  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
+  { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
+  { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false },
+  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
 ] as const;
 
