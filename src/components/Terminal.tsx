@@ -36,6 +36,28 @@ const BOOT_SEQUENCE: Line[] = [
 let uid = 0;
 const nextId = () => ++uid;
 
+/** Longest prefix every candidate shares — how far one Tab press can safely fill in. */
+function commonPrefix(words: readonly string[]): string {
+  if (words.length === 0) return '';
+  return words.slice(1).reduce((prefix, word) => {
+    let i = 0;
+    while (i < prefix.length && i < word.length && prefix[i] === word[i]) i += 1;
+    return prefix.slice(0, i);
+  }, words[0]);
+}
+
+/*
+ * The control bar doubles as the keyboard legend on a desktop and as the only
+ * way to reach Tab/↑/↓ on a touch device, so each entry is a real button: flat
+ * text from `sm` up, a tappable chip below it.
+ */
+const CONTROL_CLASS =
+  'inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded border border-line/80 ' +
+  'bg-void/50 px-2.5 text-ink-faint transition-colors hover:text-ink-dim ' +
+  'hover:border-red-blood/50 active:bg-elevated disabled:opacity-40 ' +
+  'disabled:hover:border-line/80 disabled:hover:text-ink-faint ' +
+  'sm:min-h-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0';
+
 export default function Terminal() {
   const router = useRouter();
 
@@ -44,6 +66,8 @@ export default function Terminal() {
   const [booted, setBooted] = useState(false);
   const [focused, setFocused] = useState(false);
   const [histIndex, setHistIndex] = useState(-1);
+  // Mirrors historyRef's depth so the ↑/↓ controls can disable themselves.
+  const [histCount, setHistCount] = useState(0);
 
   const historyRef = useRef<string[]>([]);
   const draftRef = useRef('');
@@ -143,22 +167,22 @@ export default function Terminal() {
     }
 
     historyRef.current = [...historyRef.current, parsed.raw].slice(-LIMITS.HISTORY);
+    setHistCount(historyRef.current.length);
     push([{ kind: 'input', text: parsed.raw }, ...execute(parsed, ctx)]);
   }, [ctx, input, limiter, push]);
 
-  /* -------------------- key handling -------------------- */
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const hist = historyRef.current;
+  /* -------------------- editing actions -------------------- */
+  /*
+   * ↑/↓, Tab and clear live here rather than inside the key handler because the
+   * on-screen controls drive the same three actions — a phone has no Tab key.
+   */
+  const historyStep = useCallback(
+    (delta: -1 | 1) => {
+      const hist = historyRef.current;
+      if (hist.length === 0) return;
 
-    switch (e.key) {
-      case 'Enter':
-        e.preventDefault();
-        submit();
-        return;
-
-      case 'ArrowUp': {
-        e.preventDefault();
-        if (hist.length === 0) return;
+      if (delta === -1) {
+        // Stepping back: stash the half-typed line before it is overwritten.
         if (histIndex === -1) draftRef.current = input;
         const next = histIndex === -1 ? hist.length - 1 : Math.max(0, histIndex - 1);
         setHistIndex(next);
@@ -166,35 +190,80 @@ export default function Terminal() {
         return;
       }
 
-      case 'ArrowDown': {
-        e.preventDefault();
-        if (histIndex === -1) return;
-        const next = histIndex + 1;
-        if (next >= hist.length) {
-          setHistIndex(-1);
-          setInput(draftRef.current);
-        } else {
-          setHistIndex(next);
-          setInput(hist[next]);
-        }
-        return;
+      if (histIndex === -1) return;
+      const next = histIndex + 1;
+      if (next >= hist.length) {
+        setHistIndex(-1);
+        setInput(draftRef.current);
+      } else {
+        setHistIndex(next);
+        setInput(hist[next]);
       }
+    },
+    [histIndex, input],
+  );
 
-      case 'Tab': {
+  const complete = useCallback(() => {
+    const stem = input.trim().toLowerCase();
+
+    // Every branch below ends in visible feedback. A completion that silently
+    // does nothing reads as a broken key, which is exactly what an empty
+    // prompt, a dead stem and an already-complete word used to do.
+    if (!stem) {
+      push([{ kind: 'dim', text: COMPLETIONS.join('   ') }]);
+      return;
+    }
+    if (stem.includes(' ')) return;
+
+    const matches = COMPLETIONS.filter((c) => c.startsWith(stem));
+    if (matches.length === 0) {
+      push([{ kind: 'dim', text: `no completion for '${stem}'` }]);
+      return;
+    }
+    if (matches.length === 1) {
+      setInput(`${matches[0]} `);
+      return;
+    }
+
+    // Several candidates: fill in as far as they agree, then list the set.
+    const shared = commonPrefix(matches);
+    if (shared.length > stem.length) setInput(shared);
+    push([
+      { kind: 'input', text: stem },
+      { kind: 'dim', text: matches.join('   ') },
+    ]);
+  }, [input, push]);
+
+  const clearScreen = useCallback(() => setRows([]), []);
+
+  /** Run a control-bar action and hand the caret straight back to the prompt. */
+  const control = (action: () => void) => () => {
+    action();
+    inputRef.current?.focus();
+  };
+
+  /* -------------------- key handling -------------------- */
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    switch (e.key) {
+      case 'Enter':
         e.preventDefault();
-        const stem = input.trim().toLowerCase();
-        if (!stem || stem.includes(' ')) return;
-        const matches = COMPLETIONS.filter((c) => c.startsWith(stem));
-        if (matches.length === 1) {
-          setInput(matches[0] + ' ');
-        } else if (matches.length > 1) {
-          push([
-            { kind: 'input', text: stem },
-            { kind: 'dim', text: matches.join('   ') },
-          ]);
-        }
+        submit();
         return;
-      }
+
+      case 'ArrowUp':
+        e.preventDefault();
+        historyStep(-1);
+        return;
+
+      case 'ArrowDown':
+        e.preventDefault();
+        historyStep(1);
+        return;
+
+      case 'Tab':
+        e.preventDefault();
+        complete();
+        return;
 
       default:
         break;
@@ -210,7 +279,7 @@ export default function Terminal() {
 
     if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
       e.preventDefault();
-      setRows([]);
+      clearScreen();
     }
   };
 
@@ -312,6 +381,7 @@ export default function Terminal() {
                 autoCorrect="off"
                 autoCapitalize="off"
                 inputMode="text"
+                enterKeyHint="go"
                 aria-label="Terminal command input"
                 className="w-full border-0 bg-transparent p-0 font-mono text-[12.5px] text-ink caret-red-blood outline-none placeholder:text-ink-faint sm:text-[13px]"
                 placeholder="help"
@@ -326,17 +396,58 @@ export default function Terminal() {
         ) : null}
       </div>
 
-      {/* hint bar */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line bg-elevated/50 px-4 py-2 font-mono text-[10px] text-ink-faint">
-        <span>
-          <kbd className="text-ink-dim">Tab</kbd> complete
-        </span>
-        <span>
-          <kbd className="text-ink-dim">↑↓</kbd> history
-        </span>
-        <span>
-          <kbd className="text-ink-dim">Ctrl+L</kbd> clear
-        </span>
+      {/* control bar — keyboard legend on a desktop, the only way in on a phone */}
+      <div className="flex flex-wrap items-center gap-1.5 border-t border-line bg-elevated/50 px-3 py-2 font-mono text-[10px] text-ink-faint sm:gap-x-4 sm:gap-y-1 sm:px-4">
+        <button
+          type="button"
+          // Keeping the default off the press keeps the prompt focused, so a
+          // phone's on-screen keyboard does not close between taps.
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={control(complete)}
+          className={CONTROL_CLASS}
+          aria-label="Complete the current command"
+        >
+          <kbd className="hidden text-ink-dim sm:inline">Tab</kbd>
+          <span aria-hidden className="text-ink-dim sm:hidden">
+            ⇥
+          </span>
+          complete
+        </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={control(() => historyStep(-1))}
+          disabled={histCount === 0}
+          className={CONTROL_CLASS}
+          aria-label="Previous command from history"
+        >
+          <kbd className="text-ink-dim">↑</kbd>
+          prev
+        </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={control(() => historyStep(1))}
+          disabled={histCount === 0}
+          className={CONTROL_CLASS}
+          aria-label="Next command from history"
+        >
+          <kbd className="text-ink-dim">↓</kbd>
+          next
+        </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={control(clearScreen)}
+          className={CONTROL_CLASS}
+          aria-label="Clear the terminal"
+        >
+          <kbd className="hidden text-ink-dim sm:inline">Ctrl+L</kbd>
+          <span aria-hidden className="text-ink-dim sm:hidden">
+            ⌫
+          </span>
+          clear
+        </button>
         <span className="ml-auto hidden sm:inline">sandboxed · no eval · no network</span>
       </div>
     </div>

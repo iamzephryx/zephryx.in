@@ -141,7 +141,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Backdrop />
         <Nav />
 
-        <main id="main" className="relative z-10">
+        {/* tabIndex lets the skip link move focus here, not just scroll here —
+            without it the next Tab lands back in the nav it was meant to skip. */}
+        <main id="main" tabIndex={-1} className="relative z-10">
           {children}
         </main>
 
