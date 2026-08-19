@@ -396,7 +396,13 @@ export default function HomePage() {
               or just a talk for your team — tell me what you're actually
               trying to solve and we'll figure out if I'm the right fit.
             </p>
-            <div className="relative mt-9 flex flex-wrap items-center justify-center gap-4">
+            {/* One destination, one button. A second CTA pointing at
+                /handshake/#channels used to be a real shortcut — the socials
+                sat below the form and the mailbox rail. They now lead that
+                page, so the anchor lands within a screen of the top and both
+                buttons went to the same view. The anchor itself stays valid
+                for anyone deep-linking it. */}
+            <div className="relative mt-9 flex justify-center">
               <Link
                 href="/handshake/"
                 className="clip-tab border border-red-deep bg-red-core px-7 py-3.5 font-mono text-sm font-medium text-void transition-all hover:shadow-[0_0_30px_-4px_rgba(255,45,75,0.8)]"
@@ -405,12 +411,6 @@ export default function HomePage() {
                 <span className="ml-2 text-[11px] text-void/70" aria-hidden>
                   ./handshake --init
                 </span>
-              </Link>
-              <Link
-                href="/handshake/#channels"
-                className="border border-line px-7 py-3.5 font-mono text-sm text-ink-dim transition-all hover:border-red-deep/70 hover:text-red-blood"
-              >
-                Find me elsewhere
               </Link>
             </div>
           </div>
