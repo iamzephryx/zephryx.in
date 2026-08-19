@@ -11,6 +11,7 @@ import {
   type Line,
 } from '@/lib/terminal/commands';
 import { LIMITS, parse, RateLimiter, safeRoute, sanitize } from '@/lib/terminal/safety';
+import ZephryxWordmark from '@/components/ZephryxWordmark';
 
 type Row = Line & { id: number };
 
@@ -22,7 +23,6 @@ const KIND_CLASS: Record<string, string> = {
   warn: 'text-warn',
   err: 'text-red-blood',
   accent: 'text-red-blood font-semibold',
-  ascii: 'text-red-core',
   link: 'text-red-blood',
 };
 
@@ -89,7 +89,7 @@ export default function Terminal() {
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const script: Line[] = [
-      ...BOOT_BANNER.map((text) => ({ kind: 'ascii' as const, text })),
+      ...BOOT_BANNER.map((text) => ({ kind: 'wordmark' as const, text })),
       { kind: 'out', text: '' },
       ...BOOT_SEQUENCE,
       { kind: 'out', text: '' },
@@ -348,12 +348,18 @@ export default function Terminal() {
             );
           }
 
+          if (row.kind === 'wordmark') {
+            return (
+              <div key={row.id} className="py-1">
+                <ZephryxWordmark />
+              </div>
+            );
+          }
+
           return (
             <div
               key={row.id}
-              className={`whitespace-pre-wrap break-words ${KIND_CLASS[row.kind] ?? 'text-ink-dim'} ${
-                row.kind === 'ascii' ? 'whitespace-pre text-[9px] leading-tight sm:text-[11px]' : ''
-              }`}
+              className={`whitespace-pre-wrap break-words ${KIND_CLASS[row.kind] ?? 'text-ink-dim'}`}
             >
               {row.text === '' ? ' ' : row.text}
             </div>
