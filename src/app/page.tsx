@@ -6,7 +6,7 @@ import SectionHeading from '@/components/SectionHeading';
 import { getAllWriteups, getLatestWriteups, formatDate } from '@/lib/writeups';
 import { getDetectionCount } from '@/lib/detections';
 import { getCoverage } from '@/lib/attack';
-import { creditedCount } from '@/lib/arsenal';
+import { publicToolCount } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 const ROLES = [
@@ -25,7 +25,7 @@ const ROLES = [
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '150+', label: 'boxes rooted' },
-  { value: String(creditedCount()), label: 'CVEs credited', href: '/arsenal/' },
+  { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
   { value: String(getAllWriteups().length), label: 'writeups published', href: '/writeups/' },
   { value: String(getDetectionCount()), label: 'detections shipped', href: '/detections/' },
 ];
