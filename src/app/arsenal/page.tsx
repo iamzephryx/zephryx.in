@@ -2,15 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { formatDate } from '@/lib/format';
-import { ADVISORIES, TOOLS, creditedCount, publicToolCount } from '@/lib/arsenal';
+import { TOOLS, publicToolCount } from '@/lib/arsenal';
 import { attackUrl } from '@/lib/attack';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'arsenal',
   description:
-    "Tools I've actually released, plus vulnerabilities I've reported through proper coordinated disclosure. The stuff you can go check for yourself.",
+    "Tools I've actually released. The stuff you can go check for yourself.",
   alternates: { canonical: `${SITE.url}/arsenal/` },
 };
 
@@ -21,28 +20,12 @@ const STATUS_STYLE: Record<string, string> = {
   private: 'border-warn/40 bg-warn/10 text-warn',
 };
 
-const SEVERITY_STYLE: Record<string, string> = {
-  critical: 'border-red-deep bg-red-ash/30 text-red-blood',
-  high: 'border-red-deep/50 bg-red-ash/15 text-red-blood/90',
-  medium: 'border-warn/40 bg-warn/10 text-warn',
-  low: 'border-line text-ink-faint',
-};
-
-const STAGE_LABEL: Record<string, string> = {
-  published: 'public',
-  coordinated: 'coordinated disclosure',
-  reported: 'reported · embargoed',
-};
-
 export default function ArsenalPage() {
-  const credited = creditedCount();
   const publicTools = publicToolCount();
 
   const STATS: ReadonlyArray<[string, string]> = [
     [String(TOOLS.length), 'tools built'],
     [String(publicTools), 'open source'],
-    [String(ADVISORIES.length), 'advisories filed'],
-    [String(credited), 'CVEs credited'],
   ];
 
   return (
@@ -66,14 +49,13 @@ export default function ArsenalPage() {
           <Reveal delay={140}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
               Anyone can write "expert" on a portfolio page. This is the part you don't
-              have to take my word for — tools I've actually shipped, and disclosures you
-              can go look up. If something's still under embargo, I say so instead of
-              just listing it like it's already public.
+              have to take my word for — tools I've actually shipped, that you can go
+              clone and run yourself.
             </p>
           </Reveal>
 
           <Reveal delay={200}>
-            <dl className="mt-10 grid max-w-3xl grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
+            <dl className="mt-10 grid max-w-sm grid-cols-2 gap-px border border-line bg-line">
               {STATS.map(([value, label]) => (
                 <div key={label} className="bg-abyss/80 px-3 py-4 text-center">
                   <dt className="font-mono text-2xl font-bold text-red-blood text-glow">{value}</dt>
@@ -155,81 +137,6 @@ export default function ArsenalPage() {
                       Not released — engagement tooling, available on request under NDA.
                     </p>
                   )}
-                </div>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ========================== ADVISORIES ========================== */}
-      <section className="relative mx-auto max-w-6xl px-5 py-16 sm:px-8">
-        <Reveal>
-          <SectionHeading
-            index="02 / DISCLOSURE"
-            title="advisories"
-            sub="Reported quietly, fixed, then written up. Anything still under embargo stays vague on purpose until the vendor actually ships a patch."
-          />
-        </Reveal>
-
-        <div className="space-y-4">
-          {ADVISORIES.map((a, i) => (
-            <Reveal key={a.id} delay={i * 70}>
-              <article className="panel clip-corner p-6 transition-all duration-400 hover:border-red-deep/70">
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                  {/* score block */}
-                  <div className="flex shrink-0 flex-row items-center gap-4 sm:w-32 sm:flex-col sm:items-start sm:gap-2">
-                    <div>
-                      <p className="font-mono text-3xl font-bold leading-none text-red-blood text-glow">
-                        {a.cvss.toFixed(1)}
-                      </p>
-                      <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-ink-faint">
-                        cvss v3.1
-                      </p>
-                    </div>
-                    <span
-                      className={`border px-2 py-0.5 font-mono text-[10px] uppercase ${SEVERITY_STYLE[a.severity]}`}
-                    >
-                      {a.severity}
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex flex-wrap items-center gap-2 font-mono text-[11px]">
-                      {a.cve ? (
-                        <span className="border border-red-deep/40 bg-red-ash/20 px-2 py-0.5 text-red-blood">
-                          {a.cve}
-                        </span>
-                      ) : (
-                        <span className="border border-line px-2 py-0.5 text-ink-faint">
-                          id pending
-                        </span>
-                      )}
-                      <span className="text-ink-faint">{STAGE_LABEL[a.stage]}</span>
-                      <span className="ml-auto text-ink-faint">{formatDate(a.date)}</span>
-                    </div>
-
-                    <h3 className="font-mono text-base font-semibold leading-snug text-ink">
-                      {a.title}
-                    </h3>
-
-                    <p className="mt-1.5 font-mono text-[12px] text-ink-faint">
-                      {a.vendor} · {a.product} · {a.class}
-                    </p>
-
-                    <p className="mt-3 text-sm leading-relaxed text-ink-dim">{a.summary}</p>
-
-                    {a.advisoryUrl ? (
-                      <a
-                        href={a.advisoryUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-4 inline-flex items-center gap-2 font-mono text-[12px] text-red-blood transition-colors hover:text-red-core"
-                      >
-                        read the advisory <span>↗</span>
-                      </a>
-                    ) : null}
-                  </div>
                 </div>
               </article>
             </Reveal>
