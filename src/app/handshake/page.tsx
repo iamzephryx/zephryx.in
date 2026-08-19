@@ -163,7 +163,7 @@ export default function ContactPage() {
                 <dl className="mt-4 space-y-3 font-mono text-[13px]">
                   {[
                     ['engagements', '1–2 business days'],
-                    ['disclosure', 'within 48 hours'],
+                    ['disclosure', 'within 72 hours'],
                     ['everything else', 'when I surface'],
                   ].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between gap-3">
