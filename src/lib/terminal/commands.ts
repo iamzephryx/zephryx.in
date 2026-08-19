@@ -59,11 +59,10 @@ const pad = (s: string, n: number) => (s.length >= n ? s : s + ' '.repeat(n - s.
 /* Static content                                                      */
 /* ------------------------------------------------------------------ */
 
-// A single wordmark line, styled big via CSS (Terminal.tsx renders `wordmark`
-// rows with tracking/weight, not a monospace grid) rather than drawn as
-// character art. Multi-line ASCII/box-drawing art depends on every glyph in
-// the fallback chain sharing identical cell metrics — one plain line of text
-// has no such dependency, so it can't garble on any platform.
+// A single marker row: Terminal.tsx renders `wordmark` kind rows as the
+// <ZephryxWordmark /> SVG pixel-art logo (src/components/ZephryxWordmark.tsx)
+// rather than printing `text` as characters, so the blocky banner look no
+// longer depends on any font's glyph coverage.
 const BANNER = ['ZEPHRYX'];
 
 const FILES: ReadonlyMap<string, Line[]> = new Map([
