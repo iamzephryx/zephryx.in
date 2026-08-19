@@ -141,13 +141,13 @@ export const MAILBOXES: MailBox[] = [
  */
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false },
+  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
   { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
   { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
   { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
   { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false },
-  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
 ] as const;
 
