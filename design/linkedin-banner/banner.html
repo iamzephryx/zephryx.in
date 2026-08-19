@@ -1,0 +1,183 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>LinkedIn banner — Mihir Sarwan</title>
+<style>
+  @font-face { font-family: 'Anton'; src: url('fonts/Anton.ttf'); font-weight: 400; }
+  @font-face { font-family: 'JBMono'; src: url('fonts/JetBrainsMono-Regular.ttf'); font-weight: 400; }
+  @font-face { font-family: 'JBMono'; src: url('fonts/JetBrainsMono-Bold.ttf'); font-weight: 700; }
+
+  :root {
+    --red:      #E5352E;
+    --red-deep: #8E1410;
+    --ink:      #F3F5F8;
+    --dim:      #7F8996;
+    --dimmer:   #5A6470;
+    --green:    #3ECF7C;
+    --amber:    #E8A33D;
+    --bg:       #06070A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #000; }
+
+  .banner {
+    position: relative;
+    width: 1584px; height: 396px;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: 'JBMono', monospace;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- backdrop layers ---------- */
+
+  /* red glow behind the terminal panel */
+  .glow {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(760px 460px at 74% 46%, rgba(229,53,46,.22), transparent 62%),
+      radial-gradient(520px 380px at 4% 88%, rgba(229,53,46,.10), transparent 70%);
+  }
+
+  /* engineering grid */
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg,   rgba(255,255,255,.030) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(90deg,  rgba(255,255,255,.030) 0 1px, transparent 1px 44px);
+    -webkit-mask-image: radial-gradient(1200px 520px at 50% 50%, #000 30%, transparent 92%);
+  }
+
+  .vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(120% 150% at 50% 45%, transparent 42%, rgba(0,0,0,.55) 100%);
+  }
+
+  /* halftone dot field — nods to the original banner */
+  .dots {
+    position: absolute; top: 0; bottom: 0; width: 300px;
+    background-image: radial-gradient(rgba(229,53,46,.42) 1.6px, transparent 1.8px);
+    background-size: 15px 15px;
+  }
+  .dots.left  { left: -56px;  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,.70), transparent 62%); }
+  .dots.right { right: -30px; -webkit-mask-image: linear-gradient(270deg, rgba(0,0,0,.75), transparent 72%); }
+
+  /* top + bottom hairlines */
+  .rule-top, .rule-bot { position: absolute; left: 0; right: 0; height: 3px; }
+  .rule-top { top: 0;    background: linear-gradient(90deg, var(--red) 0%, var(--red) 26%, rgba(229,53,46,.18) 46%, transparent 72%); }
+  .rule-bot { bottom: 0; background: linear-gradient(270deg, var(--red) 0%, var(--red) 22%, rgba(229,53,46,.18) 44%, transparent 70%); }
+
+  /* corner reticle */
+  .reticle { position: absolute; width: 26px; height: 26px; border: 2px solid rgba(229,53,46,.55); }
+  .reticle.tl { top: 22px; left: 26px;  border-right: 0; border-bottom: 0; }
+  .reticle.br { bottom: 22px; right: 26px; border-left: 0;  border-top: 0; }
+
+  /* ---------- identity block (left) ---------- */
+
+  .identity {
+    position: absolute; left: 96px; top: 111px; width: 780px;
+  }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 16px; font-weight: 700; letter-spacing: .30em;
+    color: var(--ink); text-transform: uppercase; white-space: nowrap;
+  }
+  .eyebrow .tick { width: 10px; height: 10px; background: var(--red); flex: none; }
+  .eyebrow .sep  { color: var(--red); }
+  .eyebrow .alias { color: var(--dim); }
+
+  .headline {
+    margin-top: 16px;
+    font-family: 'Anton', sans-serif;
+    font-size: 88px; line-height: .96; letter-spacing: .012em;
+    color: var(--ink); text-transform: uppercase; white-space: nowrap;
+  }
+  .headline .hit {
+    color: var(--red);
+    text-shadow: 0 0 34px rgba(229,53,46,.42);
+  }
+
+  .underbar { margin-top: 20px; width: 78px; height: 4px; background: var(--red); }
+
+  .tagline {
+    margin-top: 16px;
+    font-size: 16.5px; letter-spacing: .012em; color: var(--dim); white-space: nowrap;
+  }
+  .tagline b { color: #A9B2BC; font-weight: 400; }
+
+  /* ---------- terminal panel (right) ---------- */
+
+  .term {
+    position: absolute; right: 72px; top: 62px; width: 542px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(15,18,24,.96), rgba(9,11,15,.96));
+    box-shadow: 0 26px 70px rgba(0,0,0,.62), 0 0 0 1px rgba(229,53,46,.10);
+    overflow: hidden;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 8px;
+    height: 36px; padding: 0 14px;
+    background: rgba(255,255,255,.045);
+    border-bottom: 1px solid rgba(255,255,255,.075);
+  }
+  .term-bar .d { width: 9px; height: 9px; border-radius: 50%; }
+  .term-bar .d1 { background: var(--red); }
+  .term-bar .d2 { background: var(--amber); }
+  .term-bar .d3 { background: #4B5560; }
+  .term-bar .title {
+    margin-left: 10px; font-size: 12.5px; letter-spacing: .06em; color: var(--dimmer);
+  }
+  .term-body { padding: 16px 22px 18px; font-size: 15.5px; line-height: 25px; color: var(--dim); }
+  .term-body .l { white-space: pre; }
+  .p  { color: var(--red); font-weight: 700; }
+  .cmd { color: var(--ink); }
+  .flag { color: #939DA8; }
+  .ok { color: var(--green); }
+  .out { color: #6E7883; }
+  .port { color: #939DA8; }
+  .link { color: #C9D1DA; }
+  .cursor {
+    display: inline-block; width: 9px; height: 17px;
+    background: var(--red); vertical-align: -3px; margin-left: 3px;
+  }
+</style>
+
+<div class="banner">
+  <div class="glow"></div>
+  <div class="grid"></div>
+  <div class="vignette"></div>
+  <div class="dots left"></div>
+  <div class="dots right"></div>
+  <div class="rule-top"></div>
+  <div class="rule-bot"></div>
+  <div class="reticle tl"></div>
+  <div class="reticle br"></div>
+
+  <div class="identity">
+    <div class="eyebrow">
+      <span class="tick"></span>Mihir Sarwan<span class="sep">//</span><span class="alias">zephryx</span>
+    </div>
+    <div class="headline">Penetration <span class="hit">Tester</span></div>
+    <div class="underbar"></div>
+    <div class="tagline">Find the way in &nbsp;<b>·</b>&nbsp; Prove the impact &nbsp;<b>·</b>&nbsp; Write the fix</div>
+  </div>
+
+  <div class="term">
+    <div class="term-bar">
+      <span class="d d1"></span><span class="d d2"></span><span class="d d3"></span>
+      <span class="title">zephryx@ops: ~/engagements</span>
+    </div>
+    <div class="term-body">
+      <div class="l"><span class="p">$</span> <span class="cmd">nmap</span> <span class="flag">-sV --top-ports 1000</span> <span class="out">10.10.14.7</span></div>
+      <div class="l"><span class="out">  80/tcp   open  http   </span><span class="port">nginx 1.24.0</span></div>
+      <div class="l"><span class="out">  445/tcp  open  smb    </span><span class="port">Windows Server 2022</span></div>
+      <div class="l"><span class="ok">[+]</span> <span class="out">foothold → local admin → domain admin</span></div>
+      <div class="l"><span class="p">$</span> <span class="cmd">contact</span> <span class="flag">--list</span></div>
+      <div class="l"><span class="out">  github  </span><span class="link">github.com/zephryx01</span></div>
+      <div class="l"><span class="out">  x       </span><span class="link">x.com/zephryx01</span></div>
+      <div class="l"><span class="out">  mail    </span><span class="link">zephryx01@gmail.com</span><span class="cursor"></span></div>
+    </div>
+  </div>
+</div>
