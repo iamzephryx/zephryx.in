@@ -22,7 +22,7 @@ const KIND_CLASS: Record<string, string> = {
   warn: 'text-warn',
   err: 'text-red-blood',
   accent: 'text-red-blood font-semibold',
-  ascii: 'text-red-core',
+  wordmark: 'text-red-core',
   link: 'text-red-blood',
 };
 
@@ -89,7 +89,7 @@ export default function Terminal() {
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const script: Line[] = [
-      ...BOOT_BANNER.map((text) => ({ kind: 'ascii' as const, text })),
+      ...BOOT_BANNER.map((text) => ({ kind: 'wordmark' as const, text })),
       { kind: 'out', text: '' },
       ...BOOT_SEQUENCE,
       { kind: 'out', text: '' },
@@ -352,7 +352,7 @@ export default function Terminal() {
             <div
               key={row.id}
               className={`whitespace-pre-wrap break-words ${KIND_CLASS[row.kind] ?? 'text-ink-dim'} ${
-                row.kind === 'ascii' ? 'whitespace-pre text-[9px] leading-tight sm:text-[11px]' : ''
+                row.kind === 'wordmark' ? 'py-1 text-2xl font-bold tracking-[0.3em] sm:text-3xl' : ''
               }`}
             >
               {row.text === '' ? ' ' : row.text}

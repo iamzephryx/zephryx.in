@@ -5,7 +5,7 @@ import { ALLOWED_ROUTES, safeHref, safeMailto, searchRoute, type ParsedCommand }
 /* Output model                                                        */
 /* ------------------------------------------------------------------ */
 
-export type LineKind = 'input' | 'out' | 'dim' | 'ok' | 'warn' | 'err' | 'accent' | 'ascii';
+export type LineKind = 'input' | 'out' | 'dim' | 'ok' | 'warn' | 'err' | 'accent' | 'wordmark';
 
 export type Line =
   | { kind: LineKind; text: string; href?: undefined }
@@ -59,21 +59,12 @@ const pad = (s: string, n: number) => (s.length >= n ? s : s + ' '.repeat(n - s.
 /* Static content                                                      */
 /* ------------------------------------------------------------------ */
 
-// Plain-ASCII by design: box-drawing/block glyphs (U+2500-259F) sit outside the
-// 'latin' subset next/font/google downloads for JetBrains Mono, so browsers
-// silently fall back to a system font for just those characters. macOS's
-// fallback (SF Mono/Menlo) happens to share cell metrics with JetBrains Mono,
-// but Windows falls back to Consolas/Courier New, whose glyph widths don't
-// match — breaking the monospace grid and garbling the banner. Stick to
-// characters guaranteed to be in the subset so every row renders identically.
-const BANNER = [
-  ' ####### ####### ######  ##   ## ######  ##   ## ##   ##',
-  '      ## ##      ##   ## ##   ## ##   ##  ## ##   ## ## ',
-  '     ##  #####   ######  ####### ######    ###     ###  ',
-  '    ##   ##      ##      ##   ## ##  ##     #      ###  ',
-  '   ##    ##      ##      ##   ## ##   ##    #     ## ## ',
-  ' ####### ####### ##      ##   ## ##   ##    #    ##   ##',
-];
+// A single wordmark line, styled big via CSS (Terminal.tsx renders `wordmark`
+// rows with tracking/weight, not a monospace grid) rather than drawn as
+// character art. Multi-line ASCII/box-drawing art depends on every glyph in
+// the fallback chain sharing identical cell metrics — one plain line of text
+// has no such dependency, so it can't garble on any platform.
+const BANNER = ['ZEPHRYX'];
 
 const FILES: ReadonlyMap<string, Line[]> = new Map([
   [
@@ -521,7 +512,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       name: 'banner',
       summary: 'Reprint the banner',
       usage: 'banner',
-      run: () => [...BANNER.map((l) => ({ kind: 'ascii' as const, text: l }))],
+      run: () => [...BANNER.map((l) => ({ kind: 'wordmark' as const, text: l }))],
     },
   ],
   [
