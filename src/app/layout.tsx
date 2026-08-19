@@ -54,7 +54,6 @@ export const metadata: Metadata = {
   keywords: [
     'penetration testing',
     'offensive security',
-    'red team',
     'active directory attacks',
     'CTF writeups',
     'adversary emulation',

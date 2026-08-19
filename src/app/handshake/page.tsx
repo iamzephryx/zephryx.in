@@ -31,7 +31,7 @@ export default function ContactPage() {
           </Reveal>
           <Reveal delay={160}>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-dim">
-              Assessment, a full emulation, a second pair of eyes on your detection coverage, a talk,
+              A penetration test, a second pair of eyes on your detection coverage, a talk,
               or you found something in my own stuff — whatever it is, this goes straight to my
               actual inbox, not a shared team queue somewhere. A DM works too — I&apos;m in all the
               usual places, right below.

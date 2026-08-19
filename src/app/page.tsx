@@ -45,7 +45,7 @@ const CAPABILITIES = [
   {
     tag: 'ATK',
     title: 'Adversary Emulation',
-    body: "Acting like a real threat actor start to finish — infrastructure, payload, access, objective — and mapping the whole run back to ATT&CK afterwards so it reads as something you can act on rather than a war story.",
+    body: "Replaying real threat-actor tradecraft in the lab — infrastructure, payload, access, objective — and mapping the whole run back to ATT&CK afterwards so it reads as something you can act on rather than a war story.",
     items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
   },
   {
@@ -176,7 +176,7 @@ export default function HomePage() {
           <SectionHeading
             index="01 / CAPABILITIES"
             title="what I do"
-            sub="Three things I actually get hired for, roughly in order of how much of my week they eat."
+            sub="Three things my week goes on, roughly in order of how much of it they eat."
           />
         </Reveal>
 
@@ -392,8 +392,8 @@ export default function HomePage() {
               Got something for me to <span className="text-red-blood text-glow">break</span>?
             </h2>
             <p className="relative mx-auto mt-5 max-w-xl text-ink-dim">
-              Assessment, a full emulation, someone to sanity-check your detection
-              coverage, or just a talk for your team — tell me what you're actually
+              A penetration test, someone to sanity-check your detection coverage,
+              or just a talk for your team — tell me what you're actually
               trying to solve and we'll figure out if I'm the right fit.
             </p>
             <div className="relative mt-9 flex flex-wrap items-center justify-center gap-4">
