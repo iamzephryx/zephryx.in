@@ -183,19 +183,21 @@ export default function HomePage() {
         <div className="grid gap-5 md:grid-cols-3">
           {CAPABILITIES.map((cap, i) => (
             <Reveal key={cap.title} delay={i * 90}>
-              <article className="panel clip-corner group h-full p-6 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow">
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="flex h-11 w-11 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
+              <article className="panel clip-corner clip-corner-edge group flex h-full flex-col p-6 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow hover:[--cut-line:var(--color-red-deep)]">
+                <div className="flex items-center gap-3 border-b border-line pb-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-[11px] font-bold tracking-wider text-red-blood transition-colors duration-400 group-hover:border-red-deep group-hover:bg-red-ash/40">
                     {cap.tag}
                   </span>
-                  <span className="font-mono text-[11px] text-ink-faint">0{i + 1}</span>
+                  <h3 className="font-mono text-base font-semibold leading-tight text-ink transition-colors duration-400 group-hover:text-red-blood">
+                    {cap.title}
+                  </h3>
+                  <span className="ml-auto font-mono text-[11px] text-ink-faint">0{i + 1}</span>
                 </div>
-                <h3 className="font-mono text-lg font-semibold text-ink">{cap.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-ink-dim">{cap.body}</p>
-                <ul className="mt-5 space-y-2 border-t border-line pt-4">
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-ink-dim">{cap.body}</p>
+                <ul className="mt-6 space-y-2.5 border-t border-line pt-4">
                   {cap.items.map((item) => (
-                    <li key={item} className="flex items-center gap-2 font-mono text-[12px] text-ink-dim">
-                      <span className="text-red-blood">▸</span>
+                    <li key={item} className="flex items-start gap-2 font-mono text-[12px] leading-snug text-ink-dim">
+                      <span className="text-red-blood" aria-hidden="true">▸</span>
                       {item}
                     </li>
                   ))}
@@ -224,7 +226,7 @@ export default function HomePage() {
               <Reveal key={w.slug} delay={i * 90}>
                 <Link
                   href={`/writeups/${w.slug}/`}
-                  className="panel clip-corner group flex h-full flex-col p-6 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
+                  className="panel clip-corner clip-corner-edge group flex h-full flex-col p-6 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow hover:[--cut-line:var(--color-red-deep)]"
                 >
                   <div className="mb-4 flex items-center gap-2 font-mono text-[10px]">
                     <span className="border border-red-deep/40 bg-red-ash/20 px-2 py-0.5 text-red-blood">
@@ -277,7 +279,7 @@ export default function HomePage() {
           <Reveal>
             <Link
               href="/matrix/"
-              className="panel clip-corner group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
+              className="panel clip-corner clip-corner-edge group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow hover:[--cut-line:var(--color-red-deep)]"
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -343,7 +345,7 @@ export default function HomePage() {
           <Reveal delay={90}>
             <Link
               href="/detections/"
-              className="panel clip-corner group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
+              className="panel clip-corner clip-corner-edge group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow hover:[--cut-line:var(--color-red-deep)]"
             >
               <div>
                 <div className="flex items-center justify-between">

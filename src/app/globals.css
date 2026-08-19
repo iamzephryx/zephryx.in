@@ -249,6 +249,15 @@
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
 }
 
+/* clip-path cuts the two corners out of the border along with the box, so a
+   clipped panel is drawn with an open outline. These paint the missing 1px
+   back along each diagonal: a 14px square at the corner, filled with a
+   gradient band that runs exactly along the cut. --cut-line follows the
+   border, so the outline stays one colour through hover. */
+@utility clip-corner-edge {
+  --cut-line: var(--color-line);
+}
+
 /* Reveal-on-scroll: element starts hidden, .is-visible is added by IO hook. */
 @utility reveal {
   opacity: 0;
@@ -258,6 +267,33 @@
 }
 
 @layer utilities {
+  .clip-corner-edge::before,
+  .clip-corner-edge::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom left,
+      transparent calc(50% - 0.5px),
+      var(--cut-line) calc(50% - 0.5px),
+      var(--cut-line) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    transition: background 0.35s ease;
+  }
+
+  .clip-corner-edge::before {
+    top: 0;
+    right: 0;
+  }
+
+  .clip-corner-edge::after {
+    bottom: 0;
+    left: 0;
+  }
+
   .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
