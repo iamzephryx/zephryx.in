@@ -26,13 +26,13 @@ const TIMELINE = [
   },
   {
     year: 'Now',
-    title: 'SOC by day',
-    body: "I do threat hunting and detection work on a live SOC. Watching what real intrusions actually look like — as opposed to what I assumed they'd look like — changed a lot about how I think.",
+    title: 'Penetration testing',
+    body: "Scoped, authorised work — initial access, AD attack paths, and the report that makes it worth paying for. This is the part I'd still be doing if nobody paid me for it, which is more or less how it started.",
   },
   {
     year: 'Always',
-    title: 'Red team the rest of the time',
-    body: "Adversary emulation, initial access, AD attack paths — this is the part I'd probably do for free if I didn't need the day job. I try to turn most of it into something I can also detect.",
+    title: 'Writing the other half',
+    body: "Watching what real intrusions look like — as opposed to what I assumed they'd look like — changed how I think about my own. So every way in I find, I go back and work out what would have caught it.",
   },
 ];
 
@@ -40,7 +40,7 @@ const FOCUS = [
   {
     tag: 'ATK',
     title: 'Adversary Emulation',
-    body: "Running a real engagement start to finish — initial access through to whatever the objective was — and mapping it to ATT&CK afterward so it's usable, not just a war story.",
+    body: "Replaying a real intrusion chain end to end in the lab — initial access through to the objective — and mapping it to ATT&CK afterward so it's usable, not just a war story.",
   },
   {
     tag: 'AD',
@@ -55,15 +55,15 @@ const FOCUS = [
   {
     tag: 'DEF',
     title: 'Detection Engineering',
-    body: "Sigma, KQL hunts, mapping coverage back to ATT&CK. I got tired of handing over red team findings that nobody ever built a detection for, so now I try to write the rule myself.",
+    body: "Sigma, KQL hunts, mapping coverage back to ATT&CK. I got tired of handing over findings that nobody ever built a detection for, so now I try to write the rule myself.",
   },
 ];
 
 const SKILLS: ReadonlyArray<[string, string, number]> = [
-  ['Adversary Emulation', 'C2 infra · OPSEC · TTP replay', 92],
+  ['Penetration Testing', 'Scoped engagements · exploitation · reporting', 92],
   ['Threat Hunting', 'Hypothesis-driven · Sigma · KQL', 94],
   ['Active Directory', 'Kerberos · ACLs · delegation · ADCS', 90],
-  ['Initial Access', 'Phishing · payload dev · EDR evasion', 88],
+  ['Initial Access', 'Phishing · payload dev · C2 · EDR evasion', 88],
   ['Web / API Exploitation', 'Authz flaws · SSRF · deserialisation', 89],
   ['Detection Engineering', 'ATT&CK mapping · rule tuning', 86],
   ['Cloud Attack Paths', 'Identity pivots · metadata · misconfig', 82],
@@ -134,8 +134,8 @@ export default function WhoamiPage() {
                   <dl className="space-y-2">
                     {[
                       ['handle', SITE.name],
+                      ['focus', 'Penetration Testing'],
                       ['day_job', 'SOC / Threat Hunter'],
-                      ['off_hours', 'Offensive Research'],
                       ['age', '23'],
                       ['since', '8th standard'],
                       ['based', 'India · remote'],
@@ -159,11 +159,16 @@ export default function WhoamiPage() {
                   an actual career, which still feels a little unreal to say out loud.
                 </p>
                 <p>
-                  My actual paycheck comes from{' '}
-                  <span className="text-ink">threat hunting on a SOC</span> — chasing down
-                  whatever faint signal suggests someone's already inside that shouldn't be. Red
-                  teaming is the part I do the rest of the time, and honestly the part I'd
-                  probably keep doing even if it stopped paying.
+                  What I actually do is{' '}
+                  <span className="text-ink">penetration testing</span> — scoped, authorised,
+                  and written up properly at the end. It started as the thing I did instead
+                  of sleeping, and it never stopped being that, which is the honest reason
+                  I keep getting better at it.
+                </p>
+                <p>
+                  The day job is threat hunting on a SOC, which is where I learned what
+                  actually gets noticed. Most of the detection rules on this site started
+                  as something I ran on the offensive side first.
                 </p>
                 <p>
                   I try not to just hand a client a PDF and disappear. If I find a way in, I want

@@ -76,8 +76,8 @@ const FILES: ReadonlyMap<string, Line[]> = new Map([
       out("login on a school lab machine and way too much curiosity for my own"),
       out("good. Never really grew out of it, just got paid for it eventually."),
       blank(),
-      out("SOC analyst and threat hunter by day. Red teamer the rest of the"),
-      out("time, and honestly the part I'd probably still do for free."),
+      out("Penetration tester — scoped, authorised, and the part I would still"),
+      out("be doing for free. Day job is a SOC, hunting it from the other side."),
     ],
   ],
   [
@@ -119,8 +119,8 @@ const FILES: ReadonlyMap<string, Line[]> = new Map([
 ]);
 
 const SKILLS: ReadonlyArray<[string, string, number]> = [
-  ['Adversary Emulation', 'C2 infra · OPSEC · TTP replay', 92],
-  ['Initial Access', 'Phishing · payload dev · AV/EDR evasion', 88],
+  ['Penetration Testing', 'Scoped engagements · exploitation · reporting', 92],
+  ['Initial Access', 'Phishing · payload dev · C2 · AV/EDR evasion', 88],
   ['Active Directory', 'Kerberos abuse · ACL paths · delegation', 90],
   ['Threat Hunting', 'Hypothesis-driven · Sigma · KQL', 94],
   ['Detection Engineering', 'ATT&CK mapping · rule tuning', 86],
@@ -195,7 +195,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       run: () => [
         accent(`${SITE.name.toLowerCase()}@${SITE.domain}`),
         out(`  craft     ${SITE.craft}`),
-        out(`  day job   ${SITE.role}`),
+        out(`  day job   ${SITE.dayJob}`),
         out('  age       23'),
         out('  since     8th standard'),
         out('  focus     AD attack paths, detection engineering, the loop between them'),
@@ -652,7 +652,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       usage: 'id',
       secret: true,
       run: () => [
-        out('uid=1337(zephryx) gid=1337(soc) groups=1337(soc),27(threat-hunt),4(redteam)'),
+        out('uid=1337(zephryx) gid=1337(pentest) groups=1337(pentest),27(threat-hunt),4(soc)'),
       ],
     },
   ],

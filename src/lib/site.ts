@@ -7,24 +7,30 @@ export const SITE = {
   name: 'Zephryx',
   handle: 'zephryx',
   /**
-   * Two different claims, deliberately kept apart.
+   * Three claims, deliberately kept apart.
    *
-   * `craft` is what this site is *about* — the subject of the writeups, the
-   * tools, the cheatsheets. It leads on titles, social cards and the footer,
-   * because that is what a reader is here for.
+   * `craft` is what this site is *about* and what most of my week goes on —
+   * the subject of the writeups, the tools, the cheatsheets. It leads on
+   * titles, social cards and the footer, because that is what a reader is
+   * here for.
    *
-   * `role` is what the paycheck actually says. It backs the structured-data
-   * jobTitle and the terminal's `day job` line, and nothing else, so the site
-   * can read as a pentester's without ever misstating who employs me.
+   * `role` is the title I present under. It backs the structured-data
+   * jobTitle and the social-card alt text.
+   *
+   * `dayJob` is who signs the cheque. It appears exactly twice — the id card
+   * on /whoami and the terminal's `day job` line — and is never promoted
+   * above the craft. It is an employment fact, not the subject of this site,
+   * so nothing here should read as though the SOC is what I mostly do.
    */
   craft: 'Penetration Tester & Security Researcher',
-  role: 'SOC Analyst & Threat Hunter',
+  role: 'Penetration Tester',
+  dayJob: 'SOC Analyst & Threat Hunter',
   subrole: 'Offensive Security Researcher',
   domain: 'zephryx.in',
   url: 'https://zephryx.in',
-  tagline: "I hunt intrusions for a living — and break into things to understand what I'm hunting.",
+  tagline: "I break into things for a living, and write up exactly how — dead ends included.",
   description:
-    "I'm Zephryx — a SOC analyst and threat hunter by profession, and an offensive security researcher the rest of the time. This is where I post the research, the boxes I break, and the detection rules that come out of both.",
+    "I'm Zephryx — a penetration tester and security researcher. This is where I post the research, the boxes I break, the Active Directory attack paths I chase, and the detection rules that come out of them.",
   locale: 'en_IN',
 } as const;
 

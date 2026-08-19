@@ -45,13 +45,13 @@ const CAPABILITIES = [
   {
     tag: 'ATK',
     title: 'Adversary Emulation',
-    body: "Acting like a real threat actor start to finish — infrastructure, payload, access, objective — and mapping the whole run back to ATT&CK afterwards so it reads as something you can act on rather than a war story.",
+    body: "Replaying real threat-actor tradecraft in the lab — infrastructure, payload, access, objective — and mapping the whole run back to ATT&CK afterwards so it reads as something you can act on rather than a war story.",
     items: ['C2 infrastructure & OPSEC', 'Payload development', 'AV / EDR evasion'],
   },
   {
     tag: 'DEF',
     title: 'Closing the Loop',
-    body: "Then I go back to the console and work out how much of it I'd actually have caught. Sitting on a SOC is what makes this half possible, and it's the reason I know which of my own attacks were loud.",
+    body: "Then I go back to the console and work out how much of it I'd actually have caught. Time on the defensive side is what makes this half possible, and it's the reason I know which of my own attacks were loud.",
     items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
   },
 ];
@@ -73,7 +73,7 @@ export default function HomePage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
               </span>
-              AVAILABLE FOR OFFENSIVE SECURITY WORK
+              AVAILABLE FOR PENETRATION TESTING WORK
             </div>
 
             <p className="mb-4 font-mono text-sm text-ink-dim">
@@ -99,9 +99,9 @@ export default function HomePage() {
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-dim">
               I'm 23, and I break into things — <span className="text-ink">Active
               Directory</span> mostly — then write up exactly how, with the dead ends
-              still in. The paycheck comes from a SOC, where I hunt the people doing it
-              for real, and that half is why the first half is any good: I know what
-              gets noticed. Everything here comes out of that loop.
+              still in. Penetration testing started as the thing I did instead of
+              sleeping and turned into the work. Every way in here has a detection next
+              to it, because I go back afterwards and ask what would have caught me.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -176,7 +176,7 @@ export default function HomePage() {
           <SectionHeading
             index="01 / CAPABILITIES"
             title="what I do"
-            sub="Three things I actually get hired for, roughly in order of how much of my week they eat."
+            sub="Three things my week goes on, roughly in order of how much of it they eat."
           />
         </Reveal>
 
@@ -392,8 +392,8 @@ export default function HomePage() {
               Got something for me to <span className="text-red-blood text-glow">break</span>?
             </h2>
             <p className="relative mx-auto mt-5 max-w-xl text-ink-dim">
-              Assessment, a full emulation, someone to sanity-check your detection
-              coverage, or just a talk for your team — tell me what you're actually
+              A penetration test, someone to sanity-check your detection coverage,
+              or just a talk for your team — tell me what you're actually
               trying to solve and we'll figure out if I'm the right fit.
             </p>
             <div className="relative mt-9 flex flex-wrap items-center justify-center gap-4">

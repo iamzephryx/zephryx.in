@@ -1,9 +1,9 @@
 # zephryx.in
 
 This is my personal site — portfolio, research log, and a bit of a playground. I'm
-Zephryx: red team operator by day, SOC analyst and threat hunter the rest of the time,
-and this is where I write up the offensive research, CTF boxes, and detection rules
-I've built along the way.
+Zephryx: a penetration tester and security researcher — it started in 8th standard and
+turned into the work — and this is where I write up the offensive research, CTF boxes,
+and detection rules I've built along the way.
 
 I wanted it to actually feel like it belongs to someone who breaks into things for a
 living, so it's dark, terminal-flavored, and the homepage has a real (sandboxed)
