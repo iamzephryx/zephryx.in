@@ -29,14 +29,15 @@ installed.
   so the name and title (left-of-centre) survive the crop; the panel is the
   part that may lose an edge.
 - Contact details live inside the terminal output rather than in a separate
-  card, so the panel carries both the "what I do" signal and the links.
+  card, so the links read as shell output instead of a badge row.
 
 ## Editing
 
 Everything is in `banner.html`:
 
 - `.identity` — name, alias, headline, tagline. `.hit` is the red word.
-- `.term-body` — the shell transcript. Keep lines under ~46 characters or the
-  panel width needs to grow with them.
+- `.term-body` — the shell transcript holding the contact links. At the current
+  19px type the panel fits ~34 characters per line; longer lines need
+  `.term`'s width to grow with them.
 - `:root` — the palette. `--red` is the accent carried over from the previous
   banner.

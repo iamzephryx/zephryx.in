@@ -109,7 +109,7 @@
   /* ---------- terminal panel (right) ---------- */
 
   .term {
-    position: absolute; right: 72px; top: 62px; width: 542px;
+    position: absolute; right: 72px; top: 95px; width: 432px;
     border: 1px solid rgba(255,255,255,.10);
     border-radius: 12px;
     background: linear-gradient(180deg, rgba(15,18,24,.96), rgba(9,11,15,.96));
@@ -129,7 +129,7 @@
   .term-bar .title {
     margin-left: 10px; font-size: 12.5px; letter-spacing: .06em; color: var(--dimmer);
   }
-  .term-body { padding: 16px 22px 18px; font-size: 15.5px; line-height: 25px; color: var(--dim); }
+  .term-body { padding: 18px 24px 20px; font-size: 19px; line-height: 33px; color: var(--dim); }
   .term-body .l { white-space: pre; }
   .p  { color: var(--red); font-weight: 700; }
   .cmd { color: var(--ink); }
@@ -139,8 +139,8 @@
   .port { color: #939DA8; }
   .link { color: #C9D1DA; }
   .cursor {
-    display: inline-block; width: 9px; height: 17px;
-    background: var(--red); vertical-align: -3px; margin-left: 3px;
+    display: inline-block; width: 10px; height: 21px;
+    background: var(--red); vertical-align: -4px; margin-left: 4px;
   }
 </style>
 
@@ -167,13 +167,9 @@
   <div class="term">
     <div class="term-bar">
       <span class="d d1"></span><span class="d d2"></span><span class="d d3"></span>
-      <span class="title">zephryx@ops: ~/engagements</span>
+      <span class="title">zephryx@ops: ~</span>
     </div>
     <div class="term-body">
-      <div class="l"><span class="p">$</span> <span class="cmd">nmap</span> <span class="flag">-sV --top-ports 1000</span> <span class="out">10.10.14.7</span></div>
-      <div class="l"><span class="out">  80/tcp   open  http   </span><span class="port">nginx 1.24.0</span></div>
-      <div class="l"><span class="out">  445/tcp  open  smb    </span><span class="port">Windows Server 2022</span></div>
-      <div class="l"><span class="ok">[+]</span> <span class="out">foothold → local admin → domain admin</span></div>
       <div class="l"><span class="p">$</span> <span class="cmd">contact</span> <span class="flag">--list</span></div>
       <div class="l"><span class="out">  github  </span><span class="link">github.com/zephryx01</span></div>
       <div class="l"><span class="out">  x       </span><span class="link">x.com/zephryx01</span></div>
