@@ -76,8 +76,8 @@ const FILES: ReadonlyMap<string, Line[]> = new Map([
       out("login on a school lab machine and way too much curiosity for my own"),
       out("good. Never really grew out of it, just got paid for it eventually."),
       blank(),
-      out("SOC analyst and threat hunter by day. Penetration tester the rest"),
-      out("of the time, and honestly the part I'd probably still do for free."),
+      out("Penetration tester — scoped, authorised, and the part I would still"),
+      out("be doing for free. Day job is a SOC, hunting it from the other side."),
     ],
   ],
   [
@@ -195,7 +195,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       run: () => [
         accent(`${SITE.name.toLowerCase()}@${SITE.domain}`),
         out(`  craft     ${SITE.craft}`),
-        out(`  day job   ${SITE.role}`),
+        out(`  day job   ${SITE.dayJob}`),
         out('  age       23'),
         out('  since     8th standard'),
         out('  focus     AD attack paths, detection engineering, the loop between them'),
@@ -652,7 +652,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       usage: 'id',
       secret: true,
       run: () => [
-        out('uid=1337(zephryx) gid=1337(soc) groups=1337(soc),27(threat-hunt),4(pentest)'),
+        out('uid=1337(zephryx) gid=1337(pentest) groups=1337(pentest),27(threat-hunt),4(soc)'),
       ],
     },
   ],

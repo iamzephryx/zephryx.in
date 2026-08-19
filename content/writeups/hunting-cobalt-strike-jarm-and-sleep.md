@@ -8,7 +8,7 @@ tags: ['threat-hunting', 'cobalt-strike', 'c2', 'sigma', 'edr']
 excerpt: 'Wearing the defender hat: three independent, high-signal ways to surface Cobalt Strike beacons that survive malleable C2 profiles and sleep-mask evasion.'
 ---
 
-Red teamers love Cobalt Strike; so do real adversaries. The good news for the
+Offensive testers love Cobalt Strike; so do real adversaries. The good news for the
 blue side is that even a well-tuned malleable profile leaves fingerprints across
 the network, the host and memory. Here are three hunts I run that do not depend
 on a single brittle IOC.

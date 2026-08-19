@@ -51,7 +51,7 @@ const CAPABILITIES = [
   {
     tag: 'DEF',
     title: 'Closing the Loop',
-    body: "Then I go back to the console and work out how much of it I'd actually have caught. Sitting on a SOC is what makes this half possible, and it's the reason I know which of my own attacks were loud.",
+    body: "Then I go back to the console and work out how much of it I'd actually have caught. Time on the defensive side is what makes this half possible, and it's the reason I know which of my own attacks were loud.",
     items: ['Detection engineering', 'Hypothesis-driven hunting', 'Rule tuning & validation'],
   },
 ];
@@ -73,7 +73,7 @@ export default function HomePage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
               </span>
-              AVAILABLE FOR OFFENSIVE SECURITY WORK
+              AVAILABLE FOR PENETRATION TESTING WORK
             </div>
 
             <p className="mb-4 font-mono text-sm text-ink-dim">
@@ -99,9 +99,9 @@ export default function HomePage() {
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-dim">
               I'm 23, and I break into things — <span className="text-ink">Active
               Directory</span> mostly — then write up exactly how, with the dead ends
-              still in. The paycheck comes from a SOC, where I hunt the people doing it
-              for real, and that half is why the first half is any good: I know what
-              gets noticed. Everything here comes out of that loop.
+              still in. Penetration testing started as the thing I did instead of
+              sleeping and turned into the work. Every way in here has a detection next
+              to it, because I go back afterwards and ask what would have caught me.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
