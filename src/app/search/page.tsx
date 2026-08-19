@@ -43,9 +43,9 @@ export default function SearchPage() {
                   </span>
                 </span>
               ))}
-              . Search &ldquo;kerberos&rdquo; once and you get the attack, the rule written to catch
-              it and the reference sheet — instead of running the same query in three places and
-              never noticing they were about the same thing.
+              . Search &ldquo;password spray&rdquo; once and you get the attack, the rule written to
+              catch it and the reference sheet — instead of running the same query in three places
+              and never noticing they were about the same thing.
             </p>
           </Reveal>
         </div>
