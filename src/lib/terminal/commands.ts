@@ -59,13 +59,20 @@ const pad = (s: string, n: number) => (s.length >= n ? s : s + ' '.repeat(n - s.
 /* Static content                                                      */
 /* ------------------------------------------------------------------ */
 
+// Plain-ASCII by design: box-drawing/block glyphs (U+2500-259F) sit outside the
+// 'latin' subset next/font/google downloads for JetBrains Mono, so browsers
+// silently fall back to a system font for just those characters. macOS's
+// fallback (SF Mono/Menlo) happens to share cell metrics with JetBrains Mono,
+// but Windows falls back to Consolas/Courier New, whose glyph widths don't
+// match — breaking the monospace grid and garbling the banner. Stick to
+// characters guaranteed to be in the subset so every row renders identically.
 const BANNER = [
-  ' ███████╗███████╗██████╗ ██╗  ██╗██████╗ ██╗   ██╗██╗  ██╗',
-  ' ╚══███╔╝██╔════╝██╔══██╗██║  ██║██╔══██╗╚██╗ ██╔╝╚██╗██╔╝',
-  '   ███╔╝ █████╗  ██████╔╝███████║██████╔╝ ╚████╔╝  ╚███╔╝ ',
-  '  ███╔╝  ██╔══╝  ██╔═══╝ ██╔══██║██╔══██╗  ╚██╔╝   ██╔██╗ ',
-  ' ███████╗███████╗██║     ██║  ██║██║  ██║   ██║   ██╔╝ ██╗',
-  ' ╚══════╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝',
+  ' ####### ####### ######  ##   ## ######  ##   ## ##   ##',
+  '      ## ##      ##   ## ##   ## ##   ##  ## ##   ## ## ',
+  '     ##  #####   ######  ####### ######    ###     ###  ',
+  '    ##   ##      ##      ##   ## ##  ##     #      ###  ',
+  '   ##    ##      ##      ##   ## ##   ##    #     ## ## ',
+  ' ####### ####### ##      ##   ## ##   ##    #    ##   ##',
 ];
 
 const FILES: ReadonlyMap<string, Line[]> = new Map([
