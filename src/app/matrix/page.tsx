@@ -13,6 +13,33 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE.url}/matrix/` },
 };
 
+/**
+ * Inline swatch for the four board states named in the hero copy, tinted to match
+ * the legend on <AttackMatrix />. The state colour lives on the tint and the
+ * underline; the word itself stays on an ink token, so it keeps its contrast when
+ * the page flips to the light theme (signal/warn text does not).
+ */
+function Swatch({
+  tone,
+  children,
+}: {
+  tone: 'red' | 'green' | 'amber' | 'grey';
+  children: React.ReactNode;
+}) {
+  const TONE = {
+    red: 'bg-red-blood/15 border-red-blood/70',
+    green: 'bg-signal/15 border-signal/70',
+    amber: 'bg-warn/15 border-warn/70',
+    grey: 'bg-ink-faint/20 border-ink-faint/70',
+  } as const;
+
+  return (
+    <span className={`rounded-[2px] border-b-2 px-1.5 font-medium text-ink ${TONE[tone]}`}>
+      {children}
+    </span>
+  );
+}
+
 export default function MatrixPage() {
   const coverage = getCoverage();
   const openGaps = coverage.emulated - coverage.both;
@@ -44,10 +71,12 @@ export default function MatrixPage() {
 
           <Reveal delay={140}>
             <p className="mt-6 max-w-3xl text-lg leading-relaxed text-ink-dim">
-              My own scorecard, made public. Red is a technique I've run and published an
-              attack for. Green means I went back afterwards and wrote the detection too.
-              Amber is a rule that exists without a writeup behind it yet, and grey just
-              means I'm tracking the technique and haven't got to either side of it.
+              My own scorecard, made public. <Swatch tone="red">Red</Swatch> is a technique
+              I've run and published an attack for. <Swatch tone="green">Green</Swatch> means
+              I went back afterwards and wrote the detection too.{' '}
+              <Swatch tone="amber">Amber</Swatch> is a rule that exists without a writeup
+              behind it yet, and <Swatch tone="grey">grey</Swatch> just means I'm tracking the
+              technique and haven't got to either side of it.
             </p>
           </Reveal>
 
