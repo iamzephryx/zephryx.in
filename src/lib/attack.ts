@@ -100,6 +100,7 @@ export const TECHNIQUES: readonly Technique[] = [
   { id: 'T1550.003', name: 'Use Alternate Auth Material: Pass the Ticket', tacticId: 'TA0005' },
 
   /* ---- Credential Access ---- */
+  { id: 'T1558.001', name: 'Steal or Forge Kerberos Tickets: Golden Ticket', tacticId: 'TA0006' },
   { id: 'T1558.003', name: 'Steal or Forge Kerberos Tickets: Kerberoasting', tacticId: 'TA0006' },
   { id: 'T1558.004', name: 'Steal or Forge Kerberos Tickets: AS-REP Roasting', tacticId: 'TA0006' },
   { id: 'T1003.001', name: 'OS Credential Dumping: LSASS Memory', tacticId: 'TA0006' },
