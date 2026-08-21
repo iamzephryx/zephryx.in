@@ -45,8 +45,35 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
 
   const detections = getDetectionsForWriteup(w.slug);
 
+  /**
+   * TechArticle structured data — gives Google enough to show this as an
+   * article result (byline, published date) rather than a bare link. Built
+   * from the writeup's own frontmatter, which is first-party content same as
+   * the markdown body, but `<`-escaped anyway since a title or excerpt
+   * containing a literal "</script" would otherwise break out of the tag.
+   */
+  const articleLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: w.title,
+    description: w.excerpt,
+    image: `${SITE.url}/opengraph-image`,
+    datePublished: w.date,
+    dateModified: w.date,
+    author: { '@type': 'Person', name: SITE.name, url: SITE.url },
+    publisher: { '@type': 'Person', name: SITE.name, url: SITE.url },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE.url}/writeups/${w.slug}/` },
+    keywords: w.tags.join(', '),
+  };
+
   return (
     <article className="relative px-5 pt-32 pb-16 sm:px-8">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd).replace(/</g, '\\u003c') }}
+      />
+
       <div className="relative mx-auto max-w-3xl">
         {/* back */}
         <Link
