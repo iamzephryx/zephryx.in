@@ -78,9 +78,15 @@ export const TECHNIQUES: readonly Technique[] = [
   { id: 'T1098', name: 'Account Manipulation', tacticId: 'TA0003' },
   { id: 'T1136.002', name: 'Create Account: Domain Account', tacticId: 'TA0003' },
   { id: 'T1547.001', name: 'Registry Run Keys / Startup Folder', tacticId: 'TA0003' },
+  { id: 'T1505.003', name: 'Server Software Component: Web Shell', tacticId: 'TA0003' },
 
   /* ---- Privilege Escalation ---- */
   { id: 'T1548.002', name: 'Bypass User Account Control', tacticId: 'TA0004' },
+  {
+    id: 'T1548.001',
+    name: 'Abuse Elevation Control Mechanism: Setuid and Setgid',
+    tacticId: 'TA0004',
+  },
   { id: 'T1134.001', name: 'Token Impersonation/Theft', tacticId: 'TA0004' },
   { id: 'T1484.001', name: 'Domain Policy Modification: GPO', tacticId: 'TA0004' },
   { id: 'T1068', name: 'Exploitation for Privilege Escalation', tacticId: 'TA0004' },
@@ -101,6 +107,8 @@ export const TECHNIQUES: readonly Technique[] = [
   { id: 'T1003.006', name: 'OS Credential Dumping: DCSync', tacticId: 'TA0006' },
   { id: 'T1649', name: 'Steal or Forge Authentication Certificates', tacticId: 'TA0006' },
   { id: 'T1187', name: 'Forced Authentication', tacticId: 'TA0006' },
+  { id: 'T1110.001', name: 'Brute Force: Password Guessing', tacticId: 'TA0006' },
+  { id: 'T1110.002', name: 'Brute Force: Password Cracking', tacticId: 'TA0006' },
   { id: 'T1110.003', name: 'Brute Force: Password Spraying', tacticId: 'TA0006' },
   {
     id: 'T1556.006',
