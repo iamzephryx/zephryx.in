@@ -24,6 +24,18 @@ export type Tool = {
 
 export const TOOLS: Tool[] = [
   {
+    id: 'sigmawarden',
+    name: 'SigmaWarden',
+    tagline: 'Lints a folder of Sigma rules before you ship them',
+    description:
+      "Built after shipping a rule to the detections page with an empty falsepositives list for the third time. Catches the mistakes that don't break the YAML but mean the rule isn't actually done: unrecognized logsource, a condition referencing a selection you renamed, an ATT&CK tag with a digit transposed. Bundled reference data, no network calls at lint time.",
+    language: 'Python',
+    tags: ['detection-engineering', 'sigma', 'linter', 'ci'],
+    status: 'active',
+    repo: `${GITHUB}/SigmaWarden`,
+    techniques: [],
+  },
+  {
     id: 'subsniper',
     name: 'SubSniper',
     tagline: 'Multi-threaded subdomain enumeration off a wordlist',
