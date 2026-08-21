@@ -29,6 +29,23 @@ const personLd = {
   sameAs: SOCIALS.map((s) => s.href),
 };
 
+/**
+ * WebSite structured data with a SearchAction, so Google can offer a
+ * sitelinks search box straight in results instead of just a link list.
+ * Points at the existing /search/ page's query param.
+ */
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: SITE.url,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE.url}/search/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
@@ -129,6 +146,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+        />
+
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
         />
 
         <a

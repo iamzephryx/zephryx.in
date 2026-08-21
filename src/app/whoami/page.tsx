@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { SITE } from '@/lib/site';
+import { SITE, SOCIALS } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'whoami',
@@ -175,6 +175,37 @@ export default function WhoamiPage() {
                   to also leave behind something that catches the next person who tries it —
                   that's really the whole idea behind this site.
                 </p>
+
+                <div>
+                  <p className="font-mono text-[11px] tracking-[0.3em] text-ink-faint">
+                    ALSO ON
+                  </p>
+                  <ul className="mt-3 flex flex-wrap gap-4">
+                    {SOCIALS.map((s) => (
+                      <li key={s.id}>
+                        <a
+                          href={s.href}
+                          target="_blank"
+                          rel="noopener noreferrer external"
+                          className="group flex items-center gap-2 font-mono text-[13px] text-ink-dim transition-colors hover:text-red-blood"
+                        >
+                          <span
+                            className="flex h-7 w-7 shrink-0 items-center justify-center border border-line bg-void/60 transition-colors duration-300 group-hover:border-red-deep/60"
+                            aria-hidden
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-3.5 w-3.5 fill-ink-dim transition-colors duration-300 group-hover:fill-red-blood"
+                            >
+                              <path d={s.icon} />
+                            </svg>
+                          </span>
+                          {s.handle}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </Reveal>

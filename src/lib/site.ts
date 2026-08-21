@@ -67,8 +67,8 @@ export const SOCIALS: SocialLink[] = [
   {
     id: 'linkedin',
     label: 'LinkedIn',
-    handle: '/in/zephryx',
-    href: 'https://www.linkedin.com/in/zephryx/',
+    handle: '/in/zephryxsec',
+    href: 'https://www.linkedin.com/in/zephryxsec/',
     blurb: "The boring-but-necessary one — work history, and how to reach me if it's actually business.",
     accent: '#0a66c2',
     icon: 'M20.4 20.4h-3.6v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1a3.8 3.8 0 0 1 3.4-1.9c3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Zm1.8 13H3.5V9h3.6v11.4ZM22.2 0H1.8A1.8 1.8 0 0 0 0 1.8v20.4C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.8c0-1-.8-1.8-1.8-1.8Z',
