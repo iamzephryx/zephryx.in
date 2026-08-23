@@ -191,6 +191,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       usage: 'whoami',
       run: () => [
         accent(`${SITE.name.toLowerCase()}@${SITE.domain}`),
+        out(`  name      ${SITE.legalName}`),
         out(`  craft     ${SITE.craft}`),
         out(`  day job   ${SITE.dayJob}`),
         out('  age       23'),

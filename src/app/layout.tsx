@@ -14,7 +14,8 @@ import './globals.css';
 const personLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: SITE.name,
+  name: SITE.legalName,
+  alternateName: SITE.aliases,
   url: SITE.url,
   jobTitle: SITE.role,
   description: SITE.description,

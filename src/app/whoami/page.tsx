@@ -133,6 +133,7 @@ export default function WhoamiPage() {
                   </div>
                   <dl className="space-y-2">
                     {[
+                      ['name', SITE.legalName],
                       ['handle', SITE.name],
                       ['focus', 'Penetration Testing'],
                       ['day_job', 'SOC / Threat Hunter'],
@@ -153,7 +154,8 @@ export default function WhoamiPage() {
               {/* narrative */}
               <div className="space-y-5 text-lg leading-relaxed text-ink-dim">
                 <p>
-                  I&apos;m {SITE.name}, 23, and I do security for a living. It started
+                  I&apos;m {SITE.legalName} — online most people know me as{' '}
+                  {SITE.name}. I&apos;m 23, and I do security for a living. It started
                   in 8th standard with a shared school-lab login and a lot of free time, and
                   somewhere along the way it turned from a thing I did after homework into
                   an actual career, which still feels a little unreal to say out loud.
