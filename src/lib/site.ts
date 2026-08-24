@@ -4,7 +4,21 @@
  */
 
 export const SITE = {
+  /**
+   * `name` is the brand and stays the handle — it is the wordmark, the page
+   * titles and the terminal prompt, and renaming it would throw away the
+   * recognition the handle already has.
+   *
+   * `legalName` is the human. It exists because search engines resolve a site
+   * to a *person*, and a Person entity with only a handle has no one to bind
+   * to: Google filled that gap by attributing this site to an unrelated founder
+   * of a similarly named company. It backs the schema.org `name`, the whoami
+   * id card and the copyright line, so the claim is corroborated in structured
+   * data and in visible text rather than asserted in one place.
+   */
   name: 'Zephryx',
+  legalName: 'Mihir Sarwan',
+  aliases: ['Zephryx', 'Zeph'],
   handle: 'zephryx',
   /**
    * Three claims, deliberately kept apart.
@@ -58,8 +72,8 @@ export const SOCIALS: SocialLink[] = [
   {
     id: 'instagram',
     label: 'Instagram',
-    handle: '@zephryx.sec',
-    href: 'https://www.instagram.com/zephryx.sec',
+    handle: '@zephryxsec',
+    href: 'https://www.instagram.com/zephryxsec',
     blurb: "The non-work stuff. Desk setup, conference trips, occasionally my face.",
     accent: '#e1306c',
     icon: 'M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2ZM12 0C8.7 0 8.3 0 7 .1 5.7.1 4.8.3 4.1.6c-.8.3-1.4.7-2.1 1.4C1.3 2.7.9 3.3.6 4.1.3 4.8.1 5.7.1 7 0 8.3 0 8.7 0 12s0 3.7.1 5c0 1.3.2 2.2.5 2.9.3.8.7 1.4 1.4 2.1.7.7 1.3 1.1 2.1 1.4.7.3 1.6.5 2.9.5 1.3.1 1.7.1 5 .1s3.7 0 5-.1c1.3 0 2.2-.2 2.9-.5.8-.3 1.4-.7 2.1-1.4.7-.7 1.1-1.3 1.4-2.1.3-.7.5-1.6.5-2.9.1-1.3.1-1.7.1-5s0-3.7-.1-5c0-1.3-.2-2.2-.5-2.9-.3-.8-.7-1.4-1.4-2.1C21.3 1.3 20.7.9 19.9.6 19.2.3 18.3.1 17 .1 15.7 0 15.3 0 12 0Zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4Zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm7.8-10.4a1.4 1.4 0 1 1-2.9 0 1.4 1.4 0 0 1 2.9 0Z',
@@ -81,6 +95,15 @@ export const SOCIALS: SocialLink[] = [
     blurb: "Where the actual code lives — tools I've built, PoCs, and the Sigma rules from this site.",
     accent: '#f0f6fc',
     icon: 'M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z',
+  },
+  {
+    id: 'medium',
+    label: 'Medium',
+    handle: '@zephryx',
+    href: 'https://medium.com/@zephryx',
+    blurb: "Longer-form writing that outgrew a site post — same research, more room to explain the reasoning.",
+    accent: '#f0f6fc',
+    icon: 'M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12ZM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12Z',
   },
   {
     id: 'tryhackme',
