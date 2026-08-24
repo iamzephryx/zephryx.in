@@ -79,11 +79,13 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * the 404 page instead; the Worker runs first, which makes this the only
  * place a permanent redirect can live.
  *
- * /connect merged into /handshake — one contact page, not two.
+ * /connect and /contact merged into /handshake — one contact page, not two.
  */
 const REDIRECTS: ReadonlyMap<string, string> = new Map([
   ['/connect', '/handshake/'],
   ['/connect/', '/handshake/'],
+  ['/contact', '/handshake/'],
+  ['/contact/', '/handshake/'],
 ]);
 
 const json = (data: unknown, status = 200): Response =>
