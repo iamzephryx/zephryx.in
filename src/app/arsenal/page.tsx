@@ -8,8 +8,8 @@ import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'arsenal',
-  description:
-    "Tools I've actually released. The stuff you can go check for yourself.",
+  description: `Tools I've actually released: ${TOOLS.map((t) => t.name).join(', ')}. The stuff you can go check for yourself.`,
+  keywords: TOOLS.map((t) => t.name),
   alternates: { canonical: `${SITE.url}/arsenal/` },
 };
 
@@ -93,8 +93,20 @@ export default function ArsenalPage() {
                 </div>
 
                 <h3 className="font-mono text-lg font-semibold text-ink">
-                  <span className="text-red-blood/70">./</span>
-                  {tool.name}
+                  {tool.repo ? (
+                    <Link
+                      href={`/arsenal/${tool.id}/`}
+                      className="transition-colors hover:text-red-blood"
+                    >
+                      <span className="text-red-blood/70">./</span>
+                      {tool.name}
+                    </Link>
+                  ) : (
+                    <>
+                      <span className="text-red-blood/70">./</span>
+                      {tool.name}
+                    </>
+                  )}
                 </h3>
                 <p className="mt-1.5 font-mono text-[12.5px] text-ink-faint">{tool.tagline}</p>
 
