@@ -76,3 +76,12 @@ export const TOOLS: Tool[] = [
 export function publicToolCount(): number {
   return TOOLS.filter((t) => t.repo !== null).length;
 }
+
+/** Tools with a real detail page — private/in-house tooling has nothing to show. */
+export function getPublicTools(): Tool[] {
+  return TOOLS.filter((t) => t.repo !== null);
+}
+
+export function getTool(id: string): Tool | undefined {
+  return TOOLS.find((t) => t.id === id && t.repo !== null);
+}

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllWriteups } from '@/lib/writeups';
 import { getAllDetections } from '@/lib/detections';
+import { getPublicTools } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 export const dynamic = 'force-static';
@@ -35,5 +36,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...routes, ...posts, ...rules];
+  const tools: MetadataRoute.Sitemap = getPublicTools().map((t) => ({
+    url: `${SITE.url}/arsenal/${t.id}/`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }));
+
+  return [...routes, ...posts, ...rules, ...tools];
 }
