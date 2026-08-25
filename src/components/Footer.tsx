@@ -98,7 +98,11 @@ export default function Footer() {
               'font-mono text-[12px] text-ink-faint transition-colors hover:text-red-blood';
             return (
               <li key={item.href}>
-                {item.asset ? (
+                {item.external ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" className={className}>
+                    {item.label}
+                  </a>
+                ) : item.asset ? (
                   <a href={item.href} className={className}>
                     {item.label}
                   </a>

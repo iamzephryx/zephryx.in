@@ -208,9 +208,14 @@ export const NAV = [
  * `asset: true` marks a static file that lives outside the router — those must
  * be rendered as a plain anchor, because client-side navigation cannot serve
  * them and would 404 into the app shell.
+ *
+ * `external: true` marks a link to a different origin (a sibling site, not a
+ * file on this one) — also a plain anchor for the same reason, but opened in
+ * a new tab so it doesn't carry a reader away from whatever they were reading.
  */
 export const FOOTER_LINKS = [
-  { href: '/security/', label: 'disclosure policy', asset: false },
-  { href: '/.well-known/security.txt', label: 'security.txt', asset: true },
-  { href: '/feed.xml', label: 'rss feed', asset: true },
+  { href: '/security/', label: 'disclosure policy', asset: false, external: false },
+  { href: '/.well-known/security.txt', label: 'security.txt', asset: true, external: false },
+  { href: '/feed.xml', label: 'rss feed', asset: true, external: false },
+  { href: 'https://academy.zephryx.in/', label: 'academy — training, coming soon', asset: false, external: true },
 ] as const;
