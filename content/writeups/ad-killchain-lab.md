@@ -25,7 +25,7 @@ it exactly the way an attacker would, stage by stage, and watched what
 showed up in the Windows Security log at each step.
 
 The seven rules that came out of this are published as a pack —
-**[KillChainSigma](https://github.com/zephryxsec/KillChainSigma)** — instead
+**[KillChainSigma](https://github.com/0xZephryx/KillChainSigma)** — instead
 of being scattered here one at a time. This post is the walkthrough behind
 them.
 
@@ -46,7 +46,7 @@ Every request like this generates a **4769** on the DC with
 `TicketEncryptionType 0x17`. One or two of those a day is nothing. A single
 account pulling eight or more in a five-minute window is a wordlist, not a
 workday — that's rule 1,
-[`kerberoasting.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/1-credential-access/kerberoasting.yml).
+[`kerberoasting.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/1-credential-access/kerberoasting.yml).
 
 ### AS-REP roasting
 
@@ -62,7 +62,7 @@ GetNPUsers.py lab.local/ -usersfile users.txt -dc-ip 10.10.10.10 -format hashcat
 This one's a cleaner signal than Kerberoasting. A **4768** with
 `PreAuthType 0` has almost no legitimate reason to exist in a modern domain,
 which is exactly what rule 2,
-[`asrep-roasting.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/1-credential-access/asrep-roasting.yml),
+[`asrep-roasting.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/1-credential-access/asrep-roasting.yml),
 looks for.
 
 Cracked both hashes offline with `hashcat` against a wordlist within a few
@@ -83,7 +83,7 @@ impacket-wmiexec -hashes :b9f2321a5c3c0c9c8e1f5e3f8a1b2c3d lab.local/j.patel@10.
 This produces a **4624** with `LogonType 3` and `AuthenticationPackageName
 NTLM` on the target member server. On its own this is weak — plenty of
 legitimate things generate NTLM logons — which is exactly what rule 3,
-[`pass-the-hash.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/2-lateral-movement/pass-the-hash.yml),
+[`pass-the-hash.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/2-lateral-movement/pass-the-hash.yml),
 says about itself. It's included because it's a real signal once you've
 baselined your own environment, not because it's reliable out of the box.
 
@@ -96,7 +96,7 @@ impacket-psexec j.patel@10.10.10.20 -hashes :b9f2321a5c3c0c9c8e1f5e3f8a1b2c3d
 Drops a binary over `ADMIN$`, registers it as a service, runs it. Shows up
 as a **7045** in the System log with the service file path pointing straight
 into `ADMIN$` — rule 4,
-[`remote-service-creation.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/2-lateral-movement/remote-service-creation.yml).
+[`remote-service-creation.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/2-lateral-movement/remote-service-creation.yml).
 
 ### WMI execution
 
@@ -108,7 +108,7 @@ Same idea, different primitive — no service install this time, so no 7045.
 Instead, whatever gets run shows up as a child process of `WmiPrvSE.exe` in
 Sysmon Event ID 1. Almost nothing legitimate spawns `cmd.exe` under the WMI
 provider host outside of actual management tooling, which is rule 5,
-[`wmi-execution.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/2-lateral-movement/wmi-execution.yml).
+[`wmi-execution.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/2-lateral-movement/wmi-execution.yml).
 
 ## Stage 3: Domain dominance
 
@@ -127,7 +127,7 @@ with each other — except this request comes from a member server, not
 another DC. That shows up as a **4662** with both rights' GUIDs in the
 `Properties` field, and the requesting account isn't a computer account
 ending in `$`. That combination is rule 6,
-[`dcsync.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/3-domain-dominance/dcsync.yml)
+[`dcsync.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/3-domain-dominance/dcsync.yml)
 — the one rule in this whole pack I'd trust to actually page someone. There's
 no ambiguity in what it means once you've excluded your real DCs and any
 legitimate sync accounts (Azure AD Connect being the one everybody forgets
@@ -145,7 +145,7 @@ A forged TGT built this way gets used directly, no matching TGT request ever
 having actually happened on a DC. The detail worth catching: a lot of
 forging tooling still defaults to RC4 encryption for the ticket even when a
 domain's functional level should mean AES everywhere. Rule 7,
-[`golden-ticket.yml`](https://github.com/zephryxsec/KillChainSigma/blob/main/rules/3-domain-dominance/golden-ticket.yml),
+[`golden-ticket.yml`](https://github.com/0xZephryx/KillChainSigma/blob/main/rules/3-domain-dominance/golden-ticket.yml),
 flags exactly that — an RC4-encrypted service ticket against `krbtgt`
 itself. I'm upfront in the rule description that this is the weakest
 detection in the pack: it misses anything forged with AES-aware tooling, and
@@ -182,4 +182,4 @@ also the last chance — everything before it exists so you don't have to
 depend on catching that one alone.
 
 The full rule pack, with usage notes and the audit-policy prerequisites for
-each rule, is here: **[KillChainSigma](https://github.com/zephryxsec/KillChainSigma)**.
+each rule, is here: **[KillChainSigma](https://github.com/0xZephryx/KillChainSigma)**.

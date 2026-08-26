@@ -23,7 +23,7 @@ as a side effect of normal work. A single account requesting eight or more
 distinct service tickets in RC4 inside a few minutes is a wordlist being run
 against every SPN in the domain, not a workday.
 
-This is the first rule from the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+This is the first rule from the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack — the full chain and how each stage was tested is in
 [the writeup this came from](/writeups/ad-killchain-lab/).
 

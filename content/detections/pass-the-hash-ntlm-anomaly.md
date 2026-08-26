@@ -30,7 +30,7 @@ and hosts legitimately show NTLM first, then tune the filter list to your
 own noise, or you'll be muting this within a week — which is the whole
 reason it ships at `low` here.
 
-Third rule in the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+Third rule in the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack, tested against the lab in [this writeup](/writeups/ad-killchain-lab/).
 
 ## The rule

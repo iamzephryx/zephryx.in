@@ -26,7 +26,7 @@ anything forged with an AES-aware tool, and it depends entirely on your
 domain having actually killed RC4 already — if you haven't, this rule isn't
 worth turning on yet, go do that first, it's worth more than this rule is.
 
-Last rule in the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+Last rule in the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack. [The writeup](/writeups/ad-killchain-lab/) has the full chain this
 sits at the end of, and what actually fired versus what needed tuning when I
 tested it in the lab.

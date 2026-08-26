@@ -33,7 +33,7 @@ git push
 ## 2. Create / fix the Worker project
 
 In **Cloudflare Dashboard → Workers & Pages**, connect the
-`zephryxsec/zephryx.in` repo. Then set the build config **exactly**:
+`0xZephryx/zephryx.in` repo. Then set the build config **exactly**:
 
 | Field | Value |
 |---|---|
