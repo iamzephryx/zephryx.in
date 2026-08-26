@@ -4,7 +4,7 @@
 
 import { SOCIALS } from './site';
 
-const GITHUB = SOCIALS.find((s) => s.id === 'github')?.href ?? 'https://github.com/zephryxsec';
+const GITHUB = SOCIALS.find((s) => s.id === 'github')?.href ?? 'https://github.com/0xZephryx';
 
 export type ToolStatus = 'active' | 'maintained' | 'archived' | 'private';
 

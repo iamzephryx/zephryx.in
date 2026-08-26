@@ -22,7 +22,7 @@ of `WmiPrvSE.exe`, and almost nothing legitimate spawns `cmd`, `powershell`,
 or `rundll32` as a child of the WMI provider host outside of actual systems
 management tooling.
 
-Fifth rule in the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+Fifth rule in the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack — the companion to rule 4 for the lateral-movement stage. Both are
 covered in [the writeup](/writeups/ad-killchain-lab/).
 

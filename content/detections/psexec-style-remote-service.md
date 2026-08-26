@@ -24,7 +24,7 @@ straight out of `ADMIN$` are the two easiest tells — most legitimate remote
 admin tooling in a given environment settles into a small, boring, known set
 of service names, so anything outside it is worth a look.
 
-Fourth rule in the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+Fourth rule in the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack. [The writeup](/writeups/ad-killchain-lab/) covers where this sits
 relative to the WMI-based alternative (rule 5) and why both are worth
 having.

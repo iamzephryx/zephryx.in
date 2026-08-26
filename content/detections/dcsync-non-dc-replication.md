@@ -26,7 +26,7 @@ actual DCs and your legitimate sync accounts — Azure AD Connect being the
 one everyone forgets the first time this rule goes live and immediately
 fires.
 
-Sixth rule in the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+Sixth rule in the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack, and the payoff of [the full chain](/writeups/ad-killchain-lab/) — once
 a foothold reaches this stage, it has the `krbtgt` hash and the domain is
 done.

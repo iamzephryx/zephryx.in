@@ -26,7 +26,7 @@ This is a cleaner signal than Kerberoasting. There's very little legitimate
 reason for `PreAuthType 0` to show up at all in a modern domain, which is
 what makes this rule worth running at `stable` rather than `test`.
 
-Second rule in the [KillChainSigma](https://github.com/zephryxsec/KillChainSigma)
+Second rule in the [KillChainSigma](https://github.com/0xZephryx/KillChainSigma)
 pack — see [the full writeup](/writeups/ad-killchain-lab/) for where this
 sits in the chain.
 
