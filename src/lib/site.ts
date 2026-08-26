@@ -188,17 +188,29 @@ export const MAILBOXES: MailBox[] = [
  * demoted for the same reason it is always reachable: the nav renders it as a
  * dedicated icon button beside the theme toggle, and every content index links
  * into it, so a seventh word in the bar would be redundant.
+ *
+ * `external` marks a link to a different origin (a sibling site, not a page
+ * on this one) — rendered as a plain anchor opened in a new tab, same as
+ * `FOOTER_LINKS`, so it never enters client-side routing and never carries a
+ * reader away from whatever they were reading.
  */
 export const NAV = [
-  { href: '/', label: 'Home', cmd: '~', primary: false },
-  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true },
-  { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true },
-  { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true },
-  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true },
-  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true },
-  { href: '/search/', label: 'Search', cmd: 'grep', primary: false },
-  { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false },
-  { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true },
+  { href: '/', label: 'Home', cmd: '~', primary: false, external: false },
+  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
+  { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true, external: false },
+  { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true, external: false },
+  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true, external: false },
+  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true, external: false },
+  { href: '/search/', label: 'Search', cmd: 'grep', primary: false, external: false },
+  { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false, external: false },
+  {
+    href: 'https://security.zephryx.in/',
+    label: 'Security',
+    cmd: 'pentest',
+    primary: true,
+    external: true,
+  },
+  { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true, external: false },
 ] as const;
 
 /**

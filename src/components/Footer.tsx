@@ -51,22 +51,38 @@ export default function Footer() {
           <nav aria-label="Footer">
             <h3 className="mb-4 font-mono text-[11px] tracking-[0.3em] text-ink-faint">ROUTES</h3>
             <ul className="space-y-2.5">
-              {NAV.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="group flex items-baseline gap-1.5 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
+              {NAV.map((item) => {
+                const linkClassName =
+                  'group flex items-baseline gap-1.5 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood';
+                const cmd = (
+                  <span
+                    className="text-[10px] text-ink-faint transition-colors group-hover:text-red-blood/60"
+                    aria-hidden
                   >
-                    {item.label}
-                    <span
-                      className="text-[10px] text-ink-faint transition-colors group-hover:text-red-blood/60"
-                      aria-hidden
-                    >
-                      {item.cmd}
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                    {item.cmd}
+                  </span>
+                );
+                return (
+                  <li key={item.href}>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer external"
+                        className={linkClassName}
+                      >
+                        {item.label}
+                        {cmd}
+                      </a>
+                    ) : (
+                      <Link href={item.href} className={linkClassName}>
+                        {item.label}
+                        {cmd}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </nav>
 
