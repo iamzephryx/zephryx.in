@@ -3,6 +3,10 @@ import { FOOTER_LINKS, NAV, SITE, SOCIALS } from '@/lib/site';
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  // Sibling business, not a page on this site — kept out of ROUTES and given
+  // its own card so it reads as a different domain's offering, not one more
+  // internal link.
+  const services = NAV.find((item) => item.external);
 
   return (
     <footer className="relative z-10 mt-32 border-t border-line/70 bg-abyss/60 backdrop-blur-sm">
@@ -46,43 +50,54 @@ export default function Footer() {
               PGP fingerprint available on request via{' '}
               <span className="text-red-blood/80">security@{SITE.domain}</span>
             </p>
+
+            {services ? (
+              <a
+                href={services.href}
+                target="_blank"
+                rel="noopener noreferrer external"
+                className="group mt-6 flex items-center justify-between gap-3 border border-red-deep/40 bg-red-ash/10 px-4 py-3 transition-colors hover:border-red-deep/70 hover:bg-red-ash/20"
+              >
+                <span>
+                  <span className="block font-mono text-[10px] tracking-[0.25em] text-ink-faint">
+                    SIBLING SITE — PENETRATION TESTING
+                  </span>
+                  <span className="mt-1 block font-mono text-sm text-ink">
+                    Hiring for an engagement?{' '}
+                    <span className="text-red-blood group-hover:underline">
+                      {new URL(services.href).host}
+                    </span>
+                  </span>
+                </span>
+                <span
+                  className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
+                  aria-hidden
+                >
+                  ↗
+                </span>
+              </a>
+            ) : null}
           </div>
 
           <nav aria-label="Footer">
             <h3 className="mb-4 font-mono text-[11px] tracking-[0.3em] text-ink-faint">ROUTES</h3>
             <ul className="space-y-2.5">
-              {NAV.map((item) => {
-                const linkClassName =
-                  'group flex items-baseline gap-1.5 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood';
-                const cmd = (
-                  <span
-                    className="text-[10px] text-ink-faint transition-colors group-hover:text-red-blood/60"
-                    aria-hidden
+              {NAV.filter((item) => !item.external).map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-baseline gap-1.5 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
                   >
-                    {item.cmd}
-                  </span>
-                );
-                return (
-                  <li key={item.href}>
-                    {item.external ? (
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer external"
-                        className={linkClassName}
-                      >
-                        {item.label}
-                        {cmd}
-                      </a>
-                    ) : (
-                      <Link href={item.href} className={linkClassName}>
-                        {item.label}
-                        {cmd}
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
+                    {item.label}
+                    <span
+                      className="text-[10px] text-ink-faint transition-colors group-hover:text-red-blood/60"
+                      aria-hidden
+                    >
+                      {item.cmd}
+                    </span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 

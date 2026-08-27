@@ -205,7 +205,7 @@ export const NAV = [
   { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false, external: false },
   {
     href: 'https://security.zephryx.in/',
-    label: 'Security',
+    label: 'Services',
     cmd: 'pentest',
     primary: true,
     external: true,
