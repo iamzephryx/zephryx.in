@@ -24,7 +24,7 @@ export const SITE = {
    * Three claims, deliberately kept apart.
    *
    * `craft` is what this site is *about* and what most of my week goes on —
-   * the subject of the writeups, the tools, the cheatsheets. It leads on
+   * the subject of the writeups and the tools. It leads on
    * titles, social cards and the footer, because that is what a reader is
    * here for.
    *
@@ -183,11 +183,11 @@ export const MAILBOXES: MailBox[] = [
  * Everything else is one tap away in the mobile drawer and the footer — but
  * the drawer is mobile-only, so a page demoted here needs a cross-link from
  * the content that relates to it or the footer becomes its only way in on
- * desktop. Techniques has those (home, the Detections index, every detection);
- * Cheatsheets has none, which is why it holds a slot in the bar. Search is
- * demoted for the same reason it is always reachable: the nav renders it as a
- * dedicated icon button beside the theme toggle, and every content index links
- * into it, so a seventh word in the bar would be redundant.
+ * desktop. Techniques has those (home, the Detections index, every detection).
+ * Search is demoted for the same reason it is always reachable: the nav
+ * renders it as a dedicated icon button beside the theme toggle, and every
+ * content index links into it, so a seventh word in the bar would be
+ * redundant.
  *
  * `external` marks a link to a different origin (a sibling site, not a page
  * on this one) — rendered as a plain anchor opened in a new tab, same as
@@ -199,10 +199,16 @@ export const NAV = [
   { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
   { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true, external: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true, external: false },
-  { href: '/cheatsheets/', label: 'Cheatsheets', cmd: 'find', primary: true, external: false },
   { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true, external: false },
   { href: '/search/', label: 'Search', cmd: 'grep', primary: false, external: false },
   { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false, external: false },
+  {
+    href: 'https://academy.zephryx.in/',
+    label: 'Academy',
+    cmd: 'train',
+    primary: true,
+    external: true,
+  },
   {
     href: 'https://security.zephryx.in/',
     label: 'Services',
@@ -229,5 +235,4 @@ export const FOOTER_LINKS = [
   { href: '/security/', label: 'disclosure policy', asset: false, external: false },
   { href: '/.well-known/security.txt', label: 'security.txt', asset: true, external: false },
   { href: '/feed.xml', label: 'rss feed', asset: true, external: false },
-  { href: 'https://academy.zephryx.in/', label: 'academy — training, coming soon', asset: false, external: true },
 ] as const;

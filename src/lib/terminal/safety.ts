@@ -125,7 +125,6 @@ export const ALLOWED_ROUTES = new Set([
   '/',
   '/whoami/',
   '/writeups/',
-  '/cheatsheets/',
   '/detections/',
   '/matrix/',
   '/arsenal/',

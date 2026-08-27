@@ -21,12 +21,6 @@
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Cheatsheet PDFs change occasionally (same filename can be replaced), so cache
-# them but keep the window short enough that an update doesn't stay stale long.
-/cheatsheets/*.pdf
-  Content-Type: application/pdf
-  Cache-Control: public, max-age=86400
-
 # Feed readers and RFC 9116 consumers are strict about content types, and a
 # static export has no server to negotiate one. Pin them explicitly.
 /feed.xml

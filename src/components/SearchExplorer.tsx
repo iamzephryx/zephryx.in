@@ -100,7 +100,7 @@ export default function SearchExplorer({
           onChange={(e) => setQuery(e.target.value.slice(0, QUERY_LIMIT))}
           maxLength={QUERY_LIMIT}
           placeholder="kerberos, T1558.003, cobalt strike, adcs…"
-          aria-label="Search writeups, detections and cheatsheets"
+          aria-label="Search writeups and detections"
           spellCheck={false}
           autoComplete="off"
           className="w-full border-0 bg-transparent font-mono text-base text-ink placeholder:text-ink-faint focus:outline-none"
@@ -185,7 +185,7 @@ export default function SearchExplorer({
               ? `Nothing in ${KIND_LABEL[filter as SearchKind].many}, but ${hits.length} ${
                   hits.length === 1 ? 'result' : 'results'
                 } elsewhere.`
-              : 'Nothing matches that across writeups, detections or cheatsheets.'}
+              : 'Nothing matches that across writeups or detections.'}
           </p>
           <button
             type="button"

@@ -1,8 +1,14 @@
 # Working notes for this repo
 
 Next.js 15 App Router, static export (`out/`) served by Cloudflare Workers.
-Content is Markdown under `content/{writeups,detections,cheatsheets}/`, rendered
-at build time by `marked` in `src/lib/{writeups,detections}.ts`.
+Content is Markdown under `content/{writeups,detections}/`, rendered at build
+time by `marked` in `src/lib/{writeups,detections}.ts`.
+
+Cheatsheets used to live here and now live on `zephryx-academy` — its
+`content/cheatsheets/` + `src/lib/cheatsheets.ts` follow the same
+frontmatter-plus-PDF shape and the same fail-the-build-on-a-missing-file rule.
+Don't resurrect a `/cheatsheets/` route on this site; add new quick-reference
+material over there instead.
 
 ## Anything a reader might copy gets a copy control
 
