@@ -13,7 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE.url}/`, lastModified: now, changeFrequency: 'monthly', priority: 1 },
     { url: `${SITE.url}/whoami/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE.url}/writeups/`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${SITE.url}/cheatsheets/`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE.url}/detections/`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${SITE.url}/search/`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${SITE.url}/matrix/`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },

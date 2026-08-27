@@ -1,17 +1,15 @@
 /**
  * Builds the cross-content search index at build time.
  *
- * Server-only — this reaches the content directories through the writeups,
- * detections and cheatsheets loaders, all of which touch node:fs. Client
- * components import the model and the matcher from './searchTypes' instead and
- * receive the finished array as props, so a fully static export ships one
- * in-memory index and never needs a search backend.
+ * Server-only — this reaches the content directories through the writeups and
+ * detections loaders, both of which touch node:fs. Client components import
+ * the model and the matcher from './searchTypes' instead and receive the
+ * finished array as props, so a fully static export ships one in-memory index
+ * and never needs a search backend.
  */
 
 import { getAllWriteups } from './writeups';
 import { getAllDetections } from './detections';
-import { getAllCheatsheets } from './cheatsheets';
-import { formatBytes } from './format';
 import { techniqueName } from './attack';
 import { SEARCH_KINDS, type SearchDoc, type SearchKind, type LoopLink } from './searchTypes';
 
@@ -24,7 +22,6 @@ export type { SearchDoc, SearchKind } from './searchTypes';
 export function getSearchIndex(): SearchDoc[] {
   const writeups = getAllWriteups();
   const detections = getAllDetections();
-  const cheatsheets = getAllCheatsheets();
 
   // Both directions of the loop, resolved once: the rules that answer a given
   // writeup, and the writeup title a rule was written against.
@@ -107,26 +104,6 @@ export function getSearchIndex(): SearchDoc[] {
           : [],
       };
     }),
-
-    ...cheatsheets.map(
-      (c): SearchDoc => ({
-        id: `cheatsheet:${c.slug}`,
-        kind: 'cheatsheet',
-        slug: c.slug,
-        title: c.title,
-        excerpt: c.excerpt,
-        href: `/cheatsheets/${c.file}`,
-        // Static PDF under /public — a router push would 404 into the app shell.
-        external: true,
-        date: c.date,
-        label: c.category,
-        meta: `PDF · ${formatBytes(c.sizeBytes)}`,
-        tags: c.tags,
-        techniques: [],
-        facets: ['cheatsheet', 'reference', 'pdf', c.category],
-        loop: [],
-      }),
-    ),
   ];
 
   return docs.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));

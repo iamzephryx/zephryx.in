@@ -8,7 +8,7 @@
  * identically instead of each rolling its own `includes()`.
  */
 
-export const SEARCH_KINDS = ['writeup', 'detection', 'cheatsheet'] as const;
+export const SEARCH_KINDS = ['writeup', 'detection'] as const;
 
 export type SearchKind = (typeof SEARCH_KINDS)[number];
 
@@ -16,7 +16,6 @@ export type SearchKind = (typeof SEARCH_KINDS)[number];
 export const KIND_LABEL: Record<SearchKind, { one: string; many: string; chip: string }> = {
   writeup: { one: 'writeup', many: 'writeups', chip: 'writeup' },
   detection: { one: 'rule', many: 'rules', chip: 'detection' },
-  cheatsheet: { one: 'sheet', many: 'sheets', chip: 'cheatsheet' },
 };
 
 /** The other half of the purple loop: the attack a rule answers, or vice versa. */
@@ -34,7 +33,6 @@ export type SearchDoc = {
   title: string;
   excerpt: string;
   href: string;
-  /** Cheatsheets point at a static PDF, which the router cannot serve. */
   external: boolean;
   date: string;
   /** Lead chip on the card: category, or severity for a rule. */
@@ -167,7 +165,7 @@ export function partitionByKind(
 export type KindCounts = Record<SearchKind, number>;
 
 export function countByKind(hits: readonly SearchHit[]): KindCounts {
-  const counts: KindCounts = { writeup: 0, detection: 0, cheatsheet: 0 };
+  const counts: KindCounts = { writeup: 0, detection: 0 };
   for (const hit of hits) counts[hit.doc.kind] += 1;
   return counts;
 }

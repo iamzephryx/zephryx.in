@@ -10,12 +10,11 @@ import { KIND_LABEL, segment, type SearchHit, type SearchKind } from '@/lib/sear
  * of searching across shelves instead of within one.
  *
  * The kind chip is colour-coded to the loop: red for the attack, green for the
- * detection, neutral for reference material.
+ * detection.
  */
 const KIND_CHIP: Record<SearchKind, string> = {
   writeup: 'border-red-deep/50 bg-red-ash/25 text-red-blood',
   detection: 'border-signal/40 bg-signal/10 text-signal',
-  cheatsheet: 'border-line bg-elevated/40 text-ink-dim',
 };
 
 /** Renders matched runs as <mark>. Segments are text nodes — never markup. */

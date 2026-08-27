@@ -8,7 +8,7 @@ import { SITE } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'search',
   description:
-    'One search across every writeup, detection rule and cheatsheet on the site — the attack and the rule that catches it come back together.',
+    'One search across every writeup and detection rule on the site — the attack and the rule that catches it come back together.',
   alternates: { canonical: `${SITE.url}/search/` },
 };
 

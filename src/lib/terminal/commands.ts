@@ -384,7 +384,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
     'search',
     {
       name: 'search',
-      summary: 'Search writeups, detections and cheatsheets at once',
+      summary: 'Search writeups and detections at once',
       usage: 'search <terms>',
       run: (args, ctx) => {
         if (args.length === 0) {
@@ -410,18 +410,6 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
         const terms = args.filter((a) => !a.startsWith('-'));
         ctx.navigate(searchRoute(terms));
         return [ok(terms.length ? `Searching for "${terms.join(' ')}" …` : 'Opening /search …')];
-      },
-    },
-  ],
-  [
-    'cheatsheets',
-    {
-      name: 'cheatsheets',
-      summary: 'Quick-reference notes and PDF cheatsheets',
-      usage: 'cheatsheets',
-      run: (_args, ctx) => {
-        ctx.navigate('/cheatsheets/');
-        return [ok('Opening /cheatsheets …')];
       },
     },
   ],

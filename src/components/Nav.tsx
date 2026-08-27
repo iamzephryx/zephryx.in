@@ -157,10 +157,10 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-2.5">
-          {/* One box for writeups, detections and cheatsheets alike. */}
+          {/* One box for writeups and detections alike. */}
           <Link
             href={SEARCH_HREF}
-            aria-label="Search writeups, detections and cheatsheets"
+            aria-label="Search writeups and detections"
             title="Search everything ( / )"
             aria-current={isActive(SEARCH_HREF) ? 'page' : undefined}
             className={`flex h-9 items-center gap-2 border px-2.5 transition-colors duration-300 ${
