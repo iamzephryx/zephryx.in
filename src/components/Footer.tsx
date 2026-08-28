@@ -1,13 +1,8 @@
 import Link from 'next/link';
-import { FOOTER_LINKS, NAV, SITE, SOCIALS } from '@/lib/site';
+import { FOOTER_LINKS, NAV, NETWORK, SITE, SOCIALS } from '@/lib/site';
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  // Sibling business, not a page on this site — kept out of ROUTES and given
-  // its own card so it reads as a different domain's offering, not one more
-  // internal link.
-  const services = NAV.find((item) => item.external);
-
   return (
     <footer className="relative z-10 mt-32 border-t border-line/70 bg-abyss/60 backdrop-blur-sm">
       {/* status ticker */}
@@ -30,7 +25,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div className="grid gap-10 md:grid-cols-[1.3fr_0.7fr_1.2fr]">
           <div>
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 items-center justify-center border border-red-deep/60 bg-red-ash/20 font-mono text-[13px] font-bold text-red-blood">
@@ -50,33 +45,6 @@ export default function Footer() {
               PGP fingerprint available on request via{' '}
               <span className="text-red-blood/80">security@{SITE.domain}</span>
             </p>
-
-            {services ? (
-              <a
-                href={services.href}
-                target="_blank"
-                rel="noopener noreferrer external"
-                className="group mt-6 flex items-center justify-between gap-3 border border-red-deep/40 bg-red-ash/10 px-4 py-3 transition-colors hover:border-red-deep/70 hover:bg-red-ash/20"
-              >
-                <span>
-                  <span className="block font-mono text-[10px] tracking-[0.25em] text-ink-faint">
-                    SIBLING SITE — PENETRATION TESTING
-                  </span>
-                  <span className="mt-1 block font-mono text-sm text-ink">
-                    Hiring for an engagement?{' '}
-                    <span className="text-red-blood group-hover:underline">
-                      {new URL(services.href).host}
-                    </span>
-                  </span>
-                </span>
-                <span
-                  className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
-                  aria-hidden
-                >
-                  ↗
-                </span>
-              </a>
-            ) : null}
           </div>
 
           <nav aria-label="Footer">
@@ -103,7 +71,7 @@ export default function Footer() {
 
           <div>
             <h3 className="mb-4 font-mono text-[11px] tracking-[0.3em] text-ink-faint">CHANNELS</h3>
-            <ul className="space-y-2.5">
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5">
               {SOCIALS.map((s) => (
                 <li key={s.id}>
                   <a
@@ -121,6 +89,46 @@ export default function Footer() {
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* The three sibling sites, surfaced together. Each does one job; this
+            site is the hub that introduces them, so none is singled out and
+            none is left reachable only from the top nav. */}
+        <div className="mt-12 border-t border-line/60 pt-8">
+          <h3 className="mb-5 font-mono text-[11px] tracking-[0.3em] text-ink-faint">
+            THE ZEPHRYX NETWORK
+          </h3>
+          <ul className="grid gap-3 sm:grid-cols-3">
+            {NETWORK.map((site) => (
+              <li key={site.href}>
+                <a
+                  href={site.href}
+                  target="_blank"
+                  rel="noopener noreferrer external"
+                  className="group flex h-full flex-col border border-line bg-void/40 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:bg-red-ash/10"
+                >
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/80">
+                      {site.label.toUpperCase()}
+                    </span>
+                    <span
+                      className="text-[11px] text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
+                      aria-hidden
+                    >
+                      ↗
+                    </span>
+                  </span>
+                  <span className="mt-2 font-mono text-[13px] text-ink transition-colors group-hover:text-red-blood">
+                    {site.host}
+                  </span>
+                  <span className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                    {site.blurb}
+                  </span>
+                  <span className="sr-only">— leaves zephryx.in, opens in a new tab</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <ul className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line/60 pt-6">
