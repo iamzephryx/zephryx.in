@@ -117,6 +117,7 @@ const ALLOWED_ORIGINS = new Set([
   'https://www.youtube.com',
   'https://www.instagram.com',
   'https://zephryx.in',
+  'https://writeups.zephryx.in',
   'https://attack.mitre.org',
 ]);
 
@@ -124,11 +125,7 @@ const ALLOWED_ORIGINS = new Set([
 export const ALLOWED_ROUTES = new Set([
   '/',
   '/whoami/',
-  '/writeups/',
-  '/detections/',
-  '/matrix/',
   '/arsenal/',
-  '/search/',
   '/security/',
   '/handshake/',
 ]);
@@ -160,10 +157,20 @@ export function safeRoute(value: string): string | null {
   return q ? `${path}?q=${encodeURIComponent(q)}` : path;
 }
 
-/** Build a search route for a set of already-parsed terms. */
-export function searchRoute(terms: readonly string[]): string {
+/**
+ * Build a search URL for a set of already-parsed terms.
+ *
+ * Search moved to writeups.zephryx.in with the content it searches, so this is
+ * now an absolute URL rather than a route: `navigate` cannot cross an origin,
+ * and the terminal hands these to `link()` instead. The query is still capped
+ * and re-encoded from sanitized text, so nothing typed here reaches the URL
+ * uninspected.
+ */
+export const RESEARCH_ORIGIN = 'https://writeups.zephryx.in';
+
+export function searchUrl(terms: readonly string[]): string {
   const q = terms.join(' ').trim().slice(0, QUERY_MAX);
-  return q ? `/search/?q=${encodeURIComponent(q)}` : '/search/';
+  return q ? `${RESEARCH_ORIGIN}/search/?q=${encodeURIComponent(q)}` : `${RESEARCH_ORIGIN}/search/`;
 }
 
 /**

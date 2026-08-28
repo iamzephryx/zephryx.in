@@ -1,5 +1,12 @@
 import { MAILBOXES, SITE, SOCIALS } from '@/lib/site';
-import { ALLOWED_ROUTES, safeHref, safeMailto, searchRoute, type ParsedCommand } from './safety';
+import {
+  ALLOWED_ROUTES,
+  RESEARCH_ORIGIN,
+  safeHref,
+  safeMailto,
+  searchUrl,
+  type ParsedCommand,
+} from './safety';
 
 /* ------------------------------------------------------------------ */
 /* Output model                                                        */
@@ -287,7 +294,7 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
         ...TTPS.map(([id, label]) => out(`  ${pad(id, 12)} ${label}`)),
         blank(),
         dim('  Full coverage board — emulation vs. published detections:'),
-        link('/matrix', '/matrix/'),
+        link('writeups.zephryx.in/matrix', `${RESEARCH_ORIGIN}/matrix/`),
         link('attack.mitre.org', 'https://attack.mitre.org'),
       ],
     },
@@ -298,10 +305,10 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       name: 'detections',
       summary: 'Published Sigma rules and hunts',
       usage: 'detections',
-      run: (_args, ctx) => {
-        ctx.navigate('/detections/');
-        return [ok('Opening /detections …')];
-      },
+      run: () => [
+        ok('Detections moved to writeups.zephryx.in'),
+        link('writeups.zephryx.in/detections', `${RESEARCH_ORIGIN}/detections/`),
+      ],
     },
   ],
   [
@@ -310,10 +317,10 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       name: 'matrix',
       summary: 'ATT&CK coverage board',
       usage: 'matrix',
-      run: (_args, ctx) => {
-        ctx.navigate('/matrix/');
-        return [ok('Opening /matrix …')];
-      },
+      run: () => [
+        ok('The board moved to writeups.zephryx.in'),
+        link('writeups.zephryx.in/matrix', `${RESEARCH_ORIGIN}/matrix/`),
+      ],
     },
   ],
   [
@@ -374,10 +381,10 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       name: 'writeups',
       summary: 'Research notes and CTF writeups',
       usage: 'writeups',
-      run: (_args, ctx) => {
-        ctx.navigate('/writeups/');
-        return [ok('Opening /writeups …')];
-      },
+      run: () => [
+        ok('Writeups moved to writeups.zephryx.in'),
+        link('writeups.zephryx.in/writeups', `${RESEARCH_ORIGIN}/writeups/`),
+      ],
     },
   ],
   [
@@ -386,16 +393,16 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       name: 'search',
       summary: 'Search writeups and detections at once',
       usage: 'search <terms>',
-      run: (args, ctx) => {
-        if (args.length === 0) {
-          ctx.navigate('/search/');
-          return [ok('Opening /search …')];
-        }
-        // The route is built from parsed tokens and re-encoded by safeRoute,
-        // so nothing typed here reaches the URL uninspected.
-        ctx.navigate(searchRoute(args));
-        return [ok(`Searching all content for "${args.join(' ')}" …`)];
-      },
+      run: (args) => [
+        ok(
+          args.length
+            ? `Search for "${args.join(' ')}" on writeups.zephryx.in`
+            : 'Search moved to writeups.zephryx.in',
+        ),
+        // The URL is built from parsed tokens and re-encoded by searchUrl, so
+        // nothing typed here reaches it uninspected.
+        link('open search', searchUrl(args)),
+      ],
     },
   ],
   [
@@ -406,10 +413,16 @@ export const COMMANDS: ReadonlyMap<string, Command> = new Map<string, Command>([
       summary: 'Search all content',
       usage: 'grep <terms>',
       secret: true,
-      run: (args, ctx) => {
+      run: (args) => {
         const terms = args.filter((a) => !a.startsWith('-'));
-        ctx.navigate(searchRoute(terms));
-        return [ok(terms.length ? `Searching for "${terms.join(' ')}" …` : 'Opening /search …')];
+        return [
+          ok(
+            terms.length
+              ? `Search for "${terms.join(' ')}" on writeups.zephryx.in`
+              : 'Search moved to writeups.zephryx.in',
+          ),
+          link('open search', searchUrl(terms)),
+        ];
       },
     },
   ],

@@ -1,39 +1,28 @@
 import type { MetadataRoute } from 'next';
-import { getAllWriteups } from '@/lib/writeups';
-import { getAllDetections } from '@/lib/detections';
 import { getPublicTools } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
 export const dynamic = 'force-static';
 
+/**
+ * Only what this site still serves.
+ *
+ * The writeup, detection, matrix and search URLs moved to
+ * writeups.zephryx.in, which publishes its own sitemap for them. They are
+ * deliberately not listed here as external URLs: a sitemap is a claim about
+ * one host's own content, and the Worker already 301s the old paths, which is
+ * what actually carries the ranking across.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   const routes: MetadataRoute.Sitemap = [
     { url: `${SITE.url}/`, lastModified: now, changeFrequency: 'monthly', priority: 1 },
     { url: `${SITE.url}/whoami/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${SITE.url}/writeups/`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${SITE.url}/detections/`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${SITE.url}/search/`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${SITE.url}/matrix/`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE.url}/arsenal/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE.url}/security/`, lastModified: now, changeFrequency: 'yearly', priority: 0.7 },
     { url: `${SITE.url}/handshake/`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
   ];
-
-  const posts: MetadataRoute.Sitemap = getAllWriteups().map((w) => ({
-    url: `${SITE.url}/writeups/${w.slug}/`,
-    lastModified: new Date(w.date),
-    changeFrequency: 'yearly',
-    priority: 0.6,
-  }));
-
-  const rules: MetadataRoute.Sitemap = getAllDetections().map((d) => ({
-    url: `${SITE.url}/detections/${d.slug}/`,
-    lastModified: new Date(d.date),
-    changeFrequency: 'yearly',
-    priority: 0.6,
-  }));
 
   const tools: MetadataRoute.Sitemap = getPublicTools().map((t) => ({
     url: `${SITE.url}/arsenal/${t.id}/`,
@@ -42,5 +31,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...routes, ...posts, ...rules, ...tools];
+  return [...routes, ...tools];
 }
