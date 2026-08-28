@@ -170,6 +170,37 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ============================ NETWORK ============================ */}
+      {/* States the three-site split in one line — Academy and Security already
+          say this about themselves in their footers; this is the one place
+          the hub itself never said it. */}
+      <section className="relative mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-y border-line/70 py-5 font-mono text-[12px]">
+          <span className="tracking-wider text-ink-faint">the zephryx network —</span>
+          <span className="text-ink-dim">
+            <span className="text-ink">portfolio</span> — you're on it
+          </span>
+          <a
+            href="https://academy.zephryx.in/"
+            target="_blank"
+            rel="noopener noreferrer external"
+            className="group inline-flex items-center gap-1.5 text-ink-dim transition-colors hover:text-red-blood"
+          >
+            training <span className="text-ink-faint group-hover:text-red-blood/70">→ academy.zephryx.in</span>
+            <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
+          </a>
+          <a
+            href="https://security.zephryx.in/"
+            target="_blank"
+            rel="noopener noreferrer external"
+            className="group inline-flex items-center gap-1.5 text-ink-dim transition-colors hover:text-red-blood"
+          >
+            services <span className="text-ink-faint group-hover:text-red-blood/70">→ security.zephryx.in</span>
+            <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
+          </a>
+        </div>
+      </section>
+
       {/* ========================= CAPABILITIES ========================= */}
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
         <Reveal>
