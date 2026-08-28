@@ -112,14 +112,14 @@ export default function WhoamiPage() {
               <div className="flex flex-col items-center gap-5 sm:items-start">
                 <div className="panel clip-corner scanlines relative w-56 overflow-hidden sm:w-64">
                   <img
-                    src="/whoami/operator.png"
+                    src="/whoami/operator.webp"
                     alt={`Portrait of ${SITE.name}`}
                     width={1000}
                     height={1000}
                     className="block h-auto w-full"
                   />
                   <div className="absolute inset-x-0 bottom-0 flex items-center justify-between border-t border-line bg-void/80 px-3 py-2 font-mono text-[10px] tracking-wider text-ink-faint backdrop-blur">
-                    <span>operator.png</span>
+                    <span>operator.webp</span>
                     <span className="text-signal">verified</span>
                   </div>
                 </div>
