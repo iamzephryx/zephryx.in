@@ -3,9 +3,6 @@ import Terminal from '@/components/Terminal';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { getAllWriteups, getLatestWriteups, formatDate } from '@/lib/writeups';
-import { getDetectionCount } from '@/lib/detections';
-import { getCoverage } from '@/lib/attack';
 import { publicToolCount } from '@/lib/arsenal';
 import { SITE } from '@/lib/site';
 
@@ -18,16 +15,20 @@ const ROLES = [
 ] as const;
 
 /**
- * Both figures here are derived from the content they link to rather than typed
- * in, so the front page can never claim a number the rest of the site cannot
- * show. That principle is what ruled out the stat this replaced — an engagement
- * count no reader could check and no page could back up.
+ * `tools shipped` is derived from the content it links to rather than typed in,
+ * so the front page can never claim a number the rest of the site cannot show.
+ * That principle is what ruled out the stat this replaced — an engagement count
+ * no reader could check and no page could back up.
+ *
+ * The writeup and detection counts that used to sit here are deliberately gone
+ * rather than hardcoded: that content lives on writeups.zephryx.in now, and a
+ * number this site cannot recount from its own files is exactly the kind of
+ * claim the rule above exists to prevent. The research card below links to the
+ * site that can count them.
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: '150+', label: 'boxes rooted' },
   { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
-  { value: String(getAllWriteups().length), label: 'writeups published', href: '/writeups/' },
-  { value: String(getDetectionCount()), label: 'detections shipped', href: '/detections/' },
 ];
 
 /**
@@ -57,9 +58,6 @@ const CAPABILITIES = [
 ];
 
 export default function HomePage() {
-  const latest = getLatestWriteups(3);
-  const coverage = getCoverage();
-  const ruleCount = getDetectionCount();
 
   return (
     <>
@@ -100,8 +98,8 @@ export default function HomePage() {
               I'm 23, and I break into things — <span className="text-ink">Active
               Directory</span> mostly — then write up exactly how, with the dead ends
               still in. Penetration testing started as the thing I did instead of
-              sleeping and turned into the work. Every way in here has a detection next
-              to it, because I go back afterwards and ask what would have caught me.
+              sleeping and turned into the work. Every way in I publish has a detection
+              next to it, because I go back afterwards and ask what would have caught me.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -111,17 +109,22 @@ export default function HomePage() {
               >
                 <span className="relative z-10">./whoami</span>
               </Link>
-              <Link
-                href="/writeups/"
+              <a
+                href="https://writeups.zephryx.in/"
+                target="_blank"
+                rel="noopener noreferrer external"
                 className="group flex items-center gap-2 px-2 py-3 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
               >
                 read the research
-                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-              </Link>
+                <span className="text-[11px] text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5">
+                  ↗ writeups.zephryx.in
+                </span>
+                <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
+              </a>
             </div>
 
             {/* stats */}
-            <dl className="mt-12 grid max-w-lg grid-cols-4 gap-px border border-line bg-line">
+            <dl className="mt-12 grid max-w-xs grid-cols-2 gap-px border border-line bg-line">
               {STATS.map((s) => {
                 const body = (
                   <>
@@ -237,174 +240,64 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ======================== LATEST WRITEUPS ======================== */}
-      {latest.length > 0 ? (
-        <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
-          <Reveal>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <SectionHeading
-                index="02 / RESEARCH"
-                title="latest writeups"
-                sub="Whatever I've most recently found interesting enough to sit down and actually write about."
-              />
-            </div>
-          </Reveal>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {latest.map((w, i) => (
-              <Reveal key={w.slug} delay={i * 90}>
-                <Link
-                  href={`/writeups/${w.slug}/`}
-                  className="panel clip-corner group flex h-full flex-col p-6 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
-                >
-                  <div className="mb-4 flex items-center gap-2 font-mono text-[10px]">
-                    <span className="border border-red-deep/40 bg-red-ash/20 px-2 py-0.5 text-red-blood">
-                      {w.category}
-                    </span>
-                    <span className="text-ink-faint">{w.difficulty}</span>
-                    <span className="ml-auto text-ink-faint">{w.readingMinutes} min</span>
-                  </div>
-                  <h3 className="font-mono text-base font-semibold leading-snug text-ink transition-colors group-hover:text-red-blood">
-                    {w.title}
-                  </h3>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-dim line-clamp-3">
-                    {w.excerpt}
-                  </p>
-                  <div className="mt-5 flex items-center justify-between border-t border-line pt-4 font-mono text-[11px] text-ink-faint">
-                    <span>{formatDate(w.date)}</span>
-                    <span className="text-red-blood transition-transform duration-300 group-hover:translate-x-1">
-                      read →
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal>
-            <div className="mt-10 text-center">
-              <Link
-                href="/writeups/"
-                className="inline-flex items-center gap-2 border border-line px-6 py-3 font-mono text-sm text-ink-dim transition-all hover:border-red-deep/70 hover:text-red-blood"
-              >
-                cat /writeups/* <span>→</span>
-              </Link>
-            </div>
-          </Reveal>
-        </section>
-      ) : null}
-
-      {/* ========================= PURPLE LOOP ========================= */}
+      {/* ============================ RESEARCH ============================ */}
+      {/* The writeups, the detection library and the ATT&CK board used to be
+          rendered here from local content. They are a site of their own now, so
+          this section introduces them and hands the reader over — the same job
+          the Academy and Services cards do, rather than a second copy of an
+          index that lives elsewhere. No counts: this site cannot recount them
+          from its own files, and a number it cannot back up is exactly what the
+          STATS rule above rules out. */}
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
         <Reveal>
           <SectionHeading
-            index="03 / COVERAGE"
-            title="the loop, on a board"
-            sub="I said 'purple loop' up there, so here's proof rather than a buzzword — every technique I've published an attack for, matched against whether I actually wrote the rule for it yet. Some of the gaps are just me not getting around to it."
+            index="02 / RESEARCH"
+            title="the published work"
+            sub="Boxes and engagements written up with the dead ends still in, the Sigma rules that came out of them, and a board showing which attacks I've actually gone back and written the detection for."
           />
         </Reveal>
 
-        <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-          <Reveal>
-            <Link
-              href="/matrix/"
-              className="panel clip-corner group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] tracking-[0.2em] text-red-blood/80">
-                    ATT&amp;CK COVERAGE BOARD
-                  </span>
-                  <span className="font-mono text-[11px] text-ink-faint">/matrix</span>
-                </div>
-
-                <p className="mt-6 font-mono text-5xl font-bold text-ink text-glow">
-                  {coverage.both}
-                  <span className="text-ink-faint">/{coverage.emulated}</span>
-                </p>
-                <p className="mt-2 font-mono text-[12px] uppercase tracking-wider text-ink-faint">
-                  emulated techniques with a published detection
-                </p>
-
-                {/* coverage bar */}
-                <div className="mt-6 flex h-2 w-full overflow-hidden bg-line">
-                  <div
-                    className="h-full bg-signal"
-                    style={{ width: `${(coverage.both / coverage.total) * 100}%` }}
-                  />
-                  <div
-                    className="h-full bg-red-blood"
-                    style={{
-                      width: `${((coverage.emulated - coverage.both) / coverage.total) * 100}%`,
-                    }}
-                  />
-                  <div
-                    className="h-full bg-warn"
-                    style={{
-                      width: `${((coverage.detected - coverage.both) / coverage.total) * 100}%`,
-                    }}
-                  />
-                </div>
-
-                <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-                  {[
-                    ['bg-signal', 'closed loop'],
-                    ['bg-red-blood', 'open gap'],
-                    ['bg-warn', 'rule only'],
-                    ['bg-line', 'untracked'],
-                  ].map(([dot, label]) => (
-                    <li
-                      key={label}
-                      className="flex items-center gap-2 font-mono text-[11px] text-ink-faint"
-                    >
-                      <span className={`h-2 w-2 ${dot}`} />
-                      {label}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <span className="mt-8 inline-flex items-center gap-2 font-mono text-sm text-red-blood">
-                open the board
-                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+        <Reveal>
+          <a
+            href="https://writeups.zephryx.in/"
+            target="_blank"
+            rel="noopener noreferrer external"
+            className="panel clip-corner group flex flex-col gap-8 p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow sm:p-10 lg:flex-row lg:items-center lg:justify-between"
+          >
+            <div className="max-w-2xl">
+              <span className="font-mono text-[11px] tracking-[0.2em] text-red-blood/80">
+                SIBLING SITE — RESEARCH
               </span>
-            </Link>
-          </Reveal>
+              <p className="mt-4 font-mono text-2xl font-semibold text-ink sm:text-3xl">
+                writeups<span className="text-red-blood">.zephryx.in</span>
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-ink-dim">
+                Everything I've published about breaking in and catching it, on its own
+                domain so it has room to grow. Each attack is paired with the rule that
+                would have caught it — and where no rule exists yet, the board says so
+                rather than quietly leaving the cell blank.
+              </p>
 
-          <Reveal delay={90}>
-            <Link
-              href="/detections/"
-              className="panel clip-corner group flex h-full flex-col justify-between p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] tracking-[0.2em] text-red-blood/80">
-                    DETECTION LIBRARY
-                  </span>
-                  <span className="font-mono text-[11px] text-ink-faint">/detections</span>
-                </div>
+              <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+                {['writeups', 'detection rules', 'att&ck coverage board', 'search'].map((item) => (
+                  <li key={item} className="flex items-center gap-2 font-mono text-[12px] text-ink-dim">
+                    <span className="text-red-blood">▸</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                <p className="mt-6 font-mono text-5xl font-bold text-ink text-glow">{ruleCount}</p>
-                <p className="mt-2 font-mono text-[12px] uppercase tracking-wider text-ink-faint">
-                  published rules
-                </p>
-
-                <p className="mt-6 text-sm leading-relaxed text-ink-dim">
-                  Sigma, with KQL alongside it, plus notes on how I actually tuned each
-                  one and where I know it'll still miss something. Most of these exist
-                  because a specific writeup made me go write them.
-                </p>
-              </div>
-
-              <span className="mt-8 inline-flex items-center gap-2 font-mono text-sm text-red-blood">
-                read the rules
-                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+            <span className="inline-flex shrink-0 items-center gap-2 font-mono text-sm text-red-blood">
+              open the research
+              <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>
+                ↗
               </span>
-            </Link>
-          </Reveal>
-        </div>
+            </span>
+            <span className="sr-only">— leaves zephryx.in, opens in a new tab</span>
+          </a>
+        </Reveal>
       </section>
-
       {/* ============================= CTA ============================= */}
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
         <Reveal>

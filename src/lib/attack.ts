@@ -1,22 +1,21 @@
 /**
- * MITRE ATT&CK (Enterprise) coverage model.
+ * MITRE ATT&CK (Enterprise) technique catalogue.
  *
- * This is a *curated* slice of the matrix, not a mirror of it. Every technique
- * listed here is either covered by published work or deliberately shown as a
- * gap in a tactic where the surrounding techniques are covered — an honest
- * board is more useful than a wall of grey cells.
+ * This is a *curated* slice of the matrix, not a mirror of it — it exists so an
+ * id written in content can be rendered as a name and linked to attack.mitre.org
+ * instead of being shown as a bare `T1558.003`.
  *
  * Techniques in ATT&CK can belong to several tactics. Each entry below is
- * assigned the single tactic it is most commonly executed under, so the grid
- * stays readable and every technique appears exactly once.
+ * assigned the single tactic it is most commonly executed under, so any grid
+ * built from this shows every technique exactly once.
  *
- * Coverage is derived, never hand-maintained: it comes from the `techniques`
- * frontmatter on writeups (emulation) and detections (detection). Referencing a
- * technique that is not in this catalogue fails the build.
+ * The coverage model that used to live here — deriving emulated/detected state
+ * from writeup and detection frontmatter, and backing the /matrix/ board — moved
+ * to writeups.zephryx.in along with the content it reads. What stays is the
+ * lookup half, which the arsenal pages use to label the techniques a tool
+ * exercises. Keep the two catalogues in step if a tool cites a technique the
+ * other site has not catalogued yet.
  */
-
-import { getAllWriteups, type WriteupMeta } from './writeups';
-import { getAllDetections, type DetectionMeta } from './detections';
 
 export type Tactic = {
   id: string;
@@ -150,86 +149,7 @@ const BY_ID = new Map(TECHNIQUES.map((t) => [t.id, t]));
 export function attackUrl(id: string): string {
   return `https://attack.mitre.org/techniques/${id.replace('.', '/')}/`;
 }
-
-export type CoverageState = 'none' | 'emulated' | 'detected' | 'both';
-
-export type TechniqueCoverage = Technique & {
-  state: CoverageState;
-  /** Writeups that emulate this technique. */
-  writeups: WriteupMeta[];
-  /** Detection rules that provide coverage for it. */
-  detections: DetectionMeta[];
-};
-
-export type TacticColumn = Tactic & {
-  techniques: TechniqueCoverage[];
-};
-
-export type CoverageSummary = {
-  columns: TacticColumn[];
-  total: number;
-  emulated: number;
-  detected: number;
-  both: number;
-  /** Percentage of catalogued techniques with a detection rule. */
-  detectionRate: number;
-};
-
-/**
- * Build the coverage board. Any technique referenced by content but missing
- * from the catalogue throws, so the matrix can never quietly under-report.
- */
-export function getCoverage(): CoverageSummary {
-  const writeups = getAllWriteups();
-  const detections = getAllDetections();
-
-  const emulationIndex = new Map<string, WriteupMeta[]>();
-  const detectionIndex = new Map<string, DetectionMeta[]>();
-
-  const index = <T>(map: Map<string, T[]>, ids: string[], item: T, source: string) => {
-    for (const id of ids) {
-      if (!BY_ID.has(id)) {
-        throw new Error(
-          `${source} references technique "${id}", which is not in the ATT&CK catalogue ` +
-            `(src/lib/attack.ts). Add it there or correct the frontmatter.`,
-        );
-      }
-      const bucket = map.get(id);
-      if (bucket) bucket.push(item);
-      else map.set(id, [item]);
-    }
-  };
-
-  for (const w of writeups) index(emulationIndex, w.techniques, w, `Writeup "${w.slug}"`);
-  for (const d of detections) index(detectionIndex, d.techniques, d, `Detection "${d.slug}"`);
-
-  const covered = TECHNIQUES.map((t): TechniqueCoverage => {
-    const ws = emulationIndex.get(t.id) ?? [];
-    const ds = detectionIndex.get(t.id) ?? [];
-    const state: CoverageState =
-      ws.length && ds.length ? 'both' : ds.length ? 'detected' : ws.length ? 'emulated' : 'none';
-    return { ...t, state, writeups: ws, detections: ds };
-  });
-
-  const columns: TacticColumn[] = TACTICS.map((tactic) => ({
-    ...tactic,
-    techniques: covered.filter((t) => t.tacticId === tactic.id),
-  }));
-
-  const count = (fn: (t: TechniqueCoverage) => boolean) => covered.filter(fn).length;
-  const detected = count((t) => t.state === 'detected' || t.state === 'both');
-
-  return {
-    columns,
-    total: covered.length,
-    emulated: count((t) => t.state === 'emulated' || t.state === 'both'),
-    detected,
-    both: count((t) => t.state === 'both'),
-    detectionRate: Math.round((detected / covered.length) * 100),
-  };
-}
-
-/** Technique name lookup for rendering ids inside writeup and detection pages. */
+/** Technique name lookup, used to render ids on the arsenal pages. */
 export function techniqueName(id: string): string {
   return BY_ID.get(id)?.name ?? id;
 }

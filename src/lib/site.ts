@@ -197,11 +197,14 @@ export const MAILBOXES: MailBox[] = [
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false, external: false },
   { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
-  { href: '/writeups/', label: 'Writeups', cmd: 'cat', primary: true, external: false },
   { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true, external: false },
-  { href: '/detections/', label: 'Detections', cmd: 'sigma', primary: true, external: false },
-  { href: '/search/', label: 'Search', cmd: 'grep', primary: false, external: false },
-  { href: '/matrix/', label: 'Techniques', cmd: 'att&ck', primary: false, external: false },
+  {
+    href: 'https://writeups.zephryx.in/',
+    label: 'Writeups',
+    cmd: 'cat',
+    primary: true,
+    external: true,
+  },
   {
     href: 'https://academy.zephryx.in/',
     label: 'Academy',

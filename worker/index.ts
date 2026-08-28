@@ -88,6 +88,32 @@ const REDIRECTS: ReadonlyMap<string, string> = new Map([
   ['/contact/', '/handshake/'],
 ]);
 
+/**
+ * Whole route trees that moved to a sibling domain.
+ *
+ * The research corpus — writeups, the detection library, the ATT&CK board and
+ * the search that spans them — now lives on writeups.zephryx.in. The exact
+ * match map above cannot express that: every writeup and detection slug would
+ * have to be enumerated by hand, and a slug published tomorrow would 404 until
+ * somebody remembered to add it. Matching on the prefix covers the index, every
+ * current slug and every future one.
+ *
+ * Paths are preserved verbatim across the move (/writeups/foo/ is
+ * /writeups/foo/ on the new host), which is what makes this a host swap rather
+ * than a URL migration — every inbound link and search result keeps working.
+ *
+ * /feed.xml goes too: it only ever carried writeups and detections, and the
+ * subscribers polling it should follow the content rather than watch it go
+ * quiet.
+ */
+const MOVED_PREFIXES: ReadonlyArray<{ prefix: string; host: string }> = [
+  { prefix: '/writeups', host: 'https://writeups.zephryx.in' },
+  { prefix: '/detections', host: 'https://writeups.zephryx.in' },
+  { prefix: '/matrix', host: 'https://writeups.zephryx.in' },
+  { prefix: '/search', host: 'https://writeups.zephryx.in' },
+  { prefix: '/feed.xml', host: 'https://writeups.zephryx.in' },
+];
+
 const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
     status,
@@ -123,6 +149,20 @@ export default {
     if (moved) {
       // Keep the query string: campaign tags and the like should survive the move.
       const target = new URL(moved, url.origin);
+      target.search = url.search;
+      return new Response(null, {
+        status: 301,
+        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
+      });
+    }
+
+    // Checked after the exact-match table so a specific rename always wins over
+    // a broad tree move, and before ASSETS so these paths never reach the 404.
+    const movedTree = MOVED_PREFIXES.find(
+      (m) => url.pathname === m.prefix || url.pathname.startsWith(`${m.prefix}/`),
+    );
+    if (movedTree) {
+      const target = new URL(url.pathname, movedTree.host);
       target.search = url.search;
       return new Response(null, {
         status: 301,
