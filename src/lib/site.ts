@@ -237,5 +237,46 @@ export const NAV = [
 export const FOOTER_LINKS = [
   { href: '/security/', label: 'disclosure policy', asset: false, external: false },
   { href: '/.well-known/security.txt', label: 'security.txt', asset: true, external: false },
-  { href: '/feed.xml', label: 'rss feed', asset: true, external: false },
+  // The feed moved with the writeups and detections it carries. The Worker
+  // still 301s /feed.xml for existing subscribers, but a link rendered today
+  // should point at where the content actually is rather than take the hop.
+  {
+    href: 'https://writeups.zephryx.in/feed.xml',
+    label: 'rss feed',
+    asset: false,
+    external: true,
+  },
+] as const;
+
+/**
+ * The rest of the network, for the footer's cross-site block.
+ *
+ * Each sibling does exactly one job, and this site is the hub that introduces
+ * them — so all three are surfaced together rather than one being singled out.
+ * The footer used to carry a lone card for the pentest business, which left
+ * Academy and the research site reachable only from the top nav.
+ *
+ * `blurb` is what the site is *for*, in a few words. It exists because a bare
+ * hostname makes a reader guess, and three hostnames off the same domain are
+ * exactly the case where guessing goes wrong.
+ */
+export const NETWORK = [
+  {
+    href: 'https://writeups.zephryx.in/',
+    host: 'writeups.zephryx.in',
+    label: 'Research',
+    blurb: 'Writeups, detection rules, and the ATT&CK coverage board.',
+  },
+  {
+    href: 'https://academy.zephryx.in/',
+    host: 'academy.zephryx.in',
+    label: 'Training',
+    blurb: 'Hands-on offensive security tracks and free cheatsheets.',
+  },
+  {
+    href: 'https://security.zephryx.in/',
+    host: 'security.zephryx.in',
+    label: 'Services',
+    blurb: 'Penetration testing for startups and growing businesses.',
+  },
 ] as const;
