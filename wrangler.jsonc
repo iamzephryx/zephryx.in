@@ -7,6 +7,32 @@
     "CONTACT_TO": "contact@zephryx.in",
     "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>"
   },
+
+  // The public address, pinned here rather than left as dashboard-only state,
+  // so the hostname the portfolio hub answers on is reproducible from this repo.
+  // `custom_domain: true` has Cloudflare own the DNS record and certificate;
+  // re-declaring an already-attached domain is a no-op.
+  "routes": [
+    {
+      "pattern": "zephryx.in",
+      "custom_domain": true
+    }
+  ],
+
+  // Both of these default to TRUE when absent, and wrangler re-applies that
+  // default on every deploy — so switching them off in the dashboard alone
+  // gets silently undone by the next push. Stated here so config and
+  // dashboard agree and stay agreeing.
+  //
+  // workers_dev off: this site answers on zephryx.in and nowhere else. A
+  // second hostname serving identical content is duplicate content.
+  //
+  // preview_urls on: this is what puts the per-commit and per-branch preview
+  // links on a pull request, which is how a change gets eyeballed before it
+  // reaches the live domain. Worth keeping.
+  "workers_dev": false,
+  "preview_urls": true,
+
   "assets": {
     "directory": "out",
     "binding": "ASSETS",
