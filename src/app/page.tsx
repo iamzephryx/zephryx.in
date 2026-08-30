@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Terminal from '@/components/Terminal';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
@@ -36,6 +35,33 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
  * came for. The detection card closes the set rather than opening it — it is the
  * last move in the loop, not a second discipline competing for the front page.
  */
+const QUICK_ACCESS = [
+  {
+    tag: '01',
+    label: 'Research',
+    title: 'Writeups',
+    body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
+    href: 'https://writeups.zephryx.in/',
+    host: 'writeups.zephryx.in',
+  },
+  {
+    tag: '02',
+    label: 'Commercial',
+    title: 'Services',
+    body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
+    href: 'https://security.zephryx.in/services/',
+    host: 'security.zephryx.in',
+  },
+  {
+    tag: '03',
+    label: 'Education',
+    title: 'Free Cheatsheets',
+    body: 'Quick-reference PDFs for the tools and techniques that show up in almost every engagement.',
+    href: 'https://academy.zephryx.in/cheatsheets/',
+    host: 'academy.zephryx.in',
+  },
+] as const;
+
 const CAPABILITIES = [
   {
     tag: 'AD',
@@ -153,16 +179,42 @@ export default function HomePage() {
             </dl>
           </div>
 
-          {/* right: interactive terminal */}
+          {/* right: quick access */}
           <div className="anim-rise lg:pl-4" style={{ animationDelay: '0.15s' }}>
             <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-ink-faint">
-              <span className="tracking-wider">// LIVE SHELL — TRY IT</span>
-              <span className="text-red-blood/70">interactive</span>
+              <span className="tracking-wider">// QUICK ACCESS</span>
             </div>
-            <Terminal />
-            <p className="mt-3 text-center font-mono text-[11px] text-ink-faint">
-              input sanitised · rate limited · no eval · no network calls
-            </p>
+            <div className="space-y-3">
+              {QUICK_ACCESS.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer external"
+                  className="panel clip-corner group flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
+                    {item.tag}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="font-mono text-sm font-semibold text-ink">{item.title}</span>
+                      <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/70">
+                        {item.label.toUpperCase()}
+                      </span>
+                    </span>
+                    <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{item.body}</span>
+                  </span>
+                  <span
+                    className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
+                    aria-hidden
+                  >
+                    ↗
+                  </span>
+                  <span className="sr-only">— opens {item.host} in a new tab</span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 

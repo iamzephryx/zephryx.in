@@ -75,12 +75,10 @@ Rules the implementation follows, worth keeping if you extend it:
 
 ## Other things worth knowing
 
-- The interactive terminal (`src/lib/terminal/`) is allowlist-driven:
-  `ALLOWED_ROUTES` gates internal navigation, `ALLOWED_ORIGINS` gates outbound
-  links. `navigate` is a client-side router push and **cannot cross an
-  origin** — that is why `writeups`, `detections`, `matrix` and `search` now
-  return a link line to writeups.zephryx.in instead of navigating. Adding a
-  command that points at a sibling site means adding the origin, not the route.
+- The interactive terminal that used to sit in the homepage hero is gone —
+  replaced by the "Quick Access" cards to the three sibling sites. Don't
+  resurrect it; if a homepage needs something interactive again, that's a new
+  decision, not a revert.
 - The build is the validator: a malformed ATT&CK id or an unknown technique
   fails `npm run build` rather than shipping a quiet gap.
 - `npm run lint` is not usable — there's no ESLint config, so `next lint` drops
