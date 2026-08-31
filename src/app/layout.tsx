@@ -73,8 +73,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@0xZephryx',
-    creator: '@0xZephryx',
+    site: '@iamzephryx',
+    creator: '@iamzephryx',
     title: `${SITE.name} — ${SITE.craft}`,
     description: SITE.description,
   },
