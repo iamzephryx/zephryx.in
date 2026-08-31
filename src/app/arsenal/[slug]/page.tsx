@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getPublicTools, getTool } from '@/lib/arsenal';
 import { attackUrl, techniqueName } from '@/lib/attack';
 import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
 type Params = { slug: string };
 
@@ -29,15 +30,8 @@ export async function generateMetadata({
   if (!tool) return { title: 'Not found' };
   const description = `${tool.tagline}. ${tool.description}`;
   return {
-    title: tool.name,
-    description,
+    ...buildMetadata({ title: tool.name, description, path: `/arsenal/${tool.id}/` }),
     keywords: [tool.name, ...tool.tags],
-    alternates: { canonical: `${SITE.url}/arsenal/${tool.id}/` },
-    openGraph: {
-      type: 'website',
-      title: tool.name,
-      description,
-    },
   };
 }
 

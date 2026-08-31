@@ -3,13 +3,14 @@ import Link from 'next/link';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: 'whoami',
   description:
     "A bit about me — how I got into this, what I actually work on day to day, the tools I reach for, and the rules I don't break even when a client would let me.",
-  alternates: { canonical: `${SITE.url}/whoami/` },
-};
+  path: '/whoami/',
+});
 
 /* -------------------------------------------------------------- */
 

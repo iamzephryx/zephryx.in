@@ -4,13 +4,15 @@ import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { TOOLS, publicToolCount } from '@/lib/arsenal';
 import { attackUrl } from '@/lib/attack';
-import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'arsenal',
-  description: `Tools I've actually released: ${TOOLS.map((t) => t.name).join(', ')}. The stuff you can go check for yourself.`,
+  ...buildMetadata({
+    title: 'arsenal',
+    description: `Tools I've actually released: ${TOOLS.map((t) => t.name).join(', ')}. The stuff you can go check for yourself.`,
+    path: '/arsenal/',
+  }),
   keywords: TOOLS.map((t) => t.name),
-  alternates: { canonical: `${SITE.url}/arsenal/` },
 };
 
 const STATUS_STYLE: Record<string, string> = {

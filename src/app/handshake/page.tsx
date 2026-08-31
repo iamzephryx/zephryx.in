@@ -4,13 +4,14 @@ import SectionHeading from '@/components/SectionHeading';
 import ContactForm from '@/components/ContactForm';
 import CopyValue from '@/components/CopyValue';
 import { MAILBOXES, SITE, SOCIALS } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: 'contact',
   description:
     "One place to reach me — everywhere else I post, a contact form that lands in my own inbox, and the mailboxes sorted by what you're writing about.",
-  alternates: { canonical: `${SITE.url}/handshake/` },
-};
+  path: '/handshake/',
+});
 
 export default function ContactPage() {
   return (
