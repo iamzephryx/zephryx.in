@@ -28,6 +28,17 @@ export default function Reveal({ children, delay = 0, className = '', as: Tag = 
       return;
     }
 
+    // A restored scroll position (returning via back-navigation mid-page)
+    // doesn't reliably fire a scroll event, and IntersectionObserver's own
+    // initial callback can lag behind that restoration — so check the
+    // element's actual geometry once, synchronously, rather than trusting
+    // only the observer to catch what's already in view on mount.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 60 && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

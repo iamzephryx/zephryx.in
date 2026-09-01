@@ -1,0 +1,22 @@
+# Retired routes, served by the asset layer rather than the Worker.
+#
+# These lived in a REDIRECTS map in worker/index.ts. They moved here so that
+# run_worker_first can be scoped to ["/api/*"]: a bug in the Worker script can
+# then no longer take down pages that need no Worker logic at all, and these
+# redirects keep working because the asset layer applies this file before
+# falling through to a 404.
+#
+# /connect and /contact merged into /handshake — one contact page, not two.
+# Both slash forms are listed explicitly rather than relying on html_handling
+# to normalise them first.
+#
+# Query strings are preserved automatically, so campaign tags survive the hop.
+#
+# The redirects for the three retired sibling hostnames are NOT here: this file
+# only applies to requests that already reached zephryx.in. Those live as
+# Cloudflare Redirect Rules — see docs/redirects.md.
+
+/connect     /handshake/  301
+/connect/    /handshake/  301
+/contact     /handshake/  301
+/contact/    /handshake/  301

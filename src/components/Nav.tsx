@@ -6,7 +6,15 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { NAV, SITE } from '@/lib/site';
 import ThemeToggle from './ThemeToggle';
 
-/** Renders `Link` for an internal route, or a new-tab anchor for `external` — see NAV in site.ts. */
+/**
+ * Renders `Link` for an internal route, or a new-tab anchor for `external`.
+ *
+ * Every entry in NAV is internal now that all four zones are served from this
+ * site. The external branch stays because NavItem still models it and
+ * FOOTER_LINKS uses the same distinction — but nothing in the nav bar should
+ * grow an off-site link without a reason, and the divider that used to cluster
+ * them is gone with the sibling hostnames.
+ */
 function NavLink({
   item,
   active,
@@ -42,10 +50,7 @@ function NavLink({
   );
 }
 
-/**
- * Small "you're leaving this site" glyph for external NAV entries — the
- * counterpart to the divider that clusters them apart from on-site links.
- */
+/** Small "you're leaving this site" glyph for external entries. */
 function ExternalGlyph({ className = '' }: { className?: string }) {
   return (
     <span className={`font-mono text-[10px] ${className}`} aria-hidden>
@@ -126,17 +131,10 @@ export default function Nav() {
 
         {/* desktop nav */}
         <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Primary">
-          {desktopNav.map((item, i) => {
+          {desktopNav.map((item) => {
             const active = !item.external && isActive(item.href);
-            // Academy and Services leave zephryx.in entirely — a divider marks
-            // where the row stops being this site's pages and starts being
-            // jumps to a sibling one, so the two never read as equivalent.
-            const startsExternalCluster = item.external && !desktopNav[i - 1]?.external;
             return (
               <span key={item.href} className="flex items-center">
-                {startsExternalCluster ? (
-                  <span className="mx-1.5 h-4 w-px bg-line" aria-hidden />
-                ) : null}
                 <NavLink
                   item={item}
                   active={active}
@@ -207,18 +205,10 @@ export default function Nav() {
         }`}
       >
         <nav className="flex flex-col px-5 py-3" aria-label="Mobile" aria-hidden={!open}>
-          {NAV.map((item, i) => {
+          {NAV.map((item) => {
             const active = !item.external && isActive(item.href);
-            const startsExternalCluster = item.external && !NAV[i - 1]?.external;
             return (
               <span key={item.href}>
-                {startsExternalCluster ? (
-                  <div className="flex items-center gap-2 pt-2.5 pb-1 font-mono text-[10px] uppercase tracking-wider text-ink-faint">
-                    <span className="h-px flex-1 bg-line/50" aria-hidden />
-                    the zephryx network
-                    <span className="h-px flex-1 bg-line/50" aria-hidden />
-                  </div>
-                ) : null}
                 <NavLink
                   item={item}
                   active={active}
