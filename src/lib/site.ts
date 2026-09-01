@@ -183,9 +183,14 @@ export const MAILBOXES: MailBox[] = [
 /**
  * The four content zones, and where each one currently answers.
  *
- * The network is being consolidated from four hostnames onto this one. During
- * that migration a zone is in exactly one of two states, and `migrated` is the
- * only place in the tree that records which:
+ * The network has been consolidated from four hostnames onto this one. All
+ * four zones are served from here; the sibling hostnames now only carry
+ * permanent redirects (see docs/redirects.md).
+ *
+ * `migrated` is kept rather than deleted: it is the switch that makes a zone's
+ * links, canonicals and indexability agree with where the zone actually is, and
+ * it is how the next zone — if one is ever split out or brought in — gets moved
+ * without another hunt through the tree. A zone is in one of two states:
  *
  *   migrated: false  the zone still lives on its own hostname. Links to it
  *                    resolve to `host` and render as external (new tab, glyph).
@@ -237,7 +242,7 @@ export const ZONES: readonly Zone[] = [
     host: 'writeups.zephryx.in',
     kind: 'Research',
     blurb: 'Writeups, detection rules, and the ATT&CK coverage board.',
-    migrated: false,
+    migrated: true,
   },
   {
     id: 'learn',
@@ -247,7 +252,7 @@ export const ZONES: readonly Zone[] = [
     host: 'academy.zephryx.in',
     kind: 'Training',
     blurb: 'Hands-on offensive security tracks and free cheatsheets.',
-    migrated: false,
+    migrated: true,
   },
   {
     id: 'services',
@@ -257,7 +262,7 @@ export const ZONES: readonly Zone[] = [
     host: 'security.zephryx.in',
     kind: 'Services',
     blurb: 'Penetration testing for startups and growing businesses.',
-    migrated: false,
+    migrated: true,
   },
 ];
 

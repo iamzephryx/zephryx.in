@@ -3,7 +3,8 @@
  *
  * This project deploys as a static Next.js export (`next build` -> ./out) served
  * by Workers Static Assets, with this single script handling the things static
- * assets can't: the /api/contact endpoint, redirects for retired routes, and
+ * assets can't: the /api/contact and /api/quote endpoints, redirects for
+ * retired routes, and
  * (optional) maintenance mode.
  *
  * wrangler.jsonc sets run_worker_first: true, so every request reaches fetch()
@@ -12,17 +13,25 @@
  * (including the automatic out/404.html for unmatched routes, and applies
  * out/_headers).
  *
- * It stays `true` rather than being scoped to ["/api/*"] — which this wrangler
- * does support — because three things below need to see every request, not just
- * the API ones: the REDIRECTS table, the MOVED_PREFIXES tree, and MAINTENANCE
- * mode. Scoping it today would silently 404 /connect and stop /writeups/ from
- * redirecting. Once MOVED_PREFIXES is deleted at the consolidation cutover and
- * the exact-match redirects move to Cloudflare Redirect Rules, /api/* is all
- * that is left here and the scope can be narrowed — which is what stops a bug
- * in this file from being able to take the static content down with it.
+ * MOVED_PREFIXES is gone — the research tree is served from this site now, so
+ * the 301s that stood in for it would be a redirect loop. Two things still need
+ * to see every request, which is why this is not scoped to ["/api/*"] (a form
+ * this wrangler does support):
  *
- * Until then the try/catch in fetch() below is what holds that line: any
- * unexpected throw serves the static asset instead of failing the request.
+ *   REDIRECTS   the exact-match table below, for /connect and /contact.
+ *   MAINTENANCE the break-glass switch that serves /503/ for every non-API
+ *               path. Scoping it would leave the switch covering only /api/*,
+ *               which is the opposite of what a maintenance mode is for.
+ *
+ * Narrowing the scope is a real hardening — it is what stops a parse or
+ * module-scope error in this file from taking the static content down, which
+ * the try/catch below cannot catch. But it costs maintenance mode unless that
+ * moves to the edge too. Both prerequisites are dashboard work and are written
+ * up in docs/redirects.md; do them together, then narrow this in one change.
+ *
+ * Until then the try/catch in fetch() holds the line for everything short of a
+ * module-scope failure: any unexpected throw serves the static asset instead of
+ * failing the request.
  *
  * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
@@ -132,31 +141,6 @@ const REDIRECTS: ReadonlyMap<string, string> = new Map([
   ['/contact/', '/handshake/'],
 ]);
 
-/**
- * Whole route trees that moved to a sibling domain.
- *
- * The research corpus — writeups, the detection library, the ATT&CK board and
- * the search that spans them — now lives on writeups.zephryx.in. The exact
- * match map above cannot express that: every writeup and detection slug would
- * have to be enumerated by hand, and a slug published tomorrow would 404 until
- * somebody remembered to add it. Matching on the prefix covers the index, every
- * current slug and every future one.
- *
- * Paths are preserved verbatim across the move (/writeups/foo/ is
- * /writeups/foo/ on the new host), which is what makes this a host swap rather
- * than a URL migration — every inbound link and search result keeps working.
- *
- * /feed.xml goes too: it only ever carried writeups and detections, and the
- * subscribers polling it should follow the content rather than watch it go
- * quiet.
- */
-const MOVED_PREFIXES: ReadonlyArray<{ prefix: string; host: string }> = [
-  { prefix: '/writeups', host: 'https://writeups.zephryx.in' },
-  { prefix: '/detections', host: 'https://writeups.zephryx.in' },
-  { prefix: '/matrix', host: 'https://writeups.zephryx.in' },
-  { prefix: '/search', host: 'https://writeups.zephryx.in' },
-  { prefix: '/feed.xml', host: 'https://writeups.zephryx.in' },
-];
 
 const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
@@ -236,20 +220,6 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (moved) {
       // Keep the query string: campaign tags and the like should survive the move.
       const target = new URL(moved, url.origin);
-      target.search = url.search;
-      return new Response(null, {
-        status: 301,
-        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
-      });
-    }
-
-    // Checked after the exact-match table so a specific rename always wins over
-    // a broad tree move, and before ASSETS so these paths never reach the 404.
-    const movedTree = MOVED_PREFIXES.find(
-      (m) => url.pathname === m.prefix || url.pathname.startsWith(`${m.prefix}/`),
-    );
-    if (movedTree) {
-      const target = new URL(url.pathname, movedTree.host);
       target.search = url.search;
       return new Response(null, {
         status: 301,
