@@ -9,12 +9,19 @@ import { KIND_LABEL, segment, type SearchHit, type SearchKind } from '@/lib/sear
  * and the rule that answers it sit next to each other, which is the whole point
  * of searching across shelves instead of within one.
  *
- * The kind chip is colour-coded to the loop: red for the attack, green for the
- * detection.
+ * The kind chip is colour-coded by role rather than by shelf: red for the
+ * attack, green for the detection that answers it — the two halves of the loop
+ * — and a neutral outline for the reference and commercial shelves, so the loop
+ * stays legible now that six kinds share one list. Amber marks the one shelf
+ * that is neither research nor reference: a page that sells something.
  */
 const KIND_CHIP: Record<SearchKind, string> = {
   writeup: 'border-red-deep/50 bg-red-ash/25 text-red-blood',
   detection: 'border-signal/40 bg-signal/10 text-signal',
+  tool: 'border-line-hot bg-elevated text-ink-dim',
+  cheatsheet: 'border-line-hot bg-elevated text-ink-dim',
+  term: 'border-line bg-surface text-ink-faint',
+  service: 'border-warn/40 bg-warn/10 text-warn',
 };
 
 /** Renders matched runs as <mark>. Segments are text nodes — never markup. */

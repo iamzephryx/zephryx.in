@@ -4,7 +4,7 @@ import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import ZoneLink from '@/components/ZoneLink';
 import { publicToolCount } from '@/lib/arsenal';
-import { NETWORK, SITE, getZone, zoneIsExternal } from '@/lib/site';
+import { SITE, getZone, zoneIsExternal } from '@/lib/site';
 
 const ROLES = [
   'penetration_tester',
@@ -226,38 +226,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ============================ NETWORK ============================ */}
-      {/* States the split in one line — the siblings each say it about
-          themselves in their footers; this is the one place the hub says it.
-
-          Rendered from NETWORK rather than written out here. It was hardcoded
-          when this strip was added, at which point the research still lived on
-          this site and there were only two siblings to list — so when the
-          research moved out and became the third, the strip silently kept
-          showing two. One list, one place to add the next one. */}
-      {NETWORK.length > 0 ? (
-      <section className="relative mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-y border-line/70 py-5 font-mono text-[12px]">
-          <span className="tracking-wider text-ink-faint">the zephryx network —</span>
-          <span className="text-ink-dim">
-            <span className="text-ink">portfolio</span> — you're on it
-          </span>
-          {NETWORK.map((site) => (
-            <a
-              key={site.href}
-              href={site.href}
-              target="_blank"
-              rel="noopener noreferrer external"
-              className="group inline-flex items-center gap-1.5 text-ink-dim transition-colors hover:text-red-blood"
-            >
-              {site.label.toLowerCase()}{' '}
-              <span className="text-ink-faint group-hover:text-red-blood/70">→ {site.host}</span>
-              <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
-            </a>
-          ))}
-        </div>
-      </section>
-      ) : null}
 
       {/* ========================= CAPABILITIES ========================= */}
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">

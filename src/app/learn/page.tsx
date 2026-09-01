@@ -12,6 +12,34 @@ export const metadata: Metadata = buildMetadata({
   zone: getZone('learn'),
 });
 
+/**
+ * Carried over from the academy site's /about/ page, which is gone: the rest of
+ * that page argued the training teaches reasoning over tools and pairs every
+ * attack with its detection — both already said better by PRINCIPLES below, and
+ * a third copy of "run by the same person behind zephryx.in" reads as padding
+ * on a site that is now one site.
+ *
+ * These three questions are what actually did not survive anywhere else, and
+ * the first one is load-bearing: the free, no-paywall posture is a deliberate
+ * commitment, and stating it plainly where a reader looks for the catch is how
+ * it stays honest. Do not soften it into "currently free" or add a plan tier
+ * without that being a real decision.
+ */
+const FAQ = [
+  {
+    q: 'What does this cost?',
+    a: "Nothing, right now. The cheatsheets here are free — no signup, no paywall, no email required. Whether anything paid gets added later is a separate decision for another time, and it won't take anything away from what's already free.",
+  },
+  {
+    q: 'Who is this for?',
+    a: 'People who already have the fundamentals and want to get properly good at internal network and Active Directory work. Not a first-ever-intro-to-Linux course — that ground is well covered elsewhere.',
+  },
+  {
+    q: 'Do I need my own lab?',
+    a: 'Yes — the roadmap is written around a lab you build yourself, and the build is part of the material. Hosted labs are being considered, not promised.',
+  },
+];
+
 const PRINCIPLES = [
   {
     cmd: '01',
@@ -125,6 +153,20 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ---------------------------------------------------------------- faq */}
+      <section className="mx-auto max-w-6xl px-5 pb-24 sm:px-8">
+        <SectionHeading kicker="QUESTIONS" title="Before you start" />
+
+        <dl className="mt-12 space-y-px border border-line bg-line">
+          {FAQ.map((item) => (
+            <div key={item.q} className="bg-surface p-6">
+              <dt className="font-mono text-[15px] font-semibold text-ink">{item.q}</dt>
+              <dd className="mt-2.5 text-sm leading-relaxed text-ink-dim">{item.a}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
     </>
   );

@@ -223,17 +223,14 @@ export type Zone = {
   migrated: boolean;
 };
 
+/**
+ * Order is nav order, and it is audience order rather than site-history order:
+ * research first because it is what most visitors arrive for, then the free
+ * material, then the proof-of-work, then the commercial pages. The nav used to
+ * be shaped by which of four sites a link went to, which only made sense to
+ * someone who already knew the network existed.
+ */
 export const ZONES: readonly Zone[] = [
-  {
-    id: 'arsenal',
-    label: 'Tools & CVEs',
-    cmd: 'arsenal',
-    path: '/arsenal/',
-    host: 'zephryx.in',
-    kind: 'Tooling',
-    blurb: 'Open-source recon and detection-engineering tools, and the CVEs behind them.',
-    migrated: true,
-  },
   {
     id: 'research',
     label: 'Writeups',
@@ -252,6 +249,16 @@ export const ZONES: readonly Zone[] = [
     host: 'academy.zephryx.in',
     kind: 'Training',
     blurb: 'Hands-on offensive security tracks and free cheatsheets.',
+    migrated: true,
+  },
+  {
+    id: 'arsenal',
+    label: 'Tools & CVEs',
+    cmd: 'arsenal',
+    path: '/arsenal/',
+    host: 'zephryx.in',
+    kind: 'Tooling',
+    blurb: 'Open-source recon and detection-engineering tools, and the CVEs behind them.',
     migrated: true,
   },
   {
@@ -318,13 +325,12 @@ export type NavItem = {
 };
 
 /**
- * Zone entries are derived from ZONES rather than written out, so a zone that
- * migrates onto this site stops being an external link everywhere at once —
- * nav bar, mobile drawer and footer — without this list being touched.
+ * Zone entries are derived from ZONES rather than written out, in ZONES order,
+ * so the nav is shaped by what a visitor wants rather than by which of four
+ * sites a link used to point at. Reorder ZONES to reorder the nav.
  */
 export const NAV: readonly NavItem[] = [
   { href: '/', label: 'Home', cmd: '~', primary: false, external: false },
-  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
   ...ZONES.map(
     (z): NavItem => ({
       href: zoneHref(z),
@@ -334,6 +340,10 @@ export const NAV: readonly NavItem[] = [
       external: zoneIsExternal(z),
     }),
   ),
+  // About sits after the zones rather than before them: a first-time visitor
+  // came for the work, not the biography, and the wordmark already leads the
+  // row. Contact is last because Nav pulls it out as the CTA button.
+  { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true, external: false },
 ];
 
@@ -373,34 +383,4 @@ export const FOOTER_LINKS: readonly FooterLink[] = [
   },
 ];
 
-/**
- * The rest of the network, for the footer's cross-site block.
- *
- * Each sibling does exactly one job, and this site is the hub that introduces
- * them — so all three are surfaced together rather than one being singled out.
- * The footer used to carry a lone card for the pentest business, which left
- * Academy and the research site reachable only from the top nav.
- *
- * `blurb` is what the site is *for*, in a few words. It exists because a bare
- * hostname makes a reader guess, and three hostnames off the same domain are
- * exactly the case where guessing goes wrong.
- */
-export type NetworkSite = {
-  href: string;
-  host: string;
-  label: string;
-  blurb: string;
-};
 
-/**
- * Derived from the zones that have not moved yet, so this block empties itself
- * as the migration proceeds and disappears entirely at the last cutover —
- * rather than becoming a list of hostnames that redirect back to this site.
- * Footer and the homepage both render nothing when it is empty.
- */
-export const NETWORK: readonly NetworkSite[] = ZONES.filter((z) => !z.migrated).map((z) => ({
-  href: zoneHref(z),
-  host: z.host,
-  label: z.kind,
-  blurb: z.blurb,
-}));

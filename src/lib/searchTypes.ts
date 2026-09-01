@@ -8,7 +8,24 @@
  * identically instead of each rolling its own `includes()`.
  */
 
-export const SEARCH_KINDS = ['writeup', 'detection'] as const;
+/**
+ * Every shelf the box searches. Order is the display order on the search page
+ * and in filter chips: research first, because it is what most visitors come
+ * for, then the reference material, then the commercial pages.
+ *
+ * This list was ['writeup', 'detection'] while those were the only two
+ * collections on the domain. The rest of the network's content lived on other
+ * origins and could not be indexed without shipping a cross-origin index —
+ * which is the single clearest thing the consolidation bought.
+ */
+export const SEARCH_KINDS = [
+  'writeup',
+  'detection',
+  'tool',
+  'cheatsheet',
+  'term',
+  'service',
+] as const;
 
 export type SearchKind = (typeof SEARCH_KINDS)[number];
 
@@ -16,6 +33,10 @@ export type SearchKind = (typeof SEARCH_KINDS)[number];
 export const KIND_LABEL: Record<SearchKind, { one: string; many: string; chip: string }> = {
   writeup: { one: 'writeup', many: 'writeups', chip: 'writeup' },
   detection: { one: 'rule', many: 'rules', chip: 'detection' },
+  tool: { one: 'tool', many: 'tools', chip: 'tool' },
+  cheatsheet: { one: 'cheatsheet', many: 'cheatsheets', chip: 'cheatsheet' },
+  term: { one: 'term', many: 'terms', chip: 'glossary' },
+  service: { one: 'service', many: 'services', chip: 'service' },
 };
 
 /** The other half of the purple loop: the attack a rule answers, or vice versa. */
@@ -165,7 +186,9 @@ export function partitionByKind(
 export type KindCounts = Record<SearchKind, number>;
 
 export function countByKind(hits: readonly SearchHit[]): KindCounts {
-  const counts: KindCounts = { writeup: 0, detection: 0 };
+  // Built from SEARCH_KINDS rather than written out, so adding a shelf cannot
+  // leave a kind silently counting from undefined.
+  const counts = Object.fromEntries(SEARCH_KINDS.map((k) => [k, 0])) as KindCounts;
   for (const hit of hits) counts[hit.doc.kind] += 1;
   return counts;
 }

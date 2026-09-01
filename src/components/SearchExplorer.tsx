@@ -99,8 +99,8 @@ export default function SearchExplorer({
           value={query}
           onChange={(e) => setQuery(e.target.value.slice(0, QUERY_LIMIT))}
           maxLength={QUERY_LIMIT}
-          placeholder="kerberos, T1558.003, cobalt strike, adcs…"
-          aria-label="Search writeups and detections"
+          placeholder="kerberos, T1558.003, adcs, pentest…"
+          aria-label="Search everything on the site"
           spellCheck={false}
           autoComplete="off"
           className="w-full border-0 bg-transparent font-mono text-base text-ink placeholder:text-ink-faint"

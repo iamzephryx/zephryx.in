@@ -1,16 +1,27 @@
 /**
  * Builds the cross-content search index at build time.
  *
- * Server-only — this reaches the content directories through the writeups and
- * detections loaders, both of which touch node:fs. Client components import
- * the model and the matcher from './searchTypes' instead and receive the
- * finished array as props, so a fully static export ships one in-memory index
- * and never needs a search backend.
+ * Server-only — this reaches the content directories through the writeups,
+ * detections and cheatsheets loaders, all of which touch node:fs. Client
+ * components import the model and the matcher from './searchTypes' instead and
+ * receive the finished array as props, so a fully static export ships one
+ * in-memory index and never needs a search backend.
+ *
+ * Six collections, all of them first-party pages on this domain. Four of them
+ * were unreachable from here until the network was consolidated: tools were on
+ * the portfolio, cheatsheets and the glossary on the academy, services on the
+ * commercial site. One box over all of them is the feature that could not be
+ * built while they were on four origins.
  */
 
 import { getAllWriteups } from './writeups';
 import { getAllDetections } from './detections';
+import { getAllCheatsheets } from './cheatsheets';
+import { GLOSSARY } from './glossary';
+import { getPublicTools } from './arsenal';
+import { SERVICES } from './services';
 import { techniqueName } from './attack';
+import { formatBytes } from './format';
 import { SEARCH_KINDS, type SearchDoc, type SearchKind, type LoopLink } from './searchTypes';
 
 export type { SearchDoc, SearchKind } from './searchTypes';
@@ -104,9 +115,104 @@ export function getSearchIndex(): SearchDoc[] {
           : [],
       };
     }),
+
+    ...getPublicTools().map(
+      (t): SearchDoc => ({
+        id: `tool:${t.id}`,
+        kind: 'tool',
+        slug: t.id,
+        title: t.name,
+        excerpt: t.tagline,
+        href: `/arsenal/${t.id}/`,
+        external: false,
+        // Tools carry no publish date. They sort last within a tie rather than
+        // claiming a date they do not have — an invented one would reorder the
+        // whole index around a fiction.
+        date: '',
+        label: t.language,
+        meta: t.status,
+        tags: t.tags,
+        techniques: t.techniques,
+        facets: [
+          'tool',
+          'arsenal',
+          'open source',
+          t.language,
+          t.status,
+          ...t.techniques.map(techniqueName),
+        ],
+        loop: [],
+      }),
+    ),
+
+    ...getAllCheatsheets().map(
+      (c): SearchDoc => ({
+        id: `cheatsheet:${c.slug}`,
+        kind: 'cheatsheet',
+        slug: c.slug,
+        title: c.title,
+        excerpt: c.excerpt,
+        // The index page, not the PDF: a result should land somewhere with
+        // context and a copy control, not start a download.
+        href: '/learn/cheatsheets/',
+        external: false,
+        date: c.date,
+        label: c.category,
+        meta: `PDF · ${formatBytes(c.sizeBytes)}`,
+        tags: c.tags,
+        techniques: [],
+        facets: ['cheatsheet', 'pdf', 'reference', 'academy', c.category],
+        loop: [],
+      }),
+    ),
+
+    ...GLOSSARY.map(
+      (g): SearchDoc => ({
+        id: `term:${g.term.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        kind: 'term',
+        slug: g.term,
+        title: g.term,
+        excerpt: g.definition,
+        href: '/learn/glossary/',
+        external: false,
+        date: '',
+        label: g.category,
+        meta: 'glossary',
+        tags: [],
+        techniques: [],
+        facets: ['term', 'glossary', 'definition', g.category],
+        loop: [],
+      }),
+    ),
+
+    ...SERVICES.map(
+      (sv): SearchDoc => ({
+        id: `service:${sv.id}`,
+        kind: 'service',
+        slug: sv.id,
+        title: sv.title,
+        excerpt: sv.summary,
+        href: `/services/${sv.id}/`,
+        external: false,
+        date: '',
+        label: sv.short,
+        meta: sv.duration,
+        tags: [],
+        techniques: [],
+        facets: ['service', 'engagement', 'pentest', sv.short, sv.duration],
+        loop: [],
+      }),
+    ),
   ];
 
-  return docs.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  // Dated content first, newest first; undated reference material after it,
+  // alphabetical, so the glossary does not shuffle between builds.
+  return docs.sort((a, b) => {
+    if (a.date && b.date) return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    if (a.date) return -1;
+    if (b.date) return 1;
+    return a.title.localeCompare(b.title);
+  });
 }
 
 /**

@@ -3,15 +3,13 @@ import Reveal from '@/components/Reveal';
 import SearchExplorer from '@/components/SearchExplorer';
 import { getCrossCuttingTerms, getIndexSummary, getSearchIndex } from '@/lib/search';
 import { KIND_LABEL } from '@/lib/searchTypes';
-import { getZone } from '@/lib/site';
 import { buildMetadata } from '@/lib/metadata';
 
 export const metadata: Metadata = buildMetadata({
   title: 'search',
   description:
-    'One search across every writeup and detection rule on the site — the attack and the rule that catches it come back together.',
+    'One search across everything on the site — writeups, Sigma detection rules, open-source tooling, cheatsheets, the glossary and the services. The attack and the rule that catches it come back together.',
   path: '/search/',
-  zone: getZone('research'),
 });
 
 export default function SearchPage() {
