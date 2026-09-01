@@ -2,14 +2,15 @@
   "name": "zephryx-portfolio",
   "version": "1.0.0",
   "private": true,
-  "description": "Zephryx — Penetration Testing / Offensive Security portfolio",
+  "description": "Zephryx \u2014 Penetration Testing / Offensive Security portfolio",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "npx serve@latest out",
     "lint": "next lint",
     "preview": "npm run build && npx wrangler dev",
-    "deploy": "npm run build && npx wrangler deploy"
+    "deploy": "npm run build && npx wrangler deploy",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.worker.json"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
@@ -19,6 +20,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260901.1",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",

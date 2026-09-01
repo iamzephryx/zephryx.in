@@ -5,8 +5,18 @@
   "compatibility_date": "2026-08-06",
   "vars": {
     "CONTACT_TO": "contact@zephryx.in",
-    "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>"
+    "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>",
+    "LEAD_TO": "hello@security.zephryx.in",
+    "LEAD_FROM": "Zephryx Security <noreply@mail.zephryx.in>"
   },
+
+  // Carried over verbatim from the Zephryx-Security Worker along with
+  // /api/quote. The ids are the same namespaces, so leads written before the
+  // consolidation stay readable after it — a new namespace would strand them.
+  "kv_namespaces": [
+    { "binding": "LEADS", "id": "677a4d26c51b4ca0b35a8d3785c6dccf" },
+    { "binding": "LEADS_RL", "id": "1513048abd0f4cffa768ee444236d280" }
+  ],
 
   // The public address, pinned here rather than left as dashboard-only state,
   // so the hostname the portfolio hub answers on is reproducible from this repo.

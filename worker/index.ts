@@ -60,6 +60,12 @@ interface Env {
   TURNSTILE_SECRET?: string;
   CONTACT_RL?: KVLike;
   MAINTENANCE?: string;
+  // --- commercial zone: /services/request/ posts to /api/quote ---
+  LEAD_TO?: string;
+  LEAD_FROM?: string;
+  /** Durable record of a lead. Written BEFORE the notification email is sent. */
+  LEADS?: KVLike;
+  LEADS_RL?: KVLike;
 }
 
 type Body = {
@@ -72,15 +78,41 @@ type Body = {
   turnstileToken?: unknown;
 };
 
+/** POST body for /api/quote — the commercial zone's scoped-engagement form. */
+type QuoteBody = {
+  name?: unknown;
+  email?: unknown;
+  company?: unknown;
+  companySize?: unknown;
+  services?: unknown;
+  message?: unknown;
+  hp?: unknown; // honeypot
+  elapsedMs?: unknown;
+};
+
+/**
+ * Shared caps for both input endpoints.
+ *
+ * /api/contact and /api/quote were separate Workers carrying separate copies of
+ * this table, with identical values for every field they had in common. One
+ * table means a cap can no longer drift between them. Mirror any change in
+ * ContactForm.tsx and QuoteForm.tsx so the client fails fast and identically.
+ */
 const LIMITS = {
   name: 80,
   email: 120,
-  subject: 120,
   message: 4000,
   bodyBytes: 16 * 1024,
   minElapsedMs: 2500,
   rlWindowSec: 3600,
   rlMax: 5,
+  /** contact only */
+  subject: 120,
+  /** quote only */
+  company: 100,
+  companySize: 20,
+  maxServices: 8,
+  serviceIdLen: 60,
 } as const;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -144,6 +176,23 @@ const escapeHtml = (s: string): string =>
 const str = (v: unknown, max: number): string =>
   typeof v === 'string' ? v.trim().slice(0, max) : '';
 
+/** Loose id shape check — the real allow-list lives in src/lib/site.ts SERVICES;
+ * this only guards against garbage/oversized values reaching storage or email. */
+const SERVICE_ID_RE = /^[a-z0-9-]{1,60}$/;
+
+const services = (v: unknown): string[] => {
+  if (!Array.isArray(v)) return [];
+  const out: string[] = [];
+  for (const item of v) {
+    if (typeof item !== 'string') continue;
+    const trimmed = item.trim().slice(0, LIMITS.serviceIdLen);
+    if (SERVICE_ID_RE.test(trimmed)) out.push(trimmed);
+    if (out.length >= LIMITS.maxServices) break;
+  }
+  return out;
+};
+
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
@@ -172,6 +221,11 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === '/api/contact' || url.pathname === '/api/contact/') {
       if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
       return handleContact(request, env);
+    }
+
+    if (url.pathname === '/api/quote' || url.pathname === '/api/quote/') {
+      if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
+      return handleQuote(request, env);
     }
 
     if (url.pathname.startsWith('/api/')) {
@@ -414,6 +468,184 @@ function renderEmail(v: {
         <p style="margin:0 0 6px"><span style="color:#5c6675">subject</span> ${s}</p>
         <p style="margin:0 0 16px"><span style="color:#5c6675">ip</span> ${ip}</p>
         <div style="border-top:1px solid #1c2230;padding-top:16px;line-height:1.7;color:#98a1af">${m}</div>
+      </td></tr>
+      <tr><td style="border-top:1px solid #1c2230;padding:12px 20px;color:#5c6675;font-size:12px">
+        Reply directly to this email to reach ${n}.
+      </td></tr>
+    </table>
+  </body>
+</html>`;
+}
+
+async function handleQuote(request: Request, env: Env): Promise<Response> {
+  // --- origin check -------------------------------------------------------
+  const host = request.headers.get('host') ?? '';
+  const sameSite = (val: string | null): boolean => {
+    if (!val) return false;
+    try {
+      return new URL(val).host === host;
+    } catch {
+      return false;
+    }
+  };
+  if (!(sameSite(request.headers.get('origin')) || sameSite(request.headers.get('referer')))) {
+    return json({ ok: false, error: 'Bad origin.' }, 403);
+  }
+
+  // --- size guard ---------------------------------------------------------
+  if (Number(request.headers.get('content-length') ?? '0') > LIMITS.bodyBytes) {
+    return json({ ok: false, error: 'Payload too large.' }, 413);
+  }
+
+  // --- parse --------------------------------------------------------------
+  let body: QuoteBody;
+  try {
+    const raw = await request.text();
+    if (raw.length > LIMITS.bodyBytes) return json({ ok: false, error: 'Payload too large.' }, 413);
+    body = JSON.parse(raw) as QuoteBody;
+  } catch {
+    return json({ ok: false, error: 'Malformed request.' }, 400);
+  }
+
+  const name = str(body.name, LIMITS.name);
+  const email = str(body.email, LIMITS.email);
+  const company = str(body.company, LIMITS.company);
+  const companySize = str(body.companySize, LIMITS.companySize);
+  const wantedServices = services(body.services);
+  const message = str(body.message, LIMITS.message);
+  const honeypot = str(body.hp, 100);
+  const elapsedMs = typeof body.elapsedMs === 'number' ? body.elapsedMs : 0;
+
+  // --- silent bot rejection ----------------------------------------------
+  if (honeypot.length > 0 || (elapsedMs > 0 && elapsedMs < LIMITS.minElapsedMs)) {
+    return json({ ok: true });
+  }
+
+  // --- validation ---------------------------------------------------------
+  if (name.length < 2) return json({ ok: false, error: 'Name is required.' }, 422);
+  if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'A valid work email is required.' }, 422);
+  if (message.length < 20) return json({ ok: false, error: 'Give a bit more detail on scope.' }, 422);
+
+  if (!(await domainAcceptsMail(email))) {
+    return json(
+      { ok: false, error: "That email domain doesn't appear to accept mail — check for a typo." },
+      422,
+    );
+  }
+
+  // --- rate limit (optional, KV-backed) ----------------------------------
+  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
+  if (env.LEADS_RL) {
+    const key = `rl:${ip}`;
+    const count = Number((await env.LEADS_RL.get(key)) ?? '0');
+    if (count >= LIMITS.rlMax) {
+      return json({ ok: false, error: 'Too many requests. Try again later.' }, 429);
+    }
+    await env.LEADS_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
+  }
+
+  // --- persist ------------------------------------------------------------
+  // This is the durable record; the email below is only a notification, so a
+  // mail failure must not lose a real business inquiry.
+  let stored = false;
+  if (env.LEADS) {
+    try {
+      await env.LEADS.put(
+        `lead:${Date.now()}:${email.toLowerCase()}`,
+        JSON.stringify({ name, email, company, companySize, services: wantedServices, message, ip, at: new Date().toISOString() }),
+      );
+      stored = true;
+    } catch (e) {
+      console.error('leads kv put failed', e);
+    }
+  }
+
+  // --- notify --------------------------------------------------------------
+  if (!env.RESEND_API_KEY || !env.LEAD_TO || !env.LEAD_FROM) {
+    console.error('quote: missing RESEND_API_KEY / LEAD_TO / LEAD_FROM');
+    if (stored) return json({ ok: true });
+    return json(
+      { ok: false, error: 'Request channel not configured. Email hello@security.zephryx.in directly.' },
+      503,
+    );
+  }
+
+  const html = renderQuoteEmail({ name, email, company, companySize, services: wantedServices, message, ip });
+  const text = `New assessment request\n\nName: ${name}\nEmail: ${email}\nCompany: ${company || '(not given)'}\nSize: ${companySize || '(not given)'}\nServices: ${wantedServices.join(', ') || '(none selected)'}\nIP: ${ip}\n\nScope:\n${message}`;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${env.RESEND_API_KEY}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: env.LEAD_FROM,
+        to: [env.LEAD_TO],
+        reply_to: email,
+        subject: `[security] assessment request — ${company || name}`,
+        html,
+        text,
+      }),
+    });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      console.error('resend error', res.status, detail);
+      if (stored) return json({ ok: true });
+      return json({ ok: false, error: 'Send failed. Please email hello@security.zephryx.in.' }, 502);
+    }
+  } catch (e) {
+    console.error('resend fetch failed', e);
+    if (stored) return json({ ok: true });
+    return json({ ok: false, error: 'Send failed. Please email hello@security.zephryx.in.' }, 502);
+  }
+
+  return json({ ok: true });
+}
+
+/**
+ * Confirms the email's domain can plausibly receive mail at all, catching
+ * typos and made-up domains without claiming to verify the specific mailbox.
+ * Checks MX first, then falls back to A/AAAA per RFC 5321. Fails open on
+ * lookup errors — a degraded DNS check should never turn away a real lead.
+ */
+
+function renderQuoteEmail(v: {
+  name: string;
+  email: string;
+  company: string;
+  companySize: string;
+  services: string[];
+  message: string;
+  ip: string;
+}): string {
+  const n = escapeHtml(v.name);
+  const e = escapeHtml(v.email);
+  const c = escapeHtml(v.company || '(not given)');
+  const cs = escapeHtml(v.companySize || '(not given)');
+  const svc = escapeHtml(v.services.join(', ') || '(none selected)');
+  const m = escapeHtml(v.message).replace(/\n/g, '<br>');
+  const ip = escapeHtml(v.ip);
+  return `<!doctype html>
+<html>
+  <body style="margin:0;background:#06070a;font-family:ui-monospace,Menlo,monospace;color:#e8ebef;padding:24px">
+    <table role="presentation" style="max-width:560px;margin:0 auto;border:1px solid #1c2230;background:#0a0c11">
+      <tr><td style="border-bottom:1px solid #1c2230;padding:14px 20px;color:#ff2d4b;font-weight:bold">
+        security.zephryx.in — assessment request
+      </td></tr>
+      <tr><td style="padding:20px">
+        <p style="margin:0 0 6px"><span style="color:#5c6675">name</span> ${n}</p>
+        <p style="margin:0 0 6px"><span style="color:#5c6675">email</span> ${e}</p>
+        <p style="margin:0 0 6px"><span style="color:#5c6675">company</span> ${c}</p>
+        <p style="margin:0 0 6px"><span style="color:#5c6675">size</span> ${cs}</p>
+        <p style="margin:0 0 16px"><span style="color:#5c6675">ip</span> ${ip}</p>
+        <p style="margin:0 0 6px;color:#5c6675">services requested</p>
+        <p style="margin:0 0 16px">${svc}</p>
+        <div style="border-top:1px solid #1c2230;padding-top:16px;line-height:1.7;color:#98a1af">
+          <span style="color:#5c6675">scope</span><br>${m}
+        </div>
       </td></tr>
       <tr><td style="border-top:1px solid #1c2230;padding:12px 20px;color:#5c6675;font-size:12px">
         Reply directly to this email to reach ${n}.
