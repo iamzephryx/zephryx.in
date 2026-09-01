@@ -8,7 +8,12 @@ import { useEffect, useState } from 'react';
  */
 export default function TypeCycle({ phrases }: { phrases: readonly string[] }) {
   const [index, setIndex] = useState(0);
-  const [text, setText] = useState('');
+  // Start already showing the full first phrase, not an empty string — the
+  // server-rendered markup (and anything reading it before hydration, like a
+  // social-card scraper) should never see a mid-word flash. The effect below
+  // treats a full first phrase exactly like it treats reaching the end of any
+  // other cycle: hold, then start erasing.
+  const [text, setText] = useState(phrases[0] ?? '');
   const [erasing, setErasing] = useState(false);
 
   useEffect(() => {

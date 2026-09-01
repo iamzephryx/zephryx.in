@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { getPublicTools, getTool } from '@/lib/arsenal';
 import { attackUrl, techniqueName } from '@/lib/attack';
 import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
+import CopyValue from '@/components/CopyValue';
 
 type Params = { slug: string };
 
@@ -29,15 +31,8 @@ export async function generateMetadata({
   if (!tool) return { title: 'Not found' };
   const description = `${tool.tagline}. ${tool.description}`;
   return {
-    title: tool.name,
-    description,
+    ...buildMetadata({ title: tool.name, description, path: `/arsenal/${tool.id}/` }),
     keywords: [tool.name, ...tool.tags],
-    alternates: { canonical: `${SITE.url}/arsenal/${tool.id}/` },
-    openGraph: {
-      type: 'website',
-      title: tool.name,
-      description,
-    },
   };
 }
 
@@ -135,18 +130,22 @@ export default async function ToolPage({ params }: { params: Promise<Params> }) 
           ) : null}
 
           {tool.repo ? (
-            <a
-              href={tool.repo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-8 inline-flex items-center gap-2 font-mono text-sm text-red-blood transition-colors hover:text-red-core"
-            >
-              git clone
-              <span className="text-ink-dim group-hover:text-ink">
-                {tool.repo.replace('https://', '')}
-              </span>
-              <span className="transition-transform duration-300 group-hover:translate-x-1">↗</span>
-            </a>
+            <div className="mt-8 flex flex-wrap items-center gap-2">
+              <a
+                href={tool.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 font-mono text-sm text-red-blood transition-colors hover:text-red-core"
+              >
+                git clone
+                <span className="text-ink-dim group-hover:text-ink">
+                  {tool.repo.replace('https://', '')}
+                </span>
+                <span className="transition-transform duration-300 group-hover:translate-x-1">↗</span>
+              </a>
+              {/* the link above opens the repo — this copies the actual clone command */}
+              <CopyValue value={`git clone ${tool.repo}.git`} label="the clone command" />
+            </div>
           ) : null}
         </header>
 

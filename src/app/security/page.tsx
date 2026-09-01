@@ -4,13 +4,14 @@ import CopyValue from '@/components/CopyValue';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: 'security',
   description:
     "If you found a bug in my site or my tools, here's exactly how to tell me, what I'll do about it, and why you won't get a legal letter for trying to help.",
-  alternates: { canonical: `${SITE.url}/security/` },
-};
+  path: '/security/',
+});
 
 const IN_SCOPE = [
   `${SITE.domain} and any subdomain serving this site`,
@@ -64,6 +65,15 @@ export default function SecurityPage() {
       {/* ============================ HERO ============================ */}
       <section className="relative overflow-hidden px-5 pt-32 pb-12 sm:px-8">
         <div className="mx-auto max-w-4xl">
+          <Reveal>
+            <Link
+              href="/"
+              className="group mb-5 inline-flex items-center gap-2 font-mono text-[13px] text-ink-faint transition-colors hover:text-red-blood"
+            >
+              <span className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
+              cd ..
+            </Link>
+          </Reveal>
           <Reveal>
             <p className="mb-5 font-mono text-sm text-ink-dim">
               <span className="text-red-blood">$</span> curl -s {SITE.domain}

@@ -4,13 +4,15 @@ import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { TOOLS, publicToolCount } from '@/lib/arsenal';
 import { attackUrl } from '@/lib/attack';
-import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'arsenal',
-  description: `Tools I've actually released: ${TOOLS.map((t) => t.name).join(', ')}. The stuff you can go check for yourself.`,
+  ...buildMetadata({
+    title: 'arsenal',
+    description: `Tools I've actually released: ${TOOLS.map((t) => t.name).join(', ')}. The stuff you can go check for yourself.`,
+    path: '/arsenal/',
+  }),
   keywords: TOOLS.map((t) => t.name),
-  alternates: { canonical: `${SITE.url}/arsenal/` },
 };
 
 const STATUS_STYLE: Record<string, string> = {
@@ -33,6 +35,15 @@ export default function ArsenalPage() {
       {/* ============================ HERO ============================ */}
       <section className="relative overflow-hidden px-5 pt-32 pb-12 sm:px-8">
         <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <Link
+              href="/"
+              className="group mb-5 inline-flex items-center gap-2 font-mono text-[13px] text-ink-faint transition-colors hover:text-red-blood"
+            >
+              <span className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
+              cd ..
+            </Link>
+          </Reveal>
           <Reveal>
             <p className="mb-5 font-mono text-sm text-ink-dim">
               <span className="text-red-blood">$</span> ls -la ~/ops/arsenal

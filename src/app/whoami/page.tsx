@@ -3,13 +3,14 @@ import Link from 'next/link';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { SITE } from '@/lib/site';
+import { buildMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: 'whoami',
   description:
     "A bit about me — how I got into this, what I actually work on day to day, the tools I reach for, and the rules I don't break even when a client would let me.",
-  alternates: { canonical: `${SITE.url}/whoami/` },
-};
+  path: '/whoami/',
+});
 
 /* -------------------------------------------------------------- */
 
@@ -93,6 +94,15 @@ export default function WhoamiPage() {
       {/* ============================ HERO ============================ */}
       <section className="relative overflow-hidden px-5 pt-32 pb-16 sm:px-8">
         <div className="mx-auto max-w-5xl">
+          <Reveal>
+            <Link
+              href="/"
+              className="group mb-5 inline-flex items-center gap-2 font-mono text-[13px] text-ink-faint transition-colors hover:text-red-blood"
+            >
+              <span className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
+              cd ..
+            </Link>
+          </Reveal>
           <Reveal>
             <p className="mb-5 font-mono text-sm text-ink-dim">
               <span className="text-red-blood">$</span> cat /etc/operator/identity
