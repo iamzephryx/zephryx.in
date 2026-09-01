@@ -12,6 +12,18 @@
  * (including the automatic out/404.html for unmatched routes, and applies
  * out/_headers).
  *
+ * It stays `true` rather than being scoped to ["/api/*"] — which this wrangler
+ * does support — because three things below need to see every request, not just
+ * the API ones: the REDIRECTS table, the MOVED_PREFIXES tree, and MAINTENANCE
+ * mode. Scoping it today would silently 404 /connect and stop /writeups/ from
+ * redirecting. Once MOVED_PREFIXES is deleted at the consolidation cutover and
+ * the exact-match redirects move to Cloudflare Redirect Rules, /api/* is all
+ * that is left here and the scope can be narrowed — which is what stops a bug
+ * in this file from being able to take the static content down with it.
+ *
+ * Until then the try/catch in fetch() below is what holds that line: any
+ * unexpected throw serves the static asset instead of failing the request.
+ *
  * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
  *  - strict body-size cap + per-field length caps + type checks
@@ -134,6 +146,27 @@ const str = (v: unknown, max: number): string =>
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    try {
+      return await route(request, env);
+    } catch (err) {
+      // Every request currently passes through this script (run_worker_first:
+      // true), so an unhandled throw anywhere above would otherwise take down
+      // pages that need no worker logic at all. Serving the static asset is
+      // strictly better than a 500 on a page that was only ever going to be a
+      // static file. The API paths are excluded because a silent fall-through
+      // there would render the SPA shell in response to a POST, which reads as
+      // success to a form handler.
+      console.error('worker: unhandled error, falling through to assets', err);
+      const { pathname } = new URL(request.url);
+      if (pathname.startsWith('/api/')) {
+        return json({ ok: false, error: 'Something went wrong. Please try again.' }, 500);
+      }
+      return env.ASSETS.fetch(request);
+    }
+  },
+};
+
+async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === '/api/contact' || url.pathname === '/api/contact/') {
@@ -181,8 +214,7 @@ export default {
     }
 
     return env.ASSETS.fetch(request);
-  },
-};
+}
 
 async function handleContact(request: Request, env: Env): Promise<Response> {
   // --- origin check -------------------------------------------------------

@@ -36,6 +36,17 @@
   "assets": {
     "directory": "out",
     "binding": "ASSETS",
+
+    // Verified against the installed wrangler: this key also accepts a glob
+    // array, e.g. ["/api/*"], which would keep worker code off the content
+    // routes entirely so a bug in worker/index.ts could not take the static
+    // build down with it.
+    //
+    // It is NOT scoped yet, and that is deliberate. worker/index.ts still owns
+    // the REDIRECTS table, the MOVED_PREFIXES tree and MAINTENANCE mode, all of
+    // which have to see requests that are not /api/*. Narrowing this before
+    // those move out would 404 /connect and strand every /writeups/ redirect.
+    // Narrow it at the consolidation cutover, not before.
     "run_worker_first": true,
     "not_found_handling": "404-page"
   },

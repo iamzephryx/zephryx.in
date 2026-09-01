@@ -91,9 +91,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* The three sibling sites, surfaced together. Each does one job; this
-            site is the hub that introduces them, so none is singled out and
-            none is left reachable only from the top nav. */}
+        {/* The sibling sites that have not been folded into this one yet.
+            NETWORK is derived from the un-migrated zones, so this block shrinks
+            as the consolidation proceeds and disappears at the last cutover —
+            it must never render as an empty heading with no cards under it. */}
+        {NETWORK.length > 0 ? (
         <div className="mt-12 border-t border-line/60 pt-8">
           <h3 className="mb-5 font-mono text-[11px] tracking-[0.3em] text-ink-faint">
             THE ZEPHRYX NETWORK
@@ -130,6 +132,7 @@ export default function Footer() {
             ))}
           </ul>
         </div>
+        ) : null}
 
         <ul className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line/60 pt-6">
           {FOOTER_LINKS.map((item) => {
