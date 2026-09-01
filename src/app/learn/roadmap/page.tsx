@@ -69,7 +69,7 @@ const STAGES: Stage[] = [
       "Knowledge that hasn't been tested against something that fights back isn't worth much yet. Run the full loop end to end, then write it up like it's for someone else to read.",
     learn: ['Guided, objective-based boxes', 'Chaining techniques instead of running them in isolation', 'Writing a report someone would act on'],
     practice:
-      "For what a finished writeup looks like, read the real ones on writeups.zephryx.in. Hosted, guided labs are planned for labs.zephryx.in — not live yet, so for now this stage means building the lab yourself and running the loop end to end.",
+      "For what a finished writeup looks like, read the real ones under /writeups/. Hosted, guided labs are still only planned — not live yet, so for now this stage means building the lab yourself and running the loop end to end.",
   },
 ];
 

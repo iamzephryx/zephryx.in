@@ -4,6 +4,8 @@ import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import ZoneLink from '@/components/ZoneLink';
 import { publicToolCount } from '@/lib/arsenal';
+import { getAllWriteups } from '@/lib/writeups';
+import { getDetectionCount } from '@/lib/detections';
 import { SITE, getZone, zoneIsExternal } from '@/lib/site';
 
 const ROLES = [
@@ -15,20 +17,23 @@ const ROLES = [
 ] as const;
 
 /**
- * `tools shipped` is derived from the content it links to rather than typed in,
- * so the front page can never claim a number the rest of the site cannot show.
- * That principle is what ruled out the stat this replaced — an engagement count
- * no reader could check and no page could back up.
+ * Every number here is counted from this repo's own files rather than typed in,
+ * so the front page can never claim a figure the rest of the site cannot show.
+ * That principle is what ruled out the stat these replaced — an engagement
+ * count no reader could check and no page could back up.
  *
- * The writeup and detection counts that used to sit here are deliberately gone
- * rather than hardcoded: that content lives on writeups.zephryx.in now, and a
- * number this site cannot recount from its own files is exactly the kind of
- * claim the rule above exists to prevent. The research card below links to the
- * site that can count them.
+ * The writeup and detection counts are back. They were removed when the
+ * research corpus moved to its own domain, precisely because this site could no
+ * longer recount them; the content is served from here again, so the rule that
+ * removed them is now the rule that restores them. `boxes rooted` stays a
+ * rounded claim because it is the one figure no page enumerates — if that ever
+ * bothers you, the honest fix is to drop it, not to invent a source for it.
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
-  { value: '150+', label: 'boxes rooted' },
+  { value: String(getAllWriteups().length), label: 'writeups published', href: '/writeups/' },
+  { value: String(getDetectionCount()), label: 'detection rules', href: '/detections/' },
   { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
+  { value: '150+', label: 'boxes rooted' },
 ];
 
 /** The research zone is referenced from three places on this page, so it is

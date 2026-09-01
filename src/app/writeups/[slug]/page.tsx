@@ -205,8 +205,6 @@ export default async function WriteupPage({ params }: { params: Promise<Params> 
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              {/* /handshake/ is a route on this site now — it was an off-origin
-                  link while the research lived on its own domain. */}
               <Link
                 href="/handshake/"
                 className="clip-tab border border-red-deep bg-red-core px-5 py-2.5 font-mono text-[13px] text-void transition-all hover:shadow-[0_0_28px_-4px_rgba(255,45,75,0.8)]"

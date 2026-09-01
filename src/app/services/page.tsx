@@ -89,10 +89,8 @@ export default function Home() {
         </Reveal>
 
         <Reveal delay={260}>
-          {/* This used to be an outbound link to zephryx.in reading "same person
-              behind…" — written when the services site was its own domain and the
-              proof lived somewhere else. Both claims are on this site now, so the
-              evidence is linked directly instead of asserted and pointed at. */}
+          {/* The evidence is linked rather than asserted — the standard this
+              site holds itself to for anything a buyer is asked to believe. */}
           <p className="mt-8 font-mono text-[12px] text-ink-faint">
             <span className="text-red-blood/70">$</span> the{' '}
             <Link href="/writeups/" className="text-red-blood/80 hover:text-red-blood">

@@ -150,3 +150,61 @@ And confirm the disclosure policy survived:
 ```bash
 curl -sS -o /dev/null -w '%{http_code}\n' https://zephryx.in/security/   # 200
 ```
+
+---
+
+# Retirement checklist
+
+Everything here is platform work — Cloudflare and GitHub — and none of it is in
+this repo. Do it **after** the redirect rules above are live and verified, not
+before.
+
+## 1. Delete the three Workers
+
+`zephryx-writeups`, `zephryx-academy`, `zephryx-security`.
+
+**Keep their DNS records and certificates.** A redirect rule needs the hostname
+to still resolve through Cloudflare; deleting the record takes the old URLs down
+entirely instead of redirecting them, which is the opposite of the point.
+
+Confirm the rules still answer after each deletion — a rule and a Worker on the
+same hostname can mask each other, so "it worked before I deleted the Worker" is
+not evidence it works after.
+
+## 2. Archive the three repos
+
+Archive, do not delete. The git history is the only record of why the splits
+happened and why they were undone, and the `CLAUDE.md` files in them carry
+reasoning that is worth being able to read back — the detection library's
+"no attack surface" posture, the academy's removed waitlist, the services
+site's "verifiable, not asserted" credibility rule. All three now carry a
+retirement banner pointing here.
+
+Each repo also holds content that is duplicated in `zephryx.in`. That is fine:
+archived repos are read-only, so there is no risk of the two copies diverging.
+
+## 3. Resubmit the sitemap
+
+`https://zephryx.in/sitemap.xml` now claims **41 URLs**, up from 9. Resubmit it
+in Search Console. The three per-host sitemaps die with their Workers; there is
+nothing to remove, but expect the old hostnames to take a while to drop out of
+the index while the 301s are followed.
+
+Watch for coverage errors on the old hosts in the weeks after — a redirect
+reported as a soft 404 usually means a carve-out is ordered below its prefix
+rule, which the curl loop above would also catch.
+
+## 4. Mail keeps working
+
+`hello@security.zephryx.in` is a live inbox and is deliberately unchanged — the
+`/api/quote` handler still sends there, and `/services/request/` still shows it.
+Mail routing is independent of where the pages are served. Do not "tidy" this to
+match the web consolidation without deciding to move a working mailbox, which is
+a separate change with its own failure mode.
+
+## What is deliberately NOT done
+
+`run_worker_first` is still `true`. Narrowing it to `["/api/*"]` needs the
+`REDIRECTS` table and maintenance mode moved to the edge first — see the section
+above. It is a real hardening, not a cleanup, and it should be its own change
+with its own verification rather than a line slipped into the retirement.
