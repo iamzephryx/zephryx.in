@@ -187,7 +187,7 @@ export default function Nav() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 border border-line lg:hidden"
+            className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 border border-line lg:hidden"
           >
             <span
               className={`h-px w-4 bg-ink transition-all duration-300 ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}

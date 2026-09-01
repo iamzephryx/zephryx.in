@@ -36,6 +36,15 @@ export default function ArsenalPage() {
       <section className="relative overflow-hidden px-5 pt-32 pb-12 sm:px-8">
         <div className="mx-auto max-w-6xl">
           <Reveal>
+            <Link
+              href="/"
+              className="group mb-5 inline-flex items-center gap-2 font-mono text-[13px] text-ink-faint transition-colors hover:text-red-blood"
+            >
+              <span className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
+              cd ..
+            </Link>
+          </Reveal>
+          <Reveal>
             <p className="mb-5 font-mono text-sm text-ink-dim">
               <span className="text-red-blood">$</span> ls -la ~/ops/arsenal
             </p>
