@@ -47,17 +47,19 @@
     "directory": "out",
     "binding": "ASSETS",
 
-    // Verified against the installed wrangler: this key also accepts a glob
-    // array, e.g. ["/api/*"], which would keep worker code off the content
-    // routes entirely so a bug in worker/index.ts could not take the static
-    // build down with it.
+    // Scoped, not blanket. The Worker script runs for the two form endpoints
+    // and nothing else; every content route is served straight from the asset
+    // layer, so a parse error or a module-scope throw in worker/index.ts cannot
+    // take the site down. The try/catch in that file cannot catch that class of
+    // failure, which is exactly why this is scoped rather than left at `true`.
     //
-    // It is NOT scoped yet, and that is deliberate. worker/index.ts still owns
-    // the REDIRECTS table, the MOVED_PREFIXES tree and MAINTENANCE mode, all of
-    // which have to see requests that are not /api/*. Narrowing this before
-    // those move out would 404 /connect and strand every /writeups/ redirect.
-    // Narrow it at the consolidation cutover, not before.
-    "run_worker_first": true,
+    // Prerequisites, both done: the /connect and /contact redirects moved to
+    // public/_redirects (applied by the asset layer), and MAINTENANCE was
+    // rescoped to gate the endpoints rather than the whole site.
+    //
+    // Anything added to this Worker that must see a content request needs this
+    // widened again — which should be a deliberate decision, not a reflex.
+    "run_worker_first": ["/api/*"],
     "not_found_handling": "404-page"
   },
   "observability": {

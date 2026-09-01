@@ -127,12 +127,28 @@ Two rules worth stating outright:
 - **Never reflect a secret or an upstream error to the client.** Generic message
   to the visitor, detail to `console.error`.
 
-`fetch()` wraps the router in a try/catch that falls through to
-`env.ASSETS.fetch` on an unexpected throw — every request passes through this
-script (`run_worker_first: true`), so without it a bug here takes down pages
-that need no Worker logic at all. `docs/redirects.md` records what has to move
-to the edge before that can be narrowed to `["/api/*"]`, and why narrowing it
-today would cost maintenance mode.
+`run_worker_first` is `["/api/*"]`: this script runs for the two endpoints and
+nothing else, so every content route is served by the asset layer without
+executing a line of it. That is what protects the site from a parse error or a
+module-scope throw here — a failure the try/catch inside `fetch()` cannot catch,
+because the module never finishes evaluating. **Anything added to the Worker
+that must see a content request means widening this again, and that should be a
+deliberate decision.**
+
+Two things moved out to make the narrowing possible:
+
+- **Retired-route redirects** (`/connect`, `/contact` → `/handshake/`) live in
+  `public/_redirects`, applied by the asset layer. Query strings survive. The
+  redirects for the three retired *hostnames* are different and live as
+  Cloudflare Redirect Rules — see `docs/redirects.md`.
+- **`MAINTENANCE`** used to serve `/503/` for every non-API path. It cannot see
+  a content request now, so it gates the endpoints instead: `on` means "stop
+  accepting submissions", not "take the site down". That is the more useful
+  half — a static site has no reason to go dark because Resend or KV is having a
+  bad day. To take the whole site down, use a rule at the edge.
+
+The try/catch in `fetch()` still matters for everything inside a request: an
+unexpected throw serves the static asset rather than failing.
 
 ## Don't fabricate business credibility
 

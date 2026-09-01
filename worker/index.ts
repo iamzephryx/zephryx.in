@@ -3,35 +3,27 @@
  *
  * This project deploys as a static Next.js export (`next build` -> ./out) served
  * by Workers Static Assets, with this single script handling the things static
- * assets can't: the /api/contact and /api/quote endpoints, redirects for
- * retired routes, and
- * (optional) maintenance mode.
+ * assets can't: the /api/contact and /api/quote endpoints, plus an optional
+ * switch that stops them accepting submissions.
  *
- * wrangler.jsonc sets run_worker_first: true, so every request reaches fetch()
- * below. Anything that isn't /api/*, a redirect or a maintenance response falls
- * straight through to env.ASSETS.fetch(), which serves the static build
- * (including the automatic out/404.html for unmatched routes, and applies
- * out/_headers).
+ * wrangler.jsonc sets run_worker_first: ["/api/*"], so this script runs for the
+ * two form endpoints and nothing else. Every content route is served by the
+ * asset layer without executing a line of this file — which means a parse error
+ * or a module-scope throw here cannot take the site down. That is a failure the
+ * try/catch in fetch() cannot catch, because the module never finishes
+ * evaluating, and it is the reason the scope is worth narrowing.
  *
- * MOVED_PREFIXES is gone — the research tree is served from this site now, so
- * the 301s that stood in for it would be a redirect loop. Two things still need
- * to see every request, which is why this is not scoped to ["/api/*"] (a form
- * this wrangler does support):
+ * Two things used to live here and had to move before that was possible:
  *
- *   REDIRECTS   the exact-match table below, for /connect and /contact.
- *   MAINTENANCE the break-glass switch that serves /503/ for every non-API
- *               path. Scoping it would leave the switch covering only /api/*,
- *               which is the opposite of what a maintenance mode is for.
+ *   REDIRECTS    /connect and /contact -> /handshake/. Now in public/_redirects,
+ *                applied by the asset layer. Query strings survive.
+ *   MAINTENANCE  used to serve /503/ for every non-API path. It cannot see a
+ *                content request any more, so it now gates the input endpoints
+ *                instead — see the check at the top of route().
  *
- * Narrowing the scope is a real hardening — it is what stops a parse or
- * module-scope error in this file from taking the static content down, which
- * the try/catch below cannot catch. But it costs maintenance mode unless that
- * moves to the edge too. Both prerequisites are dashboard work and are written
- * up in docs/redirects.md; do them together, then narrow this in one change.
- *
- * Until then the try/catch in fetch() holds the line for everything short of a
- * module-scope failure: any unexpected throw serves the static asset instead of
- * failing the request.
+ * The try/catch still matters for everything inside a request: an unexpected
+ * throw serves the static asset rather than failing, so a bug in the quote
+ * handler cannot 500 a page that only needed a file.
  *
  * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
@@ -49,7 +41,8 @@
  * Optional:
  *  - TURNSTILE_SECRET Cloudflare Turnstile secret key
  *  - CONTACT_RL       KV namespace binding for rate limiting
- *  - MAINTENANCE      set to "on" to serve /503/ for every non-API request
+ *  - MAINTENANCE      set to "on" to 503 the /api/* endpoints (submissions
+ *                     off; the static site stays up)
  */
 
 interface KVLike {
@@ -126,20 +119,6 @@ const LIMITS = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-/**
- * Retired routes, mapped to whatever replaced them. A static export has no
- * server to answer for a path that no longer builds, so old links would hit
- * the 404 page instead; the Worker runs first, which makes this the only
- * place a permanent redirect can live.
- *
- * /connect and /contact merged into /handshake — one contact page, not two.
- */
-const REDIRECTS: ReadonlyMap<string, string> = new Map([
-  ['/connect', '/handshake/'],
-  ['/connect/', '/handshake/'],
-  ['/contact', '/handshake/'],
-  ['/contact/', '/handshake/'],
-]);
 
 
 const json = (data: unknown, status = 200): Response =>
@@ -202,6 +181,24 @@ export default {
 async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // Maintenance now means "stop accepting submissions", not "take the site
+    // down". run_worker_first is scoped to /api/*, so this script never sees a
+    // content request and could not serve a 503 for one even if it wanted to —
+    // leaving the old whole-site behaviour here would be a switch that silently
+    // did nothing. Gating the two input endpoints is what it can still do, and
+    // it is the more useful half: a static site has no reason to go dark
+    // because Resend or KV is having a bad day, but it should stop taking form
+    // submissions it cannot durably record.
+    //
+    // To take the whole site down, use a Cloudflare rule at the edge — see
+    // docs/redirects.md.
+    if (env.MAINTENANCE === 'on' && url.pathname.startsWith('/api/')) {
+      return json(
+        { ok: false, error: 'Temporarily unavailable. Please try again shortly.' },
+        503,
+      );
+    }
+
     if (url.pathname === '/api/contact' || url.pathname === '/api/contact/') {
       if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
       return handleContact(request, env);
@@ -216,27 +213,11 @@ async function route(request: Request, env: Env): Promise<Response> {
       return json({ ok: false, error: 'Not found.' }, 404);
     }
 
-    const moved = REDIRECTS.get(url.pathname);
-    if (moved) {
-      // Keep the query string: campaign tags and the like should survive the move.
-      const target = new URL(moved, url.origin);
-      target.search = url.search;
-      return new Response(null, {
-        status: 301,
-        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
-      });
-    }
-
-    if (env.MAINTENANCE === 'on') {
-      // Reuse the statically-built /503/ page — including whatever out/_headers
-      // applies to it — so the styling and headers stay in one place.
-      const page = await env.ASSETS.fetch(new URL('/503/', url.origin));
-      const headers = new Headers(page.headers);
-      headers.set('retry-after', '3600');
-      headers.set('cache-control', 'no-store');
-      return new Response(page.body, { status: 503, headers });
-    }
-
+    // Unreachable while run_worker_first is ["/api/*"] — the check above catches
+    // every path this script is invoked for. Kept deliberately: it is the
+    // correct behaviour if the scope is ever widened, and a fallthrough that
+    // serves the asset is a better failure than one that falls off the end of
+    // the function.
     return env.ASSETS.fetch(request);
 }
 

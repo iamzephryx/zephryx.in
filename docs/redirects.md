@@ -87,26 +87,30 @@ http.host eq "security.zephryx.in"
 
 ## After the rules are live
 
-### Narrowing `run_worker_first`
+### Narrowing `run_worker_first` — done
 
-`wrangler.jsonc` still sets `run_worker_first: true`, so every request executes
-`worker/index.ts`. Scoping it to `["/api/*"]` means a parse or module-scope
-error in that file can no longer take the static content down — which the
-worker's own try/catch cannot protect against.
+`wrangler.jsonc` sets `"run_worker_first": ["/api/*"]`. The Worker script runs
+for the two form endpoints and nothing else; every content route is served by
+the asset layer without executing it, so a parse error or a module-scope throw
+in `worker/index.ts` cannot take the site down.
 
-Two things must move to the edge first, because both need to see non-API
-requests:
+Both prerequisites were handled in code rather than left as dashboard work:
 
-- **`REDIRECTS`** in `worker/index.ts` — `/connect` and `/contact` →
-  `/handshake/`. Move to a redirect rule on `zephryx.in` in the same shape as
-  the rules above, then delete the table.
-- **`MAINTENANCE`** — the break-glass switch that serves `/503/` for every
-  non-API path. Scoped, it would only cover `/api/*`, which is the opposite of
-  what a maintenance mode is for. Either accept losing it, or reimplement it at
-  the edge before narrowing.
+- `/connect` and `/contact` → `/handshake/` moved to **`public/_redirects`**,
+  which Workers static assets applies natively. Nothing to configure.
+- `MAINTENANCE` was **rescoped**: `on` now 503s the `/api/*` endpoints rather
+  than serving `/503/` site-wide. It could no longer see a content request, so
+  the old behaviour would have been a switch that silently did nothing.
 
-Do both, then set `"run_worker_first": ["/api/*"]` in one change. The array
-form is supported — verified against the pinned wrangler.
+**To take the whole site down** you now need an edge rule, because no Worker
+code runs for content paths. A Redirect Rule on `zephryx.in` pointing at a
+static holding page is the simplest form; a WAF custom response also works.
+Decide which before you need it — an incident is a bad time to find out the
+break-glass switch changed shape.
+
+**If you add anything to the Worker that must see a content request**, widen
+this back. The narrowing is not free: it trades reach for blast radius, and the
+trade only holds while `/api/*` really is everything the script does.
 
 ### Submit the sitemap
 
@@ -204,7 +208,11 @@ a separate change with its own failure mode.
 
 ## What is deliberately NOT done
 
-`run_worker_first` is still `true`. Narrowing it to `["/api/*"]` needs the
-`REDIRECTS` table and maintenance mode moved to the edge first — see the section
-above. It is a real hardening, not a cleanup, and it should be its own change
-with its own verification rather than a line slipped into the retirement.
+Nothing in the code side remains. `run_worker_first` is narrowed, the redirects
+that had to leave the Worker have left it, and maintenance mode has been
+rescoped rather than quietly broken.
+
+What is left is this file's other three sections — deleting the Workers,
+archiving the repos, resubmitting the sitemap — plus the redirect rules
+themselves. All of it is platform work, and all of it should happen after a
+deploy that has been verified with the curl loop above.
