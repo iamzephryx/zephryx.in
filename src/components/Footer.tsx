@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FOOTER_LINKS, NAV, SITE, SOCIALS } from '@/lib/site';
+import { FOOTER_LINKS, NAV, NETWORK, SITE, SOCIALS } from '@/lib/site';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -91,6 +91,45 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* The three sibling sites, surfaced together. Each does one job; this
+            site is the hub that introduces them, so none is singled out and
+            none is left reachable only from the top nav. */}
+        <div className="mt-12 border-t border-line/60 pt-8">
+          <h3 className="mb-5 font-mono text-[11px] tracking-[0.3em] text-ink-faint">
+            THE ZEPHRYX NETWORK
+          </h3>
+          <ul className="grid gap-3 sm:grid-cols-3">
+            {NETWORK.map((site) => (
+              <li key={site.href}>
+                <a
+                  href={site.href}
+                  target="_blank"
+                  rel="noopener noreferrer external"
+                  className="group flex h-full flex-col border border-line bg-void/40 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:bg-red-ash/10"
+                >
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/80">
+                      {site.label.toUpperCase()}
+                    </span>
+                    <span
+                      className="text-[11px] text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
+                      aria-hidden
+                    >
+                      ↗
+                    </span>
+                  </span>
+                  <span className="mt-2 font-mono text-[13px] text-ink transition-colors group-hover:text-red-blood">
+                    {site.host}
+                  </span>
+                  <span className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                    {site.blurb}
+                  </span>
+                  <span className="sr-only">— leaves zephryx.in, opens in a new tab</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <ul className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line/60 pt-6">
           {FOOTER_LINKS.map((item) => {

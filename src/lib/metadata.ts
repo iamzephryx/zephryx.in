@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE, type Zone, zoneIsExternal } from './site';
+import { SITE } from './site';
 
 /**
  * Next.js metadata merges `openGraph`/`twitter` shallowly: a page that sets
@@ -17,29 +17,11 @@ export function buildMetadata({
   description,
   path,
   type = 'website',
-  publishedTime,
-  tags,
-  zone,
 }: {
   title: string;
   description: string;
   path: string;
   type?: 'website' | 'article';
-  /** Article pages only — writeups and detections carry a publish date. */
-  publishedTime?: string;
-  /** Article pages only — surfaces the content's own tags to crawlers. */
-  tags?: readonly string[];
-  /**
-   * The zone this page belongs to, for pages migrated in from a sibling site.
-   *
-   * While that zone's content is still served from its own hostname, the same
-   * page exists at two addresses with a self-referential canonical on each —
-   * textbook duplicate content. Passing the zone marks this copy `noindex`
-   * until the zone's `migrated` flag flips, at which point the redirect makes
-   * this the only copy and the directive disappears on its own. One flag drives
-   * both, so there is no second thing to remember at cutover.
-   */
-  zone?: Zone;
 }): Metadata {
   const url = `${SITE.url}${path}`;
   // `title` goes through the root layout's `title.template` for the <title>
@@ -49,14 +31,10 @@ export function buildMetadata({
   // Setting openGraph/twitter here replaces the root's wholesale, which also
   // drops the root's auto-wired opengraph-image/twitter-image file-convention
   // images — so every page needs to point back at them explicitly.
-  // A zone still answering on its own hostname has a live twin of this page.
-  const awaitingCutover = zone ? zoneIsExternal(zone) : false;
-
   return {
     title,
     description,
     alternates: { canonical: url },
-    ...(awaitingCutover ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       type,
       locale: SITE.locale,
@@ -64,9 +42,7 @@ export function buildMetadata({
       siteName: SITE.name,
       title: fullTitle,
       description,
-      images: [{ url: `${SITE.url}/opengraph-image`, width: 1200, height: 630, alt: fullTitle }],
-      ...(type === 'article' && publishedTime ? { publishedTime } : {}),
-      ...(tags ? { tags: [...tags] } : {}),
+      images: [{ url: `${SITE.url}/opengraph-image`, width: 1200, height: 630, alt: `${SITE.name} — ${SITE.role}` }],
     },
     twitter: {
       card: 'summary_large_image',
