@@ -104,18 +104,6 @@ export default function Home() {
               see the roadmap
               <span aria-hidden>→</span>
             </Link>
-            {/* The glossary had its own top-level nav entry on the academy site.
-                The consolidation collapsed each zone to a single nav item, so
-                this landing page is now the only route to it — it linked
-                cheatsheets and the roadmap but not the glossary, which left 47
-                terms reachable only from search. */}
-            <Link
-              href="/learn/glossary/"
-              className="inline-flex items-center gap-2 border border-line px-7 py-3.5 font-mono text-sm text-ink-dim transition-colors duration-300 hover:border-red-deep/60 hover:text-red-blood"
-            >
-              read the glossary
-              <span aria-hidden>→</span>
-            </Link>
           </div>
 
           <p className="mt-8 text-[13px] text-ink-faint">

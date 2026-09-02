@@ -368,10 +368,6 @@ export type FooterLink = {
 
 export const FOOTER_LINKS: readonly FooterLink[] = [
   { href: '/security/', label: 'disclosure policy', asset: false, external: false },
-  // The privacy policy was linked from the services site's own footer. That
-  // footer is gone, and unifying them dropped the link — leaving a page with
-  // no route to it on a site that runs two forms collecting personal data.
-  { href: '/privacy/', label: 'privacy', asset: false, external: false },
   { href: '/.well-known/security.txt', label: 'security.txt', asset: true, external: false },
   // The feed moved out with the writeups and detections it carries, so today it
   // is a link to the research host. It does NOT come back as /writeups/feed.xml

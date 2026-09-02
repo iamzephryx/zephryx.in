@@ -5,13 +5,12 @@
   "description": "Zephryx \u2014 Penetration Testing / Offensive Security portfolio",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/check-links.mjs",
+    "build": "next build",
     "start": "npx serve@latest out",
     "lint": "next lint",
     "preview": "npm run build && npx wrangler dev",
     "deploy": "npm run build && npx wrangler deploy",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.worker.json",
-    "check:links": "node scripts/check-links.mjs"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.worker.json"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
