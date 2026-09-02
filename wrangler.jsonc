@@ -5,18 +5,8 @@
   "compatibility_date": "2026-08-06",
   "vars": {
     "CONTACT_TO": "contact@zephryx.in",
-    "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>",
-    "LEAD_TO": "hello@security.zephryx.in",
-    "LEAD_FROM": "Zephryx Security <noreply@mail.zephryx.in>"
+    "CONTACT_FROM": "Zephryx <noreply@mail.zephryx.in>"
   },
-
-  // Carried over verbatim from the Zephryx-Security Worker along with
-  // /api/quote. The ids are the same namespaces, so leads written before the
-  // consolidation stay readable after it — a new namespace would strand them.
-  "kv_namespaces": [
-    { "binding": "LEADS", "id": "677a4d26c51b4ca0b35a8d3785c6dccf" },
-    { "binding": "LEADS_RL", "id": "1513048abd0f4cffa768ee444236d280" }
-  ],
 
   // The public address, pinned here rather than left as dashboard-only state,
   // so the hostname the portfolio hub answers on is reproducible from this repo.
@@ -46,20 +36,7 @@
   "assets": {
     "directory": "out",
     "binding": "ASSETS",
-
-    // Scoped, not blanket. The Worker script runs for the two form endpoints
-    // and nothing else; every content route is served straight from the asset
-    // layer, so a parse error or a module-scope throw in worker/index.ts cannot
-    // take the site down. The try/catch in that file cannot catch that class of
-    // failure, which is exactly why this is scoped rather than left at `true`.
-    //
-    // Prerequisites, both done: the /connect and /contact redirects moved to
-    // public/_redirects (applied by the asset layer), and MAINTENANCE was
-    // rescoped to gate the endpoints rather than the whole site.
-    //
-    // Anything added to this Worker that must see a content request needs this
-    // widened again — which should be a deliberate decision, not a reflex.
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": true,
     "not_found_handling": "404-page"
   },
   "observability": {

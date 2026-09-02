@@ -2,11 +2,8 @@ import Link from 'next/link';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import ZoneLink from '@/components/ZoneLink';
 import { publicToolCount } from '@/lib/arsenal';
-import { getAllWriteups } from '@/lib/writeups';
-import { getDetectionCount } from '@/lib/detections';
-import { SITE, getZone, zoneIsExternal } from '@/lib/site';
+import { NETWORK, SITE } from '@/lib/site';
 
 const ROLES = [
   'penetration_tester',
@@ -17,29 +14,21 @@ const ROLES = [
 ] as const;
 
 /**
- * Every number here is counted from this repo's own files rather than typed in,
- * so the front page can never claim a figure the rest of the site cannot show.
- * That principle is what ruled out the stat these replaced — an engagement
- * count no reader could check and no page could back up.
+ * `tools shipped` is derived from the content it links to rather than typed in,
+ * so the front page can never claim a number the rest of the site cannot show.
+ * That principle is what ruled out the stat this replaced — an engagement count
+ * no reader could check and no page could back up.
  *
- * The writeup and detection counts are back. They were removed when the
- * research corpus moved to its own domain, precisely because this site could no
- * longer recount them; the content is served from here again, so the rule that
- * removed them is now the rule that restores them. `boxes rooted` stays a
- * rounded claim because it is the one figure no page enumerates — if that ever
- * bothers you, the honest fix is to drop it, not to invent a source for it.
+ * The writeup and detection counts that used to sit here are deliberately gone
+ * rather than hardcoded: that content lives on writeups.zephryx.in now, and a
+ * number this site cannot recount from its own files is exactly the kind of
+ * claim the rule above exists to prevent. The research card below links to the
+ * site that can count them.
  */
 const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
-  { value: String(getAllWriteups().length), label: 'writeups published', href: '/writeups/' },
-  { value: String(getDetectionCount()), label: 'detection rules', href: '/detections/' },
-  { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
   { value: '150+', label: 'boxes rooted' },
+  { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
 ];
-
-/** The research zone is referenced from three places on this page, so it is
- *  resolved once here rather than looked up at each call site. */
-const researchZone = getZone('research');
-const researchIsAway = zoneIsExternal(researchZone);
 
 /**
  * Offensive work leads, because that is what the site is about and what a reader
@@ -52,24 +41,24 @@ const QUICK_ACCESS = [
     label: 'Research',
     title: 'Writeups',
     body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
-    zone: researchZone,
-    subpath: '',
+    href: 'https://writeups.zephryx.in/',
+    host: 'writeups.zephryx.in',
   },
   {
     tag: '02',
     label: 'Commercial',
     title: 'Services',
     body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
-    zone: getZone('services'),
-    subpath: '',
+    href: 'https://security.zephryx.in/services/',
+    host: 'security.zephryx.in',
   },
   {
     tag: '03',
     label: 'Education',
     title: 'Free Cheatsheets',
     body: 'Quick-reference PDFs for the tools and techniques that show up in almost every engagement.',
-    zone: getZone('learn'),
-    subpath: 'cheatsheets/',
+    href: 'https://academy.zephryx.in/cheatsheets/',
+    host: 'academy.zephryx.in',
   },
 ] as const;
 
@@ -146,15 +135,18 @@ export default function HomePage() {
               >
                 <span className="relative z-10">./whoami</span>
               </Link>
-              <ZoneLink
-                zone={researchZone}
+              <a
+                href="https://writeups.zephryx.in/"
+                target="_blank"
+                rel="noopener noreferrer external"
                 className="group flex items-center gap-2 px-2 py-3 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
               >
                 read the research
                 <span className="text-[11px] text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5">
-                  {researchIsAway ? `↗ ${researchZone.host}` : researchZone.path}
+                  ↗ writeups.zephryx.in
                 </span>
-              </ZoneLink>
+                <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
+              </a>
             </div>
 
             {/* stats */}
@@ -194,10 +186,11 @@ export default function HomePage() {
             </div>
             <div className="space-y-3">
               {QUICK_ACCESS.map((item) => (
-                <ZoneLink
-                  key={item.zone.id}
-                  zone={item.zone}
-                  subpath={item.subpath}
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer external"
                   className="panel clip-corner group flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
@@ -216,9 +209,10 @@ export default function HomePage() {
                     className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
                     aria-hidden
                   >
-                    {zoneIsExternal(item.zone) ? '↗' : '→'}
+                    ↗
                   </span>
-                </ZoneLink>
+                  <span className="sr-only">— opens {item.host} in a new tab</span>
+                </a>
               ))}
             </div>
           </div>
@@ -231,6 +225,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ============================ NETWORK ============================ */}
+      {/* States the split in one line — the siblings each say it about
+          themselves in their footers; this is the one place the hub says it.
+
+          Rendered from NETWORK rather than written out here. It was hardcoded
+          when this strip was added, at which point the research still lived on
+          this site and there were only two siblings to list — so when the
+          research moved out and became the third, the strip silently kept
+          showing two. One list, one place to add the next one. */}
+      <section className="relative mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-y border-line/70 py-5 font-mono text-[12px]">
+          <span className="tracking-wider text-ink-faint">the zephryx network —</span>
+          <span className="text-ink-dim">
+            <span className="text-ink">portfolio</span> — you're on it
+          </span>
+          {NETWORK.map((site) => (
+            <a
+              key={site.href}
+              href={site.href}
+              target="_blank"
+              rel="noopener noreferrer external"
+              className="group inline-flex items-center gap-1.5 text-ink-dim transition-colors hover:text-red-blood"
+            >
+              {site.label.toLowerCase()}{' '}
+              <span className="text-ink-faint group-hover:text-red-blood/70">→ {site.host}</span>
+              <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
+            </a>
+          ))}
+        </div>
+      </section>
 
       {/* ========================= CAPABILITIES ========================= */}
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8">
@@ -286,29 +310,24 @@ export default function HomePage() {
         </Reveal>
 
         <Reveal>
-          <ZoneLink
-            zone={researchZone}
+          <a
+            href="https://writeups.zephryx.in/"
+            target="_blank"
+            rel="noopener noreferrer external"
             className="panel clip-corner group flex flex-col gap-8 p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-red-deep/70 hover:box-glow sm:p-10 lg:flex-row lg:items-center lg:justify-between"
           >
             <div className="max-w-2xl">
               <span className="font-mono text-[11px] tracking-[0.2em] text-red-blood/80">
-                {researchIsAway ? 'SIBLING SITE — RESEARCH' : 'RESEARCH'}
+                SIBLING SITE — RESEARCH
               </span>
               <p className="mt-4 font-mono text-2xl font-semibold text-ink sm:text-3xl">
-                {researchIsAway ? (
-                  <>
-                    writeups<span className="text-red-blood">.zephryx.in</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-red-blood">/</span>writeups
-                  </>
-                )}
+                writeups<span className="text-red-blood">.zephryx.in</span>
               </p>
               <p className="mt-4 text-sm leading-relaxed text-ink-dim">
-                Everything I've published about breaking in and catching it. Each attack is
-                paired with the rule that would have caught it — and where no rule exists
-                yet, the board says so rather than quietly leaving the cell blank.
+                Everything I've published about breaking in and catching it, on its own
+                domain so it has room to grow. Each attack is paired with the rule that
+                would have caught it — and where no rule exists yet, the board says so
+                rather than quietly leaving the cell blank.
               </p>
 
               <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
@@ -324,10 +343,11 @@ export default function HomePage() {
             <span className="inline-flex shrink-0 items-center gap-2 font-mono text-sm text-red-blood">
               open the research
               <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>
-                {researchIsAway ? '↗' : '→'}
+                ↗
               </span>
             </span>
-          </ZoneLink>
+            <span className="sr-only">— leaves zephryx.in, opens in a new tab</span>
+          </a>
         </Reveal>
       </section>
       {/* ============================= CTA ============================= */}

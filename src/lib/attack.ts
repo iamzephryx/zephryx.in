@@ -9,16 +9,13 @@
  * assigned the single tactic it is most commonly executed under, so any grid
  * built from this shows every technique exactly once.
  *
- * The catalogue, the lookup helpers and the coverage model all live here again.
- * They were split across two repos while the research corpus was on its own
- * domain, which meant this 74-technique list existed twice, verbatim, with
- * nothing checking the two copies against each other. The arsenal pages need
- * the lookup half to label the techniques a tool exercises; /matrix/ needs the
- * coverage half; both read the same catalogue.
+ * The coverage model that used to live here — deriving emulated/detected state
+ * from writeup and detection frontmatter, and backing the /matrix/ board — moved
+ * to writeups.zephryx.in along with the content it reads. What stays is the
+ * lookup half, which the arsenal pages use to label the techniques a tool
+ * exercises. Keep the two catalogues in step if a tool cites a technique the
+ * other site has not catalogued yet.
  */
-
-import { getAllDetections, type DetectionMeta } from './detections';
-import { getAllWriteups, type WriteupMeta } from './writeups';
 
 export type Tactic = {
   id: string;
@@ -155,82 +152,4 @@ export function attackUrl(id: string): string {
 /** Technique name lookup, used to render ids on the arsenal pages. */
 export function techniqueName(id: string): string {
   return BY_ID.get(id)?.name ?? id;
-}
-
-export type CoverageState = 'none' | 'emulated' | 'detected' | 'both';
-
-export type TechniqueCoverage = Technique & {
-  state: CoverageState;
-  /** Writeups that emulate this technique. */
-  writeups: WriteupMeta[];
-  /** Detection rules that provide coverage for it. */
-  detections: DetectionMeta[];
-};
-
-export type TacticColumn = Tactic & {
-  techniques: TechniqueCoverage[];
-};
-
-export type CoverageSummary = {
-  columns: TacticColumn[];
-  total: number;
-  emulated: number;
-  detected: number;
-  both: number;
-  /** Percentage of catalogued techniques with a detection rule. */
-  detectionRate: number;
-};
-
-/**
- * Build the coverage board. Any technique referenced by content but missing
- * from the catalogue throws, so the matrix can never quietly under-report.
- */
-export function getCoverage(): CoverageSummary {
-  const writeups = getAllWriteups();
-  const detections = getAllDetections();
-
-  const emulationIndex = new Map<string, WriteupMeta[]>();
-  const detectionIndex = new Map<string, DetectionMeta[]>();
-
-  const index = <T>(map: Map<string, T[]>, ids: string[], item: T, source: string) => {
-    for (const id of ids) {
-      if (!BY_ID.has(id)) {
-        throw new Error(
-          `${source} references technique "${id}", which is not in the ATT&CK catalogue ` +
-            `(src/lib/attack.ts). Add it there or correct the frontmatter.`,
-        );
-      }
-      const bucket = map.get(id);
-      if (bucket) bucket.push(item);
-      else map.set(id, [item]);
-    }
-  };
-
-  for (const w of writeups) index(emulationIndex, w.techniques, w, `Writeup "${w.slug}"`);
-  for (const d of detections) index(detectionIndex, d.techniques, d, `Detection "${d.slug}"`);
-
-  const covered = TECHNIQUES.map((t): TechniqueCoverage => {
-    const ws = emulationIndex.get(t.id) ?? [];
-    const ds = detectionIndex.get(t.id) ?? [];
-    const state: CoverageState =
-      ws.length && ds.length ? 'both' : ds.length ? 'detected' : ws.length ? 'emulated' : 'none';
-    return { ...t, state, writeups: ws, detections: ds };
-  });
-
-  const columns: TacticColumn[] = TACTICS.map((tactic) => ({
-    ...tactic,
-    techniques: covered.filter((t) => t.tacticId === tactic.id),
-  }));
-
-  const count = (fn: (t: TechniqueCoverage) => boolean) => covered.filter(fn).length;
-  const detected = count((t) => t.state === 'detected' || t.state === 'both');
-
-  return {
-    columns,
-    total: covered.length,
-    emulated: count((t) => t.state === 'emulated' || t.state === 'both'),
-    detected,
-    both: count((t) => t.state === 'both'),
-    detectionRate: Math.round((detected / covered.length) * 100),
-  };
 }

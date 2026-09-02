@@ -3,27 +3,14 @@
  *
  * This project deploys as a static Next.js export (`next build` -> ./out) served
  * by Workers Static Assets, with this single script handling the things static
- * assets can't: the /api/contact and /api/quote endpoints, plus an optional
- * switch that stops them accepting submissions.
+ * assets can't: the /api/contact endpoint, redirects for retired routes, and
+ * (optional) maintenance mode.
  *
- * wrangler.jsonc sets run_worker_first: ["/api/*"], so this script runs for the
- * two form endpoints and nothing else. Every content route is served by the
- * asset layer without executing a line of this file — which means a parse error
- * or a module-scope throw here cannot take the site down. That is a failure the
- * try/catch in fetch() cannot catch, because the module never finishes
- * evaluating, and it is the reason the scope is worth narrowing.
- *
- * Two things used to live here and had to move before that was possible:
- *
- *   REDIRECTS    /connect and /contact -> /handshake/. Now in public/_redirects,
- *                applied by the asset layer. Query strings survive.
- *   MAINTENANCE  used to serve /503/ for every non-API path. It cannot see a
- *                content request any more, so it now gates the input endpoints
- *                instead — see the check at the top of route().
- *
- * The try/catch still matters for everything inside a request: an unexpected
- * throw serves the static asset rather than failing, so a bug in the quote
- * handler cannot 500 a page that only needed a file.
+ * wrangler.jsonc sets run_worker_first: true, so every request reaches fetch()
+ * below. Anything that isn't /api/*, a redirect or a maintenance response falls
+ * straight through to env.ASSETS.fetch(), which serves the static build
+ * (including the automatic out/404.html for unmatched routes, and applies
+ * out/_headers).
  *
  * Security posture for /api/contact (mirrors the previous Pages Function):
  *  - same-origin only (Origin/Referer checked against the deployment host)
@@ -41,8 +28,7 @@
  * Optional:
  *  - TURNSTILE_SECRET Cloudflare Turnstile secret key
  *  - CONTACT_RL       KV namespace binding for rate limiting
- *  - MAINTENANCE      set to "on" to 503 the /api/* endpoints (submissions
- *                     off; the static site stays up)
+ *  - MAINTENANCE      set to "on" to serve /503/ for every non-API request
  */
 
 interface KVLike {
@@ -62,12 +48,6 @@ interface Env {
   TURNSTILE_SECRET?: string;
   CONTACT_RL?: KVLike;
   MAINTENANCE?: string;
-  // --- commercial zone: /services/request/ posts to /api/quote ---
-  LEAD_TO?: string;
-  LEAD_FROM?: string;
-  /** Durable record of a lead. Written BEFORE the notification email is sent. */
-  LEADS?: KVLike;
-  LEADS_RL?: KVLike;
 }
 
 type Body = {
@@ -80,46 +60,59 @@ type Body = {
   turnstileToken?: unknown;
 };
 
-/** POST body for /api/quote — the commercial zone's scoped-engagement form. */
-type QuoteBody = {
-  name?: unknown;
-  email?: unknown;
-  company?: unknown;
-  companySize?: unknown;
-  services?: unknown;
-  message?: unknown;
-  hp?: unknown; // honeypot
-  elapsedMs?: unknown;
-};
-
-/**
- * Shared caps for both input endpoints.
- *
- * /api/contact and /api/quote were separate Workers carrying separate copies of
- * this table, with identical values for every field they had in common. One
- * table means a cap can no longer drift between them. Mirror any change in
- * ContactForm.tsx and QuoteForm.tsx so the client fails fast and identically.
- */
 const LIMITS = {
   name: 80,
   email: 120,
+  subject: 120,
   message: 4000,
   bodyBytes: 16 * 1024,
   minElapsedMs: 2500,
   rlWindowSec: 3600,
   rlMax: 5,
-  /** contact only */
-  subject: 120,
-  /** quote only */
-  company: 100,
-  companySize: 20,
-  maxServices: 8,
-  serviceIdLen: 60,
 } as const;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/**
+ * Retired routes, mapped to whatever replaced them. A static export has no
+ * server to answer for a path that no longer builds, so old links would hit
+ * the 404 page instead; the Worker runs first, which makes this the only
+ * place a permanent redirect can live.
+ *
+ * /connect and /contact merged into /handshake — one contact page, not two.
+ */
+const REDIRECTS: ReadonlyMap<string, string> = new Map([
+  ['/connect', '/handshake/'],
+  ['/connect/', '/handshake/'],
+  ['/contact', '/handshake/'],
+  ['/contact/', '/handshake/'],
+]);
 
+/**
+ * Whole route trees that moved to a sibling domain.
+ *
+ * The research corpus — writeups, the detection library, the ATT&CK board and
+ * the search that spans them — now lives on writeups.zephryx.in. The exact
+ * match map above cannot express that: every writeup and detection slug would
+ * have to be enumerated by hand, and a slug published tomorrow would 404 until
+ * somebody remembered to add it. Matching on the prefix covers the index, every
+ * current slug and every future one.
+ *
+ * Paths are preserved verbatim across the move (/writeups/foo/ is
+ * /writeups/foo/ on the new host), which is what makes this a host swap rather
+ * than a URL migration — every inbound link and search result keeps working.
+ *
+ * /feed.xml goes too: it only ever carried writeups and detections, and the
+ * subscribers polling it should follow the content rather than watch it go
+ * quiet.
+ */
+const MOVED_PREFIXES: ReadonlyArray<{ prefix: string; host: string }> = [
+  { prefix: '/writeups', host: 'https://writeups.zephryx.in' },
+  { prefix: '/detections', host: 'https://writeups.zephryx.in' },
+  { prefix: '/matrix', host: 'https://writeups.zephryx.in' },
+  { prefix: '/search', host: 'https://writeups.zephryx.in' },
+  { prefix: '/feed.xml', host: 'https://writeups.zephryx.in' },
+];
 
 const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
@@ -139,87 +132,57 @@ const escapeHtml = (s: string): string =>
 const str = (v: unknown, max: number): string =>
   typeof v === 'string' ? v.trim().slice(0, max) : '';
 
-/** Loose id shape check — the real allow-list lives in src/lib/site.ts SERVICES;
- * this only guards against garbage/oversized values reaching storage or email. */
-const SERVICE_ID_RE = /^[a-z0-9-]{1,60}$/;
-
-const services = (v: unknown): string[] => {
-  if (!Array.isArray(v)) return [];
-  const out: string[] = [];
-  for (const item of v) {
-    if (typeof item !== 'string') continue;
-    const trimmed = item.trim().slice(0, LIMITS.serviceIdLen);
-    if (SERVICE_ID_RE.test(trimmed)) out.push(trimmed);
-    if (out.length >= LIMITS.maxServices) break;
-  }
-  return out;
-};
-
-
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    try {
-      return await route(request, env);
-    } catch (err) {
-      // Every request currently passes through this script (run_worker_first:
-      // true), so an unhandled throw anywhere above would otherwise take down
-      // pages that need no worker logic at all. Serving the static asset is
-      // strictly better than a 500 on a page that was only ever going to be a
-      // static file. The API paths are excluded because a silent fall-through
-      // there would render the SPA shell in response to a POST, which reads as
-      // success to a form handler.
-      console.error('worker: unhandled error, falling through to assets', err);
-      const { pathname } = new URL(request.url);
-      if (pathname.startsWith('/api/')) {
-        return json({ ok: false, error: 'Something went wrong. Please try again.' }, 500);
-      }
-      return env.ASSETS.fetch(request);
-    }
-  },
-};
-
-async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-
-    // Maintenance now means "stop accepting submissions", not "take the site
-    // down". run_worker_first is scoped to /api/*, so this script never sees a
-    // content request and could not serve a 503 for one even if it wanted to —
-    // leaving the old whole-site behaviour here would be a switch that silently
-    // did nothing. Gating the two input endpoints is what it can still do, and
-    // it is the more useful half: a static site has no reason to go dark
-    // because Resend or KV is having a bad day, but it should stop taking form
-    // submissions it cannot durably record.
-    //
-    // To take the whole site down, use a Cloudflare rule at the edge — see
-    // docs/redirects.md.
-    if (env.MAINTENANCE === 'on' && url.pathname.startsWith('/api/')) {
-      return json(
-        { ok: false, error: 'Temporarily unavailable. Please try again shortly.' },
-        503,
-      );
-    }
 
     if (url.pathname === '/api/contact' || url.pathname === '/api/contact/') {
       if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
       return handleContact(request, env);
     }
 
-    if (url.pathname === '/api/quote' || url.pathname === '/api/quote/') {
-      if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
-      return handleQuote(request, env);
-    }
-
     if (url.pathname.startsWith('/api/')) {
       return json({ ok: false, error: 'Not found.' }, 404);
     }
 
-    // Unreachable while run_worker_first is ["/api/*"] — the check above catches
-    // every path this script is invoked for. Kept deliberately: it is the
-    // correct behaviour if the scope is ever widened, and a fallthrough that
-    // serves the asset is a better failure than one that falls off the end of
-    // the function.
+    const moved = REDIRECTS.get(url.pathname);
+    if (moved) {
+      // Keep the query string: campaign tags and the like should survive the move.
+      const target = new URL(moved, url.origin);
+      target.search = url.search;
+      return new Response(null, {
+        status: 301,
+        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
+      });
+    }
+
+    // Checked after the exact-match table so a specific rename always wins over
+    // a broad tree move, and before ASSETS so these paths never reach the 404.
+    const movedTree = MOVED_PREFIXES.find(
+      (m) => url.pathname === m.prefix || url.pathname.startsWith(`${m.prefix}/`),
+    );
+    if (movedTree) {
+      const target = new URL(url.pathname, movedTree.host);
+      target.search = url.search;
+      return new Response(null, {
+        status: 301,
+        headers: { location: target.toString(), 'cache-control': 'public, max-age=3600' },
+      });
+    }
+
+    if (env.MAINTENANCE === 'on') {
+      // Reuse the statically-built /503/ page — including whatever out/_headers
+      // applies to it — so the styling and headers stay in one place.
+      const page = await env.ASSETS.fetch(new URL('/503/', url.origin));
+      const headers = new Headers(page.headers);
+      headers.set('retry-after', '3600');
+      headers.set('cache-control', 'no-store');
+      return new Response(page.body, { status: 503, headers });
+    }
+
     return env.ASSETS.fetch(request);
-}
+  },
+};
 
 async function handleContact(request: Request, env: Env): Promise<Response> {
   // --- origin check -------------------------------------------------------
@@ -419,184 +382,6 @@ function renderEmail(v: {
         <p style="margin:0 0 6px"><span style="color:#5c6675">subject</span> ${s}</p>
         <p style="margin:0 0 16px"><span style="color:#5c6675">ip</span> ${ip}</p>
         <div style="border-top:1px solid #1c2230;padding-top:16px;line-height:1.7;color:#98a1af">${m}</div>
-      </td></tr>
-      <tr><td style="border-top:1px solid #1c2230;padding:12px 20px;color:#5c6675;font-size:12px">
-        Reply directly to this email to reach ${n}.
-      </td></tr>
-    </table>
-  </body>
-</html>`;
-}
-
-async function handleQuote(request: Request, env: Env): Promise<Response> {
-  // --- origin check -------------------------------------------------------
-  const host = request.headers.get('host') ?? '';
-  const sameSite = (val: string | null): boolean => {
-    if (!val) return false;
-    try {
-      return new URL(val).host === host;
-    } catch {
-      return false;
-    }
-  };
-  if (!(sameSite(request.headers.get('origin')) || sameSite(request.headers.get('referer')))) {
-    return json({ ok: false, error: 'Bad origin.' }, 403);
-  }
-
-  // --- size guard ---------------------------------------------------------
-  if (Number(request.headers.get('content-length') ?? '0') > LIMITS.bodyBytes) {
-    return json({ ok: false, error: 'Payload too large.' }, 413);
-  }
-
-  // --- parse --------------------------------------------------------------
-  let body: QuoteBody;
-  try {
-    const raw = await request.text();
-    if (raw.length > LIMITS.bodyBytes) return json({ ok: false, error: 'Payload too large.' }, 413);
-    body = JSON.parse(raw) as QuoteBody;
-  } catch {
-    return json({ ok: false, error: 'Malformed request.' }, 400);
-  }
-
-  const name = str(body.name, LIMITS.name);
-  const email = str(body.email, LIMITS.email);
-  const company = str(body.company, LIMITS.company);
-  const companySize = str(body.companySize, LIMITS.companySize);
-  const wantedServices = services(body.services);
-  const message = str(body.message, LIMITS.message);
-  const honeypot = str(body.hp, 100);
-  const elapsedMs = typeof body.elapsedMs === 'number' ? body.elapsedMs : 0;
-
-  // --- silent bot rejection ----------------------------------------------
-  if (honeypot.length > 0 || (elapsedMs > 0 && elapsedMs < LIMITS.minElapsedMs)) {
-    return json({ ok: true });
-  }
-
-  // --- validation ---------------------------------------------------------
-  if (name.length < 2) return json({ ok: false, error: 'Name is required.' }, 422);
-  if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'A valid work email is required.' }, 422);
-  if (message.length < 20) return json({ ok: false, error: 'Give a bit more detail on scope.' }, 422);
-
-  if (!(await domainAcceptsMail(email))) {
-    return json(
-      { ok: false, error: "That email domain doesn't appear to accept mail — check for a typo." },
-      422,
-    );
-  }
-
-  // --- rate limit (optional, KV-backed) ----------------------------------
-  const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
-  if (env.LEADS_RL) {
-    const key = `rl:${ip}`;
-    const count = Number((await env.LEADS_RL.get(key)) ?? '0');
-    if (count >= LIMITS.rlMax) {
-      return json({ ok: false, error: 'Too many requests. Try again later.' }, 429);
-    }
-    await env.LEADS_RL.put(key, String(count + 1), { expirationTtl: LIMITS.rlWindowSec });
-  }
-
-  // --- persist ------------------------------------------------------------
-  // This is the durable record; the email below is only a notification, so a
-  // mail failure must not lose a real business inquiry.
-  let stored = false;
-  if (env.LEADS) {
-    try {
-      await env.LEADS.put(
-        `lead:${Date.now()}:${email.toLowerCase()}`,
-        JSON.stringify({ name, email, company, companySize, services: wantedServices, message, ip, at: new Date().toISOString() }),
-      );
-      stored = true;
-    } catch (e) {
-      console.error('leads kv put failed', e);
-    }
-  }
-
-  // --- notify --------------------------------------------------------------
-  if (!env.RESEND_API_KEY || !env.LEAD_TO || !env.LEAD_FROM) {
-    console.error('quote: missing RESEND_API_KEY / LEAD_TO / LEAD_FROM');
-    if (stored) return json({ ok: true });
-    return json(
-      { ok: false, error: 'Request channel not configured. Email hello@security.zephryx.in directly.' },
-      503,
-    );
-  }
-
-  const html = renderQuoteEmail({ name, email, company, companySize, services: wantedServices, message, ip });
-  const text = `New assessment request\n\nName: ${name}\nEmail: ${email}\nCompany: ${company || '(not given)'}\nSize: ${companySize || '(not given)'}\nServices: ${wantedServices.join(', ') || '(none selected)'}\nIP: ${ip}\n\nScope:\n${message}`;
-
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: env.LEAD_FROM,
-        to: [env.LEAD_TO],
-        reply_to: email,
-        subject: `[security] assessment request — ${company || name}`,
-        html,
-        text,
-      }),
-    });
-
-    if (!res.ok) {
-      const detail = await res.text().catch(() => '');
-      console.error('resend error', res.status, detail);
-      if (stored) return json({ ok: true });
-      return json({ ok: false, error: 'Send failed. Please email hello@security.zephryx.in.' }, 502);
-    }
-  } catch (e) {
-    console.error('resend fetch failed', e);
-    if (stored) return json({ ok: true });
-    return json({ ok: false, error: 'Send failed. Please email hello@security.zephryx.in.' }, 502);
-  }
-
-  return json({ ok: true });
-}
-
-/**
- * Confirms the email's domain can plausibly receive mail at all, catching
- * typos and made-up domains without claiming to verify the specific mailbox.
- * Checks MX first, then falls back to A/AAAA per RFC 5321. Fails open on
- * lookup errors — a degraded DNS check should never turn away a real lead.
- */
-
-function renderQuoteEmail(v: {
-  name: string;
-  email: string;
-  company: string;
-  companySize: string;
-  services: string[];
-  message: string;
-  ip: string;
-}): string {
-  const n = escapeHtml(v.name);
-  const e = escapeHtml(v.email);
-  const c = escapeHtml(v.company || '(not given)');
-  const cs = escapeHtml(v.companySize || '(not given)');
-  const svc = escapeHtml(v.services.join(', ') || '(none selected)');
-  const m = escapeHtml(v.message).replace(/\n/g, '<br>');
-  const ip = escapeHtml(v.ip);
-  return `<!doctype html>
-<html>
-  <body style="margin:0;background:#06070a;font-family:ui-monospace,Menlo,monospace;color:#e8ebef;padding:24px">
-    <table role="presentation" style="max-width:560px;margin:0 auto;border:1px solid #1c2230;background:#0a0c11">
-      <tr><td style="border-bottom:1px solid #1c2230;padding:14px 20px;color:#ff2d4b;font-weight:bold">
-        security.zephryx.in — assessment request
-      </td></tr>
-      <tr><td style="padding:20px">
-        <p style="margin:0 0 6px"><span style="color:#5c6675">name</span> ${n}</p>
-        <p style="margin:0 0 6px"><span style="color:#5c6675">email</span> ${e}</p>
-        <p style="margin:0 0 6px"><span style="color:#5c6675">company</span> ${c}</p>
-        <p style="margin:0 0 6px"><span style="color:#5c6675">size</span> ${cs}</p>
-        <p style="margin:0 0 16px"><span style="color:#5c6675">ip</span> ${ip}</p>
-        <p style="margin:0 0 6px;color:#5c6675">services requested</p>
-        <p style="margin:0 0 16px">${svc}</p>
-        <div style="border-top:1px solid #1c2230;padding-top:16px;line-height:1.7;color:#98a1af">
-          <span style="color:#5c6675">scope</span><br>${m}
-        </div>
       </td></tr>
       <tr><td style="border-top:1px solid #1c2230;padding:12px 20px;color:#5c6675;font-size:12px">
         Reply directly to this email to reach ${n}.

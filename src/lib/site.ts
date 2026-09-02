@@ -181,118 +181,6 @@ export const MAILBOXES: MailBox[] = [
 ];
 
 /**
- * The four content zones, and where each one currently answers.
- *
- * The network has been consolidated from four hostnames onto this one. All
- * four zones are served from here; the sibling hostnames now only carry
- * permanent redirects (see docs/redirects.md).
- *
- * `migrated` is kept rather than deleted: it is the switch that makes a zone's
- * links, canonicals and indexability agree with where the zone actually is, and
- * it is how the next zone — if one is ever split out or brought in — gets moved
- * without another hunt through the tree. A zone is in one of two states:
- *
- *   migrated: false  the zone still lives on its own hostname. Links to it
- *                    resolve to `host` and render as external (new tab, glyph).
- *   migrated: true   the zone is served from this site. Links resolve to
- *                    `path` and render as ordinary internal routes.
- *
- * Everything that links to a zone — the nav, the footer's network block, the
- * homepage cards — reads `zoneHref()` instead of writing a hostname out. Moving
- * a zone onto this site is then a one-line change here, not a hunt for
- * hardcoded hosts across the tree. That hunt is exactly what broke two links on
- * a sibling's /about/ when the research corpus moved the first time.
- *
- * `path` is already the post-migration URL even while `migrated` is false, so
- * the target route is documented here before it exists.
- */
-export type Zone = {
-  id: string;
-  /** Nav label — the plain word, which has to work for a first-time visitor. */
-  label: string;
-  /** Terminal name for the same destination, rendered in the dim slot beside it. */
-  cmd: string;
-  /** Where the zone answers once it lives on this site. */
-  path: string;
-  /** The hostname it answers on until then. */
-  host: string;
-  /** Short label for the footer's network block. */
-  kind: string;
-  /** What the zone is for, in a few words — a bare hostname makes a reader guess. */
-  blurb: string;
-  migrated: boolean;
-};
-
-/**
- * Order is nav order, and it is audience order rather than site-history order:
- * research first because it is what most visitors arrive for, then the free
- * material, then the proof-of-work, then the commercial pages. The nav used to
- * be shaped by which of four sites a link went to, which only made sense to
- * someone who already knew the network existed.
- */
-export const ZONES: readonly Zone[] = [
-  {
-    id: 'research',
-    label: 'Writeups',
-    cmd: 'cat',
-    path: '/writeups/',
-    host: 'writeups.zephryx.in',
-    kind: 'Research',
-    blurb: 'Writeups, detection rules, and the ATT&CK coverage board.',
-    migrated: true,
-  },
-  {
-    id: 'learn',
-    label: 'Academy',
-    cmd: 'train',
-    path: '/learn/',
-    host: 'academy.zephryx.in',
-    kind: 'Training',
-    blurb: 'Hands-on offensive security tracks and free cheatsheets.',
-    migrated: true,
-  },
-  {
-    id: 'arsenal',
-    label: 'Tools & CVEs',
-    cmd: 'arsenal',
-    path: '/arsenal/',
-    host: 'zephryx.in',
-    kind: 'Tooling',
-    blurb: 'Open-source recon and detection-engineering tools, and the CVEs behind them.',
-    migrated: true,
-  },
-  {
-    id: 'services',
-    label: 'Services',
-    cmd: 'pentest',
-    path: '/services/',
-    host: 'security.zephryx.in',
-    kind: 'Services',
-    blurb: 'Penetration testing for startups and growing businesses.',
-    migrated: true,
-  },
-];
-
-/** Resolve a zone to a URL: its own path once migrated, its hostname until then. */
-export function zoneHref(zone: Zone, subpath = ''): string {
-  const tail = subpath.replace(/^\//, '');
-  return zone.migrated ? `${zone.path}${tail}` : `https://${zone.host}/${tail}`;
-}
-
-/** A zone is an off-site link exactly while it has not been migrated. */
-export function zoneIsExternal(zone: Zone): boolean {
-  return !zone.migrated;
-}
-
-/** Look a zone up by id. Throws rather than returning undefined — a typo here
- *  should fail the build, not render a dead link. */
-export function getZone(id: string): Zone {
-  const found = ZONES.find((z) => z.id === id);
-  if (!found) throw new Error(`Unknown zone "${id}" (see ZONES in src/lib/site.ts).`);
-  return found;
-}
-
-/**
  * Primary navigation.
  *
  * `label` is the plain word — it has to tell a first-time visitor where the
@@ -310,42 +198,38 @@ export function getZone(id: string): Zone {
  * content index links into it, so a seventh word in the bar would be
  * redundant.
  *
- * `external` marks a link to a different origin (a zone that has not moved onto
- * this site yet) — rendered as a plain anchor opened in a new tab, same as
+ * `external` marks a link to a different origin (a sibling site, not a page
+ * on this one) — rendered as a plain anchor opened in a new tab, same as
  * `FOOTER_LINKS`, so it never enters client-side routing and never carries a
- * reader away from whatever they were reading. It is derived from the zone's
- * `migrated` flag rather than set by hand; see ZONES above.
+ * reader away from whatever they were reading.
  */
-export type NavItem = {
-  href: string;
-  label: string;
-  cmd: string;
-  primary: boolean;
-  external: boolean;
-};
-
-/**
- * Zone entries are derived from ZONES rather than written out, in ZONES order,
- * so the nav is shaped by what a visitor wants rather than by which of four
- * sites a link used to point at. Reorder ZONES to reorder the nav.
- */
-export const NAV: readonly NavItem[] = [
+export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false, external: false },
-  ...ZONES.map(
-    (z): NavItem => ({
-      href: zoneHref(z),
-      label: z.label,
-      cmd: z.cmd,
-      primary: true,
-      external: zoneIsExternal(z),
-    }),
-  ),
-  // About sits after the zones rather than before them: a first-time visitor
-  // came for the work, not the biography, and the wordmark already leads the
-  // row. Contact is last because Nav pulls it out as the CTA button.
   { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
+  { href: '/arsenal/', label: 'Tools & CVEs', cmd: 'arsenal', primary: true, external: false },
+  {
+    href: 'https://writeups.zephryx.in/',
+    label: 'Writeups',
+    cmd: 'cat',
+    primary: true,
+    external: true,
+  },
+  {
+    href: 'https://academy.zephryx.in/',
+    label: 'Academy',
+    cmd: 'train',
+    primary: true,
+    external: true,
+  },
+  {
+    href: 'https://security.zephryx.in/',
+    label: 'Services',
+    cmd: 'pentest',
+    primary: true,
+    external: true,
+  },
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true, external: false },
-];
+] as const;
 
 /**
  * Secondary destinations: reachable from the footer and the terminal,
@@ -359,28 +243,49 @@ export const NAV: readonly NavItem[] = [
  * file on this one) — also a plain anchor for the same reason, but opened in
  * a new tab so it doesn't carry a reader away from whatever they were reading.
  */
-export type FooterLink = {
-  href: string;
-  label: string;
-  asset: boolean;
-  external: boolean;
-};
-
-export const FOOTER_LINKS: readonly FooterLink[] = [
+export const FOOTER_LINKS = [
   { href: '/security/', label: 'disclosure policy', asset: false, external: false },
   { href: '/.well-known/security.txt', label: 'security.txt', asset: true, external: false },
-  // The feed moved out with the writeups and detections it carries, so today it
-  // is a link to the research host. It does NOT come back as /writeups/feed.xml
-  // though — a feed belongs at the site root — so this resolves to /feed.xml
-  // rather than going through zoneHref()'s subpath form.
+  // The feed moved with the writeups and detections it carries. The Worker
+  // still 301s /feed.xml for existing subscribers, but a link rendered today
+  // should point at where the content actually is rather than take the hop.
   {
-    href: zoneIsExternal(getZone('research'))
-      ? `https://${getZone('research').host}/feed.xml`
-      : '/feed.xml',
+    href: 'https://writeups.zephryx.in/feed.xml',
     label: 'rss feed',
     asset: false,
-    external: zoneIsExternal(getZone('research')),
+    external: true,
   },
-];
+] as const;
 
-
+/**
+ * The rest of the network, for the footer's cross-site block.
+ *
+ * Each sibling does exactly one job, and this site is the hub that introduces
+ * them — so all three are surfaced together rather than one being singled out.
+ * The footer used to carry a lone card for the pentest business, which left
+ * Academy and the research site reachable only from the top nav.
+ *
+ * `blurb` is what the site is *for*, in a few words. It exists because a bare
+ * hostname makes a reader guess, and three hostnames off the same domain are
+ * exactly the case where guessing goes wrong.
+ */
+export const NETWORK = [
+  {
+    href: 'https://writeups.zephryx.in/',
+    host: 'writeups.zephryx.in',
+    label: 'Research',
+    blurb: 'Writeups, detection rules, and the ATT&CK coverage board.',
+  },
+  {
+    href: 'https://academy.zephryx.in/',
+    host: 'academy.zephryx.in',
+    label: 'Training',
+    blurb: 'Hands-on offensive security tracks and free cheatsheets.',
+  },
+  {
+    href: 'https://security.zephryx.in/',
+    host: 'security.zephryx.in',
+    label: 'Services',
+    blurb: 'Penetration testing for startups and growing businesses.',
+  },
+] as const;
