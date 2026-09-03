@@ -75,10 +75,28 @@ Rules the implementation follows, worth keeping if you extend it:
 
 ## Other things worth knowing
 
-- The interactive terminal that used to sit in the homepage hero is gone —
-  replaced by the "Quick Access" cards to the three sibling sites. Don't
-  resurrect it; if a homepage needs something interactive again, that's a new
-  decision, not a revert.
+- The homepage hero's right column has had two different jobs. First an
+  interactive terminal (removed — don't resurrect it; a homepage needing
+  something interactive again is a new decision, not a revert). Then "Quick
+  Access" cards to the three sibling sites (also removed): the primary nav
+  already puts Writeups/Academy/Services one click away on every page, and
+  the hero repeating that same list — alongside a hero CTA that pointed at
+  writeups specifically, and a "the zephryx network" strip lower on the same
+  page restating it a third time — was the same three links said four times
+  in one scroll, none of it proof of anything. The slot now shows a live
+  preview of `getPublicTools()`, pulled from `src/lib/arsenal.ts`, with a CTA
+  pointing at `/arsenal/` instead of a sibling. If the tool count changes,
+  this panel updates itself — nothing to touch here.
+- Only one homepage section still argues for a sibling site: `RESEARCH` links
+  to writeups.zephryx.in with real framing copy explaining why it's worth the
+  trip. That one stays — it's an argued case, not a restated link — but don't
+  add a second one for Academy or Services without a similarly considered
+  reason; the point was one deliberate mention, not zero.
+- `Footer.tsx` renders its own "THE ZEPHRYX NETWORK" card grid from
+  `NETWORK` in `site.ts`, independent of anything on this page — that one
+  was intentionally left alone here since it's a footer-native device on
+  every page, not a homepage-hero problem. Worth a second look if the same
+  redundancy question comes up again.
 - The build is the validator: a malformed ATT&CK id or an unknown technique
   fails `npm run build` rather than shipping a quiet gap.
 - `npm run lint` is not usable — there's no ESLint config, so `next lint` drops

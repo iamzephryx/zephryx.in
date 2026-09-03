@@ -2,8 +2,8 @@ import Link from 'next/link';
 import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
-import { publicToolCount } from '@/lib/arsenal';
-import { NETWORK, SITE } from '@/lib/site';
+import { publicToolCount, getPublicTools } from '@/lib/arsenal';
+import { SITE } from '@/lib/site';
 
 const ROLES = [
   'penetration_tester',
@@ -35,33 +35,6 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
  * came for. The detection card closes the set rather than opening it — it is the
  * last move in the loop, not a second discipline competing for the front page.
  */
-const QUICK_ACCESS = [
-  {
-    tag: '01',
-    label: 'Research',
-    title: 'Writeups',
-    body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
-    href: 'https://writeups.zephryx.in/',
-    host: 'writeups.zephryx.in',
-  },
-  {
-    tag: '02',
-    label: 'Commercial',
-    title: 'Services',
-    body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
-    href: 'https://security.zephryx.in/services/',
-    host: 'security.zephryx.in',
-  },
-  {
-    tag: '03',
-    label: 'Education',
-    title: 'Free Cheatsheets',
-    body: 'Quick-reference PDFs for the tools and techniques that show up in almost every engagement.',
-    href: 'https://academy.zephryx.in/cheatsheets/',
-    host: 'academy.zephryx.in',
-  },
-] as const;
-
 const CAPABILITIES = [
   {
     tag: 'AD',
@@ -84,6 +57,7 @@ const CAPABILITIES = [
 ];
 
 export default function HomePage() {
+  const tools = getPublicTools();
 
   return (
     <>
@@ -135,18 +109,15 @@ export default function HomePage() {
               >
                 <span className="relative z-10">./whoami</span>
               </Link>
-              <a
-                href="https://writeups.zephryx.in/"
-                target="_blank"
-                rel="noopener noreferrer external"
+              <Link
+                href="/arsenal/"
                 className="group flex items-center gap-2 px-2 py-3 font-mono text-sm text-ink-dim transition-colors hover:text-red-blood"
               >
-                read the research
+                browse the arsenal
                 <span className="text-[11px] text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5">
-                  ↗ writeups.zephryx.in
+                  →
                 </span>
-                <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
-              </a>
+              </Link>
             </div>
 
             {/* stats */}
@@ -179,40 +150,46 @@ export default function HomePage() {
             </dl>
           </div>
 
-          {/* right: quick access */}
+          {/* right: arsenal preview — replaced the "Quick Access" cards to the
+              three sibling sites. Nav already puts Writeups/Academy/Services
+              one click away from every page on this domain; stacking a second
+              copy of the same three links in the hero was that reach stated
+              twice in the same breath, without showing anything this domain
+              actually made. Real, on-domain proof of work earns the slot
+              better — see CLAUDE.md for the fuller reasoning. */}
           <div className="anim-rise lg:pl-4" style={{ animationDelay: '0.15s' }}>
             <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-ink-faint">
-              <span className="tracking-wider">// QUICK ACCESS</span>
+              <span className="tracking-wider">// ARSENAL</span>
+              <Link href="/arsenal/" className="text-ink-faint transition-colors hover:text-red-blood">
+                view all →
+              </Link>
             </div>
             <div className="space-y-3">
-              {QUICK_ACCESS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer external"
+              {tools.map((tool) => (
+                <Link
+                  key={tool.id}
+                  href={`/arsenal/${tool.id}/`}
                   className="panel clip-corner group flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
-                    {item.tag}
+                    {tool.name.slice(0, 2).toUpperCase()}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="font-mono text-sm font-semibold text-ink">{item.title}</span>
+                      <span className="font-mono text-sm font-semibold text-ink">{tool.name}</span>
                       <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/70">
-                        {item.label.toUpperCase()}
+                        {tool.language.toUpperCase()}
                       </span>
                     </span>
-                    <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{item.body}</span>
+                    <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{tool.tagline}</span>
                   </span>
                   <span
                     className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
                     aria-hidden
                   >
-                    ↗
+                    →
                   </span>
-                  <span className="sr-only">— opens {item.host} in a new tab</span>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -222,37 +199,6 @@ export default function HomePage() {
         <div className="pointer-events-none absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex">
           <span className="font-mono text-[10px] tracking-[0.3em] text-ink-faint">SCROLL</span>
           <span className="h-8 w-px bg-gradient-to-b from-red-blood/60 to-transparent" />
-        </div>
-      </section>
-
-      {/* ============================ NETWORK ============================ */}
-      {/* States the split in one line — the siblings each say it about
-          themselves in their footers; this is the one place the hub says it.
-
-          Rendered from NETWORK rather than written out here. It was hardcoded
-          when this strip was added, at which point the research still lived on
-          this site and there were only two siblings to list — so when the
-          research moved out and became the third, the strip silently kept
-          showing two. One list, one place to add the next one. */}
-      <section className="relative mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-y border-line/70 py-5 font-mono text-[12px]">
-          <span className="tracking-wider text-ink-faint">the zephryx network —</span>
-          <span className="text-ink-dim">
-            <span className="text-ink">portfolio</span> — you're on it
-          </span>
-          {NETWORK.map((site) => (
-            <a
-              key={site.href}
-              href={site.href}
-              target="_blank"
-              rel="noopener noreferrer external"
-              className="group inline-flex items-center gap-1.5 text-ink-dim transition-colors hover:text-red-blood"
-            >
-              {site.label.toLowerCase()}{' '}
-              <span className="text-ink-faint group-hover:text-red-blood/70">→ {site.host}</span>
-              <span className="sr-only"> — leaves zephryx.in, opens in a new tab</span>
-            </a>
-          ))}
         </div>
       </section>
 
