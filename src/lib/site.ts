@@ -5,20 +5,23 @@
 
 export const SITE = {
   /**
-   * `name` is the brand and stays the handle — it is the wordmark, the page
-   * titles and the terminal prompt, and renaming it would throw away the
-   * recognition the handle already has.
+   * `name` is the whole identity, not just a wordmark. This site presents one
+   * person under one name — Zephryx — on every surface: the schema.org Person
+   * entity, the whoami id card, the copyright line, the page titles and the
+   * terminal prompt.
    *
-   * `legalName` is the human. It exists because search engines resolve a site
-   * to a *person*, and a Person entity with only a handle has no one to bind
-   * to: Google filled that gap by attributing this site to an unrelated founder
-   * of a similarly named company. It backs the schema.org `name`, the whoami
-   * id card and the copyright line, so the claim is corroborated in structured
-   * data and in visible text rather than asserted in one place.
+   * There is deliberately **no legal-name field**, and adding one back is not
+   * a gap to fill. A handle-only Person entity is a weaker thing for a search
+   * engine to bind to than a legal name would be — that is the accepted cost
+   * of publishing under a pseudonym. The answer is to corroborate *this* name
+   * harder: the same `sameAs` profile set everywhere, and the same Person
+   * repeated on the sibling domains so four hosts resolve to one author.
+   *
+   * `aliases` backs schema.org `alternateName`, so it lists the other strings
+   * people use for the same person — never `name` itself.
    */
   name: 'Zephryx',
-  legalName: 'Mihir Sarwan',
-  aliases: ['Zephryx', 'Zeph'],
+  aliases: ['Zeph', 'iamzephryx'],
   handle: 'zephryx',
   /**
    * Three claims, deliberately kept apart.
