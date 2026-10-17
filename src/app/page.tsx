@@ -30,6 +30,38 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
 ];
 
+/**
+ * The three sibling sites, linked straight under the hero now that the hero's
+ * right column carries the portrait. Services is listed unconditionally, unlike
+ * the nav and footer: this strip is a map of the network, not a sales prompt.
+ */
+const NETWORK_STRIP = [
+  {
+    tag: '01',
+    label: 'Research',
+    title: 'Writeups',
+    body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
+    href: 'https://writeups.zephryx.in/',
+    host: 'writeups.zephryx.in',
+  },
+  {
+    tag: '02',
+    label: 'Education',
+    title: 'Academy',
+    body: 'Hands-on offensive security tracks and free cheatsheets for the tools that show up in almost every engagement.',
+    href: 'https://academy.zephryx.in/',
+    host: 'academy.zephryx.in',
+  },
+  {
+    tag: '03',
+    label: 'Commercial',
+    title: 'Services',
+    body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
+    href: 'https://security.zephryx.in/services/',
+    host: 'security.zephryx.in',
+  },
+] as const;
+
 const CAPABILITIES = [
   {
     tag: 'AD',
@@ -211,6 +243,41 @@ export default function HomePage() {
           <span className="font-mono text-[10px] tracking-[0.3em] text-ink-faint">SCROLL</span>
           <span className="h-8 w-px bg-gradient-to-b from-red-blood/60 to-transparent" />
         </div>
+      </section>
+
+      {/* ========================= NETWORK STRIP ========================= */}
+      <section className="relative mx-auto max-w-7xl px-5 pb-8 sm:px-8" aria-label="The zephryx network">
+        <Reveal>
+          <p className="mb-3 font-mono text-[11px] tracking-wider text-ink-faint">// THE ZEPHRYX NETWORK</p>
+          <div className="grid gap-3 md:grid-cols-3">
+            {NETWORK_STRIP.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer external"
+                className="panel clip-corner group flex items-start gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
+                  {item.tag}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="font-mono text-sm font-semibold text-ink">{item.title}</span>
+                    <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/70">
+                      {item.label.toUpperCase()}
+                    </span>
+                  </span>
+                  <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{item.body}</span>
+                  <span className="mt-2 block font-mono text-[11px] text-ink-faint transition-colors group-hover:text-red-blood">
+                    ↗ {item.host}
+                  </span>
+                </span>
+                <span className="sr-only">— opens {item.host} in a new tab</span>
+              </a>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/* ========================= CAPABILITIES ========================= */}
