@@ -203,6 +203,15 @@ export const MAILBOXES: MailBox[] = [
  * `FOOTER_LINKS`, so it never enters client-side routing and never carries a
  * reader away from whatever they were reading.
  */
+/**
+ * Whether the pentest business is taking work. `false` hides the Services nav
+ * entry and the homepage's Services card, swaps the availability badge (page
+ * and OG image) and drops the services-oriented CTA copy. `true` restores all
+ * of it. Read at build time — it's a static export, so flipping it means a
+ * rebuild and redeploy.
+ */
+export const SERVICES_OPEN = false;
+
 export const NAV = [
   { href: '/', label: 'Home', cmd: '~', primary: false, external: false },
   { href: '/whoami/', label: 'About', cmd: 'whoami', primary: true, external: false },
@@ -221,13 +230,17 @@ export const NAV = [
     primary: true,
     external: true,
   },
-  {
-    href: 'https://security.zephryx.in/',
-    label: 'Services',
-    cmd: 'pentest',
-    primary: true,
-    external: true,
-  },
+  ...(SERVICES_OPEN
+    ? [
+        {
+          href: 'https://security.zephryx.in/',
+          label: 'Services',
+          cmd: 'pentest',
+          primary: true,
+          external: true,
+        },
+      ]
+    : []),
   { href: '/handshake/', label: 'Contact', cmd: 'handshake', primary: true, external: false },
 ] as const;
 
