@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { SITE } from '@/lib/site';
+import { SERVICES_OPEN, SITE } from '@/lib/site';
 
 /**
  * Static social-preview card. No dynamic params, so `output: 'export'` bakes
@@ -78,7 +78,7 @@ export default function OgImage() {
           }}
         >
           <div style={{ width: 9, height: 9, borderRadius: 999, background: '#29d391', display: 'flex' }} />
-          AVAILABLE FOR PENETRATION TESTING WORK
+          {SERVICES_OPEN ? 'AVAILABLE FOR PENETRATION TESTING WORK' : 'RESEARCH & LAB WORK'}
         </div>
 
         {/* wordmark */}

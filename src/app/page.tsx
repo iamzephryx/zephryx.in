@@ -3,7 +3,7 @@ import TypeCycle from '@/components/TypeCycle';
 import Reveal from '@/components/Reveal';
 import SectionHeading from '@/components/SectionHeading';
 import { publicToolCount } from '@/lib/arsenal';
-import { SITE } from '@/lib/site';
+import { SERVICES_OPEN, SITE } from '@/lib/site';
 
 const ROLES = [
   'penetration_tester',
@@ -35,9 +35,8 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
  * came for. The detection card closes the set rather than opening it — it is the
  * last move in the loop, not a second discipline competing for the front page.
  */
-const QUICK_ACCESS = [
+const ALL_QUICK_ACCESS = [
   {
-    tag: '01',
     label: 'Research',
     title: 'Writeups',
     body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
@@ -45,7 +44,6 @@ const QUICK_ACCESS = [
     host: 'writeups.zephryx.in',
   },
   {
-    tag: '02',
     label: 'Commercial',
     title: 'Services',
     body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
@@ -53,7 +51,6 @@ const QUICK_ACCESS = [
     host: 'security.zephryx.in',
   },
   {
-    tag: '03',
     label: 'Education',
     title: 'Free Cheatsheets',
     body: 'Quick-reference PDFs for the tools and techniques that show up in almost every engagement.',
@@ -61,6 +58,12 @@ const QUICK_ACCESS = [
     host: 'academy.zephryx.in',
   },
 ] as const;
+
+// The Services card only shows while SERVICES_OPEN. Tags are numbered by
+// position afterwards so hiding a card never leaves a 01 / 03 gap.
+const QUICK_ACCESS = ALL_QUICK_ACCESS.filter(
+  (item) => SERVICES_OPEN || item.title !== 'Services',
+).map((item, i) => ({ ...item, tag: String(i + 1).padStart(2, '0') }));
 
 const CAPABILITIES = [
   {
@@ -97,7 +100,7 @@ export default function HomePage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
               </span>
-              AVAILABLE FOR PENETRATION TESTING WORK
+              {SERVICES_OPEN ? 'AVAILABLE FOR PENETRATION TESTING WORK' : 'RESEARCH & LAB WORK'}
             </div>
 
             <p className="mb-4 font-mono text-sm text-ink-dim">
@@ -334,13 +337,23 @@ export default function HomePage() {
               <span className="animate-blink">▌</span> connection_request --from you
             </p>
             <h2 className="relative mt-4 font-mono text-3xl font-bold tracking-tight text-ink sm:text-5xl">
-              Got something for me to <span className="text-red-blood text-glow">break</span>?
+              {SERVICES_OPEN ? (
+                <>
+                  Got something for me to <span className="text-red-blood text-glow">break</span>?
+                </>
+              ) : (
+                <>
+                  Talks, <span className="text-red-blood text-glow">collaboration</span>, research.
+                </>
+              )}
             </h2>
-            <p className="relative mx-auto mt-5 max-w-xl text-ink-dim">
-              A penetration test, someone to sanity-check your detection coverage,
-              or just a talk for your team — tell me what you're actually
-              trying to solve and we'll figure out if I'm the right fit.
-            </p>
+            {SERVICES_OPEN ? (
+              <p className="relative mx-auto mt-5 max-w-xl text-ink-dim">
+                A penetration test, someone to sanity-check your detection coverage,
+                or just a talk for your team — tell me what you're actually
+                trying to solve and we'll figure out if I'm the right fit.
+              </p>
+            ) : null}
             {/* One destination, one button. A second CTA pointing at
                 /handshake/#channels used to be a real shortcut — the socials
                 sat below the form and the mailbox rail. They now lead that
