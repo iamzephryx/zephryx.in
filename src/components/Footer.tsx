@@ -98,7 +98,7 @@ export default function Footer() {
           <h3 className="mb-5 font-mono text-[11px] tracking-[0.3em] text-ink-faint">
             THE ZEPHRYX NETWORK
           </h3>
-          <ul className="grid gap-3 sm:grid-cols-3">
+          <ul className={`grid gap-3 ${NETWORK.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
             {NETWORK.map((site) => (
               <li key={site.href}>
                 <a

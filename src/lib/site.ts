@@ -295,10 +295,14 @@ export const NETWORK = [
     label: 'Training',
     blurb: 'Hands-on offensive security tracks and free cheatsheets.',
   },
-  {
-    href: 'https://security.zephryx.in/',
-    host: 'security.zephryx.in',
-    label: 'Services',
-    blurb: 'Penetration testing for startups and growing businesses.',
-  },
+  ...(SERVICES_OPEN
+    ? [
+        {
+          href: 'https://security.zephryx.in/',
+          host: 'security.zephryx.in',
+          label: 'Services',
+          blurb: 'Penetration testing for startups and growing businesses.',
+        },
+      ]
+    : []),
 ] as const;
