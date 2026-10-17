@@ -30,41 +30,6 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
   { value: String(publicToolCount()), label: 'tools shipped', href: '/arsenal/' },
 ];
 
-/**
- * Offensive work leads, because that is what the site is about and what a reader
- * came for. The detection card closes the set rather than opening it — it is the
- * last move in the loop, not a second discipline competing for the front page.
- */
-const ALL_QUICK_ACCESS = [
-  {
-    label: 'Research',
-    title: 'Writeups',
-    body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
-    href: 'https://writeups.zephryx.in/',
-    host: 'writeups.zephryx.in',
-  },
-  {
-    label: 'Commercial',
-    title: 'Services',
-    body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
-    href: 'https://security.zephryx.in/services/',
-    host: 'security.zephryx.in',
-  },
-  {
-    label: 'Education',
-    title: 'Free Cheatsheets',
-    body: 'Quick-reference PDFs for the tools and techniques that show up in almost every engagement.',
-    href: 'https://academy.zephryx.in/cheatsheets/',
-    host: 'academy.zephryx.in',
-  },
-] as const;
-
-// The Services card only shows while SERVICES_OPEN. Tags are numbered by
-// position afterwards so hiding a card never leaves a 01 / 03 gap.
-const QUICK_ACCESS = ALL_QUICK_ACCESS.filter(
-  (item) => SERVICES_OPEN || item.title !== 'Services',
-).map((item, i) => ({ ...item, tag: String(i + 1).padStart(2, '0') }));
-
 const CAPABILITIES = [
   {
     tag: 'AD',
@@ -182,41 +147,20 @@ export default function HomePage() {
             </dl>
           </div>
 
-          {/* right: quick access */}
-          <div className="anim-rise lg:pl-4" style={{ animationDelay: '0.15s' }}>
-            <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-ink-faint">
-              <span className="tracking-wider">// QUICK ACCESS</span>
-            </div>
-            <div className="space-y-3">
-              {QUICK_ACCESS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer external"
-                  className="panel clip-corner group flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
-                    {item.tag}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="font-mono text-sm font-semibold text-ink">{item.title}</span>
-                      <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/70">
-                        {item.label.toUpperCase()}
-                      </span>
-                    </span>
-                    <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{item.body}</span>
-                  </span>
-                  <span
-                    className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
-                    aria-hidden
-                  >
-                    ↗
-                  </span>
-                  <span className="sr-only">— opens {item.host} in a new tab</span>
-                </a>
-              ))}
+          {/* right: portrait, same card as /whoami/ */}
+          <div className="anim-rise flex justify-center lg:justify-end lg:pr-8" style={{ animationDelay: '0.15s' }}>
+            <div className="panel clip-corner scanlines relative w-64 overflow-hidden sm:w-80 lg:w-96">
+              <img
+                src="/whoami/operator.webp"
+                alt={`Portrait of ${SITE.name}`}
+                width={1000}
+                height={1000}
+                className="block h-auto w-full"
+              />
+              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between border-t border-line bg-void/80 px-3 py-2 font-mono text-[10px] tracking-wider text-ink-faint backdrop-blur">
+                <span>operator.webp</span>
+                <span className="text-signal">verified</span>
+              </div>
             </div>
           </div>
         </div>
