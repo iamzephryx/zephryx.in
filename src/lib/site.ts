@@ -9,15 +9,12 @@ export const SITE = {
    * titles and the terminal prompt, and renaming it would throw away the
    * recognition the handle already has.
    *
-   * `legalName` is the human. It exists because search engines resolve a site
-   * to a *person*, and a Person entity with only a handle has no one to bind
-   * to: Google filled that gap by attributing this site to an unrelated founder
-   * of a similarly named company. It backs the schema.org `name`, the whoami
-   * id card and the copyright line, so the claim is corroborated in structured
-   * data and in visible text rather than asserted in one place.
+   * The handle is also the author and copyright credit everywhere — the
+   * schema.org Person `name`, the footer and the whoami page. No legal name is
+   * published on purpose; `aliases` and the `sameAs` social links carry the
+   * identity instead.
    */
   name: 'Zephryx',
-  legalName: 'Mihir Sarwan',
   aliases: ['Zephryx', 'Zeph'],
   handle: 'zephryx',
   /**
