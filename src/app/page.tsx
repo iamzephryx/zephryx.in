@@ -185,6 +185,7 @@ export default function HomePage() {
                     alt={`Portrait of ${SITE.name}`}
                     width={1000}
                     height={1000}
+                    fetchPriority="high"
                     className="block h-auto w-full"
                   />
                   <div
