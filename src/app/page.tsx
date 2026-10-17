@@ -147,21 +147,61 @@ export default function HomePage() {
             </dl>
           </div>
 
-          {/* right: portrait, same card as /whoami/ */}
-          <div className="anim-rise flex justify-center lg:justify-end lg:pr-8" style={{ animationDelay: '0.15s' }}>
-            <div className="panel clip-corner scanlines relative w-64 overflow-hidden sm:w-80 lg:w-96">
-              <img
-                src="/whoami/operator.webp"
-                alt={`Portrait of ${SITE.name}`}
-                width={1000}
-                height={1000}
-                className="block h-auto w-full"
+          {/* right: portrait, framed like a terminal card */}
+          <div className="anim-rise flex justify-center lg:justify-end lg:pr-6" style={{ animationDelay: '0.15s' }}>
+            <figure className="relative m-0 w-64 p-3 sm:w-80 lg:w-[26rem]">
+              {/* red bloom behind the card */}
+              <div
+                className="pointer-events-none absolute -inset-8 -z-10 opacity-60"
+                style={{ background: 'radial-gradient(closest-side, rgba(255,45,75,0.22), transparent 75%)' }}
+                aria-hidden
               />
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between border-t border-line bg-void/80 px-3 py-2 font-mono text-[10px] tracking-wider text-ink-faint backdrop-blur">
-                <span>operator.webp</span>
-                <span className="text-signal">verified</span>
+              {/* HUD corner brackets */}
+              {[
+                'left-0 top-0 border-l-2 border-t-2',
+                'right-0 top-0 border-r-2 border-t-2',
+                'bottom-0 left-0 border-b-2 border-l-2',
+                'bottom-0 right-0 border-b-2 border-r-2',
+              ].map((pos) => (
+                <span
+                  key={pos}
+                  className={`pointer-events-none absolute h-5 w-5 border-red-blood/80 ${pos}`}
+                  aria-hidden
+                />
+              ))}
+
+              <div className="panel clip-corner scanlines relative overflow-hidden">
+                <div className="flex items-center justify-between border-b border-line bg-void/60 px-3 py-2 font-mono text-[10px] tracking-wider text-ink-faint">
+                  <span>// OPERATOR</span>
+                  <span className="flex items-center gap-1.5 text-signal">
+                    <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden />
+                    ONLINE
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <img
+                    src="/whoami/operator.webp"
+                    alt={`Portrait of ${SITE.name}`}
+                    width={1000}
+                    height={1000}
+                    className="block h-auto w-full"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-void/90 to-transparent"
+                    aria-hidden
+                  />
+                </div>
+
+                <figcaption className="flex items-center justify-between border-t border-line-hot bg-void/80 px-3 py-2.5 font-mono text-[11px]">
+                  <span className="text-ink">
+                    <span className="text-red-blood">$</span> whoami <span className="text-ink-faint">→</span>{' '}
+                    {SITE.name.toLowerCase()}
+                  </span>
+                  <span className="text-[10px] tracking-wider text-signal">verified</span>
+                </figcaption>
               </div>
-            </div>
+            </figure>
           </div>
         </div>
 
