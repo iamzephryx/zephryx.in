@@ -31,12 +31,13 @@ const STATS: ReadonlyArray<{ value: string; label: string; href?: string }> = [
 ];
 
 /**
- * Offensive work leads, because that is what the site is about and what a reader
- * came for. The detection card closes the set rather than opening it — it is the
- * last move in the loop, not a second discipline competing for the front page.
+ * The three sibling sites, linked straight under the hero now that the hero's
+ * right column carries the portrait. Services is listed unconditionally, unlike
+ * the nav and footer: this strip is a map of the network, not a sales prompt.
  */
-const ALL_QUICK_ACCESS = [
+const NETWORK_STRIP = [
   {
+    tag: '01',
     label: 'Research',
     title: 'Writeups',
     body: 'Boxes and engagements written up, dead ends included — plus the Sigma rules and ATT&CK coverage board.',
@@ -44,26 +45,22 @@ const ALL_QUICK_ACCESS = [
     host: 'writeups.zephryx.in',
   },
   {
+    tag: '02',
+    label: 'Education',
+    title: 'Academy',
+    body: 'Hands-on offensive security tracks and free cheatsheets for the tools that show up in almost every engagement.',
+    href: 'https://academy.zephryx.in/',
+    host: 'academy.zephryx.in',
+  },
+  {
+    tag: '03',
     label: 'Commercial',
     title: 'Services',
     body: 'Penetration testing for startups and growing businesses — web, network, cloud, Active Directory.',
     href: 'https://security.zephryx.in/services/',
     host: 'security.zephryx.in',
   },
-  {
-    label: 'Education',
-    title: 'Free Cheatsheets',
-    body: 'Quick-reference PDFs for the tools and techniques that show up in almost every engagement.',
-    href: 'https://academy.zephryx.in/cheatsheets/',
-    host: 'academy.zephryx.in',
-  },
 ] as const;
-
-// The Services card only shows while SERVICES_OPEN. Tags are numbered by
-// position afterwards so hiding a card never leaves a 01 / 03 gap.
-const QUICK_ACCESS = ALL_QUICK_ACCESS.filter(
-  (item) => SERVICES_OPEN || item.title !== 'Services',
-).map((item, i) => ({ ...item, tag: String(i + 1).padStart(2, '0') }));
 
 const CAPABILITIES = [
   {
@@ -182,42 +179,62 @@ export default function HomePage() {
             </dl>
           </div>
 
-          {/* right: quick access */}
-          <div className="anim-rise lg:pl-4" style={{ animationDelay: '0.15s' }}>
-            <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-ink-faint">
-              <span className="tracking-wider">// QUICK ACCESS</span>
-            </div>
-            <div className="space-y-3">
-              {QUICK_ACCESS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer external"
-                  className="panel clip-corner group flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
-                    {item.tag}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="font-mono text-sm font-semibold text-ink">{item.title}</span>
-                      <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/70">
-                        {item.label.toUpperCase()}
-                      </span>
-                    </span>
-                    <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{item.body}</span>
-                  </span>
-                  <span
-                    className="shrink-0 text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-red-blood"
-                    aria-hidden
-                  >
-                    ↗
-                  </span>
-                  <span className="sr-only">— opens {item.host} in a new tab</span>
-                </a>
+          {/* right: portrait, framed like a terminal card */}
+          <div className="anim-rise flex justify-center lg:justify-end lg:pr-6" style={{ animationDelay: '0.15s' }}>
+            <figure className="relative m-0 w-64 p-3 sm:w-80 lg:w-[26rem]">
+              {/* red bloom behind the card */}
+              <div
+                className="pointer-events-none absolute -inset-8 -z-10 opacity-60"
+                style={{ background: 'radial-gradient(closest-side, rgba(255,45,75,0.22), transparent 75%)' }}
+                aria-hidden
+              />
+              {/* HUD corner brackets */}
+              {[
+                'left-0 top-0 border-l-2 border-t-2',
+                'right-0 top-0 border-r-2 border-t-2',
+                'bottom-0 left-0 border-b-2 border-l-2',
+                'bottom-0 right-0 border-b-2 border-r-2',
+              ].map((pos) => (
+                <span
+                  key={pos}
+                  className={`pointer-events-none absolute h-5 w-5 border-red-blood/80 ${pos}`}
+                  aria-hidden
+                />
               ))}
-            </div>
+
+              <div className="panel clip-corner scanlines relative overflow-hidden">
+                <div className="flex items-center justify-between border-b border-line bg-void/60 px-3 py-2 font-mono text-[10px] tracking-wider text-ink-faint">
+                  <span>// OPERATOR</span>
+                  <span className="flex items-center gap-1.5 text-signal">
+                    <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden />
+                    ONLINE
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <img
+                    src="/whoami/operator.webp"
+                    alt={`Portrait of ${SITE.name}`}
+                    width={1000}
+                    height={1000}
+                    fetchPriority="high"
+                    className="block h-auto w-full"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-void/90 to-transparent"
+                    aria-hidden
+                  />
+                </div>
+
+                <figcaption className="flex items-center justify-between border-t border-line-hot bg-void/80 px-3 py-2.5 font-mono text-[11px]">
+                  <span className="text-ink">
+                    <span className="text-red-blood">$</span> whoami <span className="text-ink-faint">→</span>{' '}
+                    {SITE.name.toLowerCase()}
+                  </span>
+                  <span className="text-[10px] tracking-wider text-signal">verified</span>
+                </figcaption>
+              </div>
+            </figure>
           </div>
         </div>
 
@@ -226,6 +243,41 @@ export default function HomePage() {
           <span className="font-mono text-[10px] tracking-[0.3em] text-ink-faint">SCROLL</span>
           <span className="h-8 w-px bg-gradient-to-b from-red-blood/60 to-transparent" />
         </div>
+      </section>
+
+      {/* ========================= NETWORK STRIP ========================= */}
+      <section className="relative mx-auto max-w-7xl px-5 pb-8 sm:px-8" aria-label="The zephryx network">
+        <Reveal>
+          <p className="mb-3 font-mono text-[11px] tracking-wider text-ink-faint">// THE ZEPHRYX NETWORK</p>
+          <div className="grid gap-3 md:grid-cols-3">
+            {NETWORK_STRIP.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer external"
+                className="panel clip-corner group flex items-start gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-deep/70 hover:box-glow"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-deep/50 bg-red-ash/20 font-mono text-xs font-bold tracking-wider text-red-blood">
+                  {item.tag}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span className="font-mono text-sm font-semibold text-ink">{item.title}</span>
+                    <span className="font-mono text-[10px] tracking-[0.2em] text-red-blood/70">
+                      {item.label.toUpperCase()}
+                    </span>
+                  </span>
+                  <span className="mt-1 block text-[12.5px] leading-snug text-ink-dim">{item.body}</span>
+                  <span className="mt-2 block font-mono text-[11px] text-ink-faint transition-colors group-hover:text-red-blood">
+                    ↗ {item.host}
+                  </span>
+                </span>
+                <span className="sr-only">— opens {item.host} in a new tab</span>
+              </a>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/* ========================= CAPABILITIES ========================= */}

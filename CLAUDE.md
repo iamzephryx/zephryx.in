@@ -76,9 +76,10 @@ Rules the implementation follows, worth keeping if you extend it:
 ## Other things worth knowing
 
 - The interactive terminal that used to sit in the homepage hero is gone —
-  replaced by the "Quick Access" cards to the three sibling sites. Don't
-  resurrect it; if a homepage needs something interactive again, that's a new
-  decision, not a revert.
+  replaced by the "Quick Access" cards to the three sibling sites, which in
+  turn gave way to the operator portrait card. Don't resurrect the terminal;
+  if a homepage needs something interactive again, that's a new decision, not
+  a revert.
 - The build is the validator: a malformed ATT&CK id or an unknown technique
   fails `npm run build` rather than shipping a quiet gap.
 - `npm run lint` is not usable — there's no ESLint config, so `next lint` drops
